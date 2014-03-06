@@ -1,0 +1,74 @@
+<!--
+  This file is a part of Staple
+  (c) 2014 TymoonNET/NexT http://tymoon.eu (shinmera@tymoon.eu)
+  Author: Nicolas Hafner <shinmera@tymoon.eu>
+  !-->
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" data-output="sample-out.html">
+  <head>
+    <meta charset="utf-8" />
+    <title>Staple - Sample</title>
+    <style type="text/css">
+      h1{display:inline-block;}
+      code{font-family: Consolas, Inconsolata, monospace;}
+      h4{display: inline-block;margin:0;padding:0;}
+      ul{list-style: none;}
+      .package li{margin-bottom: 20px;}
+      .package pre{margin: 0 0 0 10px; white-space: pre-wrap;}
+    </style>
+  </head>
+  <body>
+    <header data-block="asdf" data-name="staple">
+      <h1 class="name">NAME</h1>
+      <span class="version">VERSION</span>
+      <p class="description">
+        DESCRIPTION
+      </p>
+    </header>
+    <div id="content">
+      <article data-block="documentation">
+        <h2>Documentation</h2>
+      </article>
+      <article>
+        <h2>ASDF Systems</h2>
+        <ul data-block="enumerate" data-enumerate-set="staple staple-test staple-doc" data-enumerate-attribute="data-name">
+          <li data-block="asdf">
+            <h3 class="name">NAME</h3>
+            <span class="version">VERSION</span>
+            <span class="license">LICENSE</span>
+            <span class="author">AUTHOR</span>
+            <span class="dependencies">DEPENDENCIES</span>
+          </li>
+        </ul>
+      </article>
+      <article data-block="attribution" data-attribution-system="staple">
+        <h2>Attribution</h2>
+      </article>
+      <article>
+        <h2>Package Index</h2>
+        <ul data-block="enumerate" data-enumerate-set="staple" data-enumerate-attribute="data-name">
+          <li>
+            <h3 class="name">PACKAGE</h3>
+            <ul data-block="package" data-exclude="method internal" class="package">
+              <li class="symbol">
+                <a class="anchor"></a>
+                <article>
+                  <header>
+                    <span class="scope">SCOPE</span>
+                    <span class="type">TYPE</span>
+                    <code>
+                      <h4><a class="anchor-link name">NAME</a></h4>
+                      <span class="qualifiers">QUALIFIERS</span>
+                      <span class="arguments">ARGUMENTS</span>
+                    </code>
+                  </header>
+                  <pre class="documentation">DOCUMENTATION</pre>
+                </article>
+              </li>
+            </ul>
+          </li>
+        </ul>
+      </article>
+    </div>
+  </body>
+</html>
