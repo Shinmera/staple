@@ -9,6 +9,7 @@
     <meta charset="utf-8" />
     <title>Staple - Sample</title>
     <style type="text/css">
+      code a{text-decoration:none;}
       h1{display:inline-block;}
       code{font-family: Consolas, Inconsolata, monospace;}
       h4{display: inline-block;margin:0;padding:0;}
@@ -26,8 +27,12 @@
       </p>
     </header>
     <div id="content">
-      <article data-block="documentation">
+      <article data-block="documentation" data-name="staple">
         <h2>Documentation</h2>
+        <p>
+          Stuff
+        </p>
+        <code>(staple:generate #p"")</code>
       </article>
       <article>
         <h2>ASDF Systems</h2>
@@ -46,10 +51,10 @@
       </article>
       <article>
         <h2>Package Index</h2>
-        <ul data-block="enumerate" data-enumerate-set="staple" data-enumerate-attribute="data-name">
-          <li>
-            <h3 class="name">PACKAGE</h3>
-            <ul data-block="package" data-exclude="method internal" class="package">
+        <ul>
+          <li data-block="package" data-name="staple" data-exclude="method" class="package">
+            <h3>Staple</h3>
+            <ul>
               <li class="symbol">
                 <a class="anchor"></a>
                 <article>
