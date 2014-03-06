@@ -43,11 +43,6 @@
             (symb-argslist symb)))
   symb)
 
-(defun symbol-objects (symbol)
-  (flatten
-   (loop for transformer being the hash-values of *symbol-object-transformers*
-         collect (funcall transformer symbol))))
-
 (defgeneric symb-type (symb-object)
   (:documentation "")
   (:method ((symb symb-object))
@@ -121,17 +116,6 @@
 (defun symbol-class-p (symbol)
   (if (find-class symbol nil) T NIL))
 
-(defun package-symbols (&optional package)
-  "Gets all symbols within a package."
-  (let ((lst ())
-        (package (find-package package)))
-    (do-all-symbols (s lst)
-      (if package
-          (when (eql (symbol-package s) package)
-            (push s lst))
-          (push s lst)))
-    lst))
-
 (define-easy-symbol-transformer 'symb-function #'symbol-function-p)
 (define-easy-symbol-transformer 'symb-macro #'symbol-macro-p)
 (define-easy-symbol-transformer 'symb-generic #'symbol-generic-p)
@@ -144,3 +128,18 @@
     (loop for method in (generic-function-methods (fdefinition symbol))
           collect (make-instance 'symb-method :symbol symbol :method method))))
 
+(defun symbol-objects (symbol)
+  (flatten
+   (loop for transformer being the hash-values of *symbol-object-transformers*
+         collect (funcall transformer symbol))))
+
+(defun package-symbols (&optional package)
+  "Gets all symbols within a package."
+  (let ((lst ())
+        (package (find-package package)))
+    (do-all-symbols (s lst)
+      (if package
+          (when (eql (symbol-package s) package)
+            (push s lst))
+          (push s lst)))
+    lst))
