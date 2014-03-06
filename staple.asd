@@ -21,4 +21,6 @@
                (:file "templating"))
   :depends-on (:lquery
                :closer-mop
-               :alexandria))
+               :alexandria
+               :split-sequence
+               :cl-ppcre))
