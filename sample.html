@@ -16,6 +16,8 @@
       ul{list-style: none;}
       .package li{margin-bottom: 20px;}
       .package pre{margin: 0 0 0 10px; white-space: pre-wrap;}
+      table{margin: 20px;}
+      td{padding-bottom: 10px;}
     </style>
   </head>
   <body>
@@ -27,12 +29,36 @@
       </p>
     </header>
     <div id="content">
-      <article data-block="documentation" data-name="staple">
+      <article data-block="documentation" data-package="staple">
         <h2>Documentation</h2>
         <p>
-          Stuff
+          Generating documentation with staple is all down to one command:
         </p>
-        <code>(staple:generate #p"")</code>
+        <code>(staple:generate :staple)</code>
+        <p>
+          <code>staple:generate</code> expectes either a keyword, designating an ASDF system with an <code>about.html</code> at its directory root, a simple pathname, or a list designating the asdf system first and the relative path second.
+          Everything else is specified within the template file. On the programming side though, staple does offer a few ways to extend and control its abilities.
+        </p>
+        <p>
+          Staple works by adding a <code>data-block</code> attribute to tags. Depending on what kind of block it is, the content within it is manipulated. By default, staple supplies the following blocks:
+        </p>
+        <table>
+          <thead>
+            <tr>
+              <th style="width:100px;">Block</th>
+              <th style="width:100px;">Data</th>
+              <th>Effects</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>asdf</td><td>name</td><td>By default sets the text of elements with the following classes to their respective ASDF system slots: <code>name, version, license, author, homepage, description</code></td></tr>
+            <tr><td>package</td><td>name exclude</td><td>Generates a package symbol index. Exclude allows you to specify either symbol types to exclude (<code>function, macro, generic, method, class, special, constant</code>) or scopes (<code>internal, external</code>). Within the package block, there needs to be a tag with the <code>symbol</code> class. This tag will be used as a template for each symbol. Within the symbol block, tags with the following classes are manipulated by default: <code>anchor, anchor-link, name, scope, type, qualifiers, arguments, documentation</code></td></tr>
+            <tr><td>attribution</td><td>system</td><td>This block, unlike the others, appends new elements and generates a standard attribution text including license, homepage and author.</td></tr>
+            <tr><td>documentation</td><td>package</td><td>Within this block, any susbtring starting with the supplied package name and a colon <code>package:</code> within a code element will be replaced with a link that anchors to the relevant symbol definition.</td></tr>
+          </tbody>
+        </table>
+        <p>
+          New block types can be defined through <code>staple:define-block-processor</code>. Symbol processing can be extended by adding <code>:after</code> methods to <code>staple:process-symbol-object</code>. The passed symbol-object has several methods to retrieve information about itself (each beginning with <code>symb-</code>). You can also define new symbol-object types with <code>staple:define-symbol-transformer</code>. This can be useful if you use a special naming scheme, or an additional symbol type that you want to handle specially. Do note that if you don't want to break existing symbol handling functions, it is well advised to subclass at least <code>staple:symb-object</code>.
+        </p>
       </article>
       <article>
         <h2>ASDF Systems</h2>
@@ -46,7 +72,7 @@
           </li>
         </ul>
       </article>
-      <article data-block="attribution" data-attribution-system="staple">
+      <article data-block="attribution" data-system="staple">
         <h2>Attribution</h2>
       </article>
       <article>
