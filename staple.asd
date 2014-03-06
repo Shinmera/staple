@@ -18,7 +18,7 @@
   :serial T
   :components ((:file "package")
                (:file "symbols")
-               )
+               (:file "templating"))
   :depends-on (:lquery
                :closer-mop
                :alexandria))
