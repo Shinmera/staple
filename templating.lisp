@@ -23,6 +23,11 @@
 
 (defun generate (in &optional out)
   (let ((*lquery-master-document*))
+    (setf in
+          (etypecase in
+            (keyword (merge-pathnames "about.html" (asdf:system-source-directory in)))
+            (list (merge-pathnames (second in) (asdf:system-source-directory (first in))))
+            (pathname in)))
     ($ (initialize in))
     (process)
     (let ((out (or out
@@ -60,13 +65,13 @@
 (define-block-processor attribution (element attribution-system)
   )
 
-(define-block-processor documentation (element name)
+(define-block-processor documentation (element package)
   ($ element "code"
     (each #'(lambda (element)
               ($ element (html (cl-ppcre:regex-replace-all
-                                (format NIL "~a:([^\\s]+)" name)
+                                (format NIL "~a:([^\\s]+)" package)
                                 ($ element (text) (node))
-                                (format NIL "<a href=\"#\\1\">~a:\\1</a>" name)))))))
+                                (format NIL "<a href=\"#\\1\">~a:\\1</a>" package)))))))
   )
 
 (defun generate-symbol-entries (template package exclude)
