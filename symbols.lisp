@@ -38,9 +38,9 @@
 
 (defmethod print-object ((symb symb-method) stream)
   (print-unreadable-object (symb stream :type T)
-    (format stream "~{~a ~}~a ~a"
-            (method-qualifiers (symb-method symb))
+    (format stream "~a ~{~a ~}~a"
             (symb-symbol symb)
+            (method-qualifiers (symb-method symb))
             (symb-argslist symb)))
   symb)
 
