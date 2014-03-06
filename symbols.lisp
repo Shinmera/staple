@@ -9,14 +9,13 @@
 (defvar *symbol-object-transformers* (make-hash-table))
 
 (defmacro define-symbol-transformer (identifier (symbolvar) &body body)
-  `(setf (gethash ',identifier *symbol-object-transformers*)
+  `(setf (gethash ,identifier *symbol-object-transformers*)
          #'(lambda (,symbolvar) ,@body)))
 
 (defun define-easy-symbol-transformer (symb-object-type test-function)
   (define-symbol-transformer symb-object-type (symbolvar)
     (when (funcall test-function symbolvar)
       (make-instance symb-object-type :symbol symbolvar))))
-
 
 (defclass symb-object ()
   ((symbol :initarg :symbol :initform (error "SYMBOL required") :accessor symb-symbol)))
@@ -38,34 +37,34 @@
 
 (defmethod print-object ((symb symb-method) stream)
   (print-unreadable-object (symb stream :type T)
-    (format stream "~a ~{~a ~}~a"
+    (format stream "~a ~{~s ~}~s"
             (symb-symbol symb)
             (method-qualifiers (symb-method symb))
             (symb-argslist symb)))
   symb)
-
-(define-easy-symbol-transformer 'symb-function #'symbol-function-p)
-(define-easy-symbol-transformer 'symb-macro #'symbol-macro-p)
-(define-easy-symbol-transformer 'symb-generic #'symbol-generic-p)
-(define-easy-symbol-transformer 'symb-class #'symbol-class-p)
-(define-easy-symbol-transformer 'symb-special #'symbol-special-p)
-(define-easy-symbol-transformer 'symb-constant #'symbol-constant-p)
-
-(define-symbol-transformer symb-method (symbol)
-  (when (symbol-generic-p symbol)
-    (loop for method in (generic-function-methods (fdefinition symbol))
-          collect (make-instance 'symb-method :symbol symbol :method method))))
 
 (defun symbol-objects (symbol)
   (flatten
    (loop for transformer being the hash-values of *symbol-object-transformers*
          collect (funcall transformer symbol))))
 
+(defgeneric symb-type (symb-object)
+  (:documentation "")
+  (:method ((symb symb-object))
+    (subseq (string-upcase (class-name (class-of symb))) 5)))
+
 (defgeneric symb-scope (symb-object)
   (:documentation "")
   (:method ((symb symb-object))
     (let ((symbol (symb-symbol symb)))
       (nth-value 1 (find-symbol (symbol-name symbol) (symbol-package symbol))))))
+
+(defgeneric symb-qualifiers (symb-object)
+  (:documentation "")
+  (:method ((symb symb-method))
+    (method-qualifiers (symb-method symb)))
+  (:method ((symb symb-object))
+    NIL))
 
 (defgeneric symb-argslist (symb-object)
   (:documentation "")
@@ -80,7 +79,7 @@
           for i from 0
           do (setf (nth i args)
                    (list (nth i args) (etypecase specializer
-                                        (eql-specializer (eql-specializer-object specializer))
+                                        (eql-specializer `(eql ,(eql-specializer-object specializer)))
                                         (class (class-name specializer)))))
           finally (return args))))
 
@@ -132,3 +131,16 @@
             (push s lst))
           (push s lst)))
     lst))
+
+(define-easy-symbol-transformer 'symb-function #'symbol-function-p)
+(define-easy-symbol-transformer 'symb-macro #'symbol-macro-p)
+(define-easy-symbol-transformer 'symb-generic #'symbol-generic-p)
+(define-easy-symbol-transformer 'symb-class #'symbol-class-p)
+(define-easy-symbol-transformer 'symb-special #'symbol-special-p)
+(define-easy-symbol-transformer 'symb-constant #'symbol-constant-p)
+
+(define-symbol-transformer 'symb-method (symbol)
+  (when (symbol-generic-p symbol)
+    (loop for method in (generic-function-methods (fdefinition symbol))
+          collect (make-instance 'symb-method :symbol symbol :method method))))
+
