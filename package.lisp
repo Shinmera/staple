@@ -7,7 +7,7 @@
 (in-package #:cl-user)
 (defpackage #:staple
   (:nicknames #:org.tymoonnext.staple)
-  (:use #:cl #:lquery #:alexandria #:closer-mop)
+  (:use #:cl #:lquery #:alexandria #:closer-mop #:split-sequence)
   (:shadowing-import-from
    #:cl #:defmethod #:defgeneric #:standard-generic-function)
   (:export
