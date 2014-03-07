@@ -31,7 +31,7 @@
    #:symb-type
    #:symb-scope
    #:symb-qualifiers
-   #:symb-argslist
+   #:symb-arguments
    #:symb-docstring
    
    #:symbol-function-p

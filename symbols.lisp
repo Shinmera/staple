@@ -61,7 +61,7 @@
   (:method ((symb symb-object))
     NIL))
 
-(defgeneric symb-argslist (symb-object)
+(defgeneric symb-arguments (symb-object)
   (:documentation "")
   (:method ((symb symb-object))
     NIL)
