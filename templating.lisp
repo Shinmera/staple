@@ -55,8 +55,12 @@
 (define-block-processor documentation (element package)
   ($ element "code"
     (each #'(lambda (element)
-              ($ element (html (cl-ppcre:regex-replace-all
-                                (format NIL "~a:([^\\s]+)" package)
-                                ($ element (text) (node))
-                                (format NIL "<a href=\"#\\1\">~a:\\1</a>" package)))))))
+              ($ element (html (let ((html ($ element (html) (node))))
+                                 (cl-ppcre:do-matches (start end (format NIL "~a:([^\\s]+)" package) html)
+                                   (let ((name (subseq html (+ (length package) 1 start) end)))
+                                     (setf html (concatenate
+                                                 'string (subseq html 0 start)
+                                                 (format NIL "<a href=\"#~a\">~a:~a</a>" (string-upcase name) package name)
+                                                 (subseq html end)))))
+                                 html))))))
   )
