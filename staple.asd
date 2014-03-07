@@ -20,6 +20,7 @@
                (:file "symbols")
                (:file "templating"))
   :depends-on (:lquery
+               :clip
                :closer-mop
                :alexandria
                :split-sequence

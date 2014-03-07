@@ -7,7 +7,7 @@
 (in-package #:cl-user)
 (defpackage #:staple
   (:nicknames #:org.tymoonnext.staple)
-  (:use #:cl #:lquery #:alexandria #:closer-mop #:split-sequence)
+  (:use #:cl #:lquery #:alexandria #:closer-mop #:split-sequence #:clip)
   (:shadowing-import-from
    #:cl #:defmethod #:defgeneric #:standard-generic-function)
   ;; symbols.lisp
@@ -46,8 +46,4 @@
 
   ;; templating.lisp
   (:export
-   #:*recognized-blocks*
-   #:process-block
-   #:define-block-processor
-   #:generate
-   #:process-symbol-object))
+   ))

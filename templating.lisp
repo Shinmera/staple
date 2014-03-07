@@ -8,18 +8,8 @@
 
 (defvar *recognized-blocks* '())
 
-(defgeneric process-block (name element)
+(defgeneric process-block (name)
   (:documentation "Process a documentation block."))
-
-(defmacro define-block-processor (name (elementvar &rest data-attributes) &body body)
-  (let ((namekey (intern (string-upcase name) "KEYWORD"))
-        (namegens (gensym)))
-    `(progn
-       (pushnew ,namekey *recognized-blocks*)
-       (defmethod process-block ((,namegens (eql ,namekey)) ,elementvar)
-         (let ,(loop for attr in data-attributes
-                     collect `(,attr ($ ,elementvar (attr ,(intern (format NIL "DATA-~a" attr) "KEYWORD")) (node))))
-           ,@body)))))
 
 (defun generate (in &optional out)
   (let ((*lquery-master-document*))
@@ -29,7 +19,7 @@
             (list (merge-pathnames (second in) (asdf:system-source-directory (first in))))
             (pathname in)))
     ($ (initialize in))
-    (process)
+    (clip:scan-element *lquery-master-document*)
     (let ((out (or out
                    (when ($ "html" (attr :data-output))
                      (merge-pathnames ($ "html" (attr :data-output) (node)) in))
@@ -37,33 +27,30 @@
       ($ (write-to-file out))
       out)))
 
-(defun process (&optional (document *lquery-master-document*))
-  (let ((*lquery-master-document* document))
-    ;; Sorted in order of depth to avoid clashing.
-    (loop for element in (sort ($ "*[data-block]") #'> :key #'(lambda (el) (length (lquery-funcs:nodefun-parents el))))
-          do (when-let ((type ($ element (attr :data-block) (node))))
-               (unless (string= "" type)
-                 (when-let ((type (find-symbol (string-upcase type) "KEYWORD")))
-                   (process-block type element)))))))
+(define-fill-processor asdf (element system) (asdf:find-system system)
+  (name (element system) (asdf:component-name system))
+  (version (element system) (asdf:component-version system))
+  (license (element system) (asdf:system-license system))
+  (author (element system) (asdf:system-author system))
+  (homepage (element system) (asdf:system-homepage system))
+  (description (element system) (asdf:system-description system)))
 
-(define-block-processor asdf (element name)
-  (when (and name (not (string= "" name)))
-    (when-let ((system (asdf:find-system name)))
-      ($ element ".name" (text (asdf:component-name system)))
-      ($ element ".version" (text (asdf:component-version system)))
-      ($ element ".license" (text (asdf:system-licence system)))
-      ($ element ".author" (text (asdf:system-author system)))
-      ($ element ".homepage" (text (asdf:system-homepage system)))
-      ($ element ".description" (text (asdf:system-description system))))))
-
-(define-block-processor package (element name exclude)
-  (let* ((template ($ element ".symbol" (node)))
-         (container ($ template (parent))))
-    ($ template (remove))
-    ($ container (append (generate-symbol-entries template name exclude)))))
-
-(define-block-processor attribution (element attribution-system)
-  )
+(define-iterating-fill-processor package (element package exclude)
+    (let ((symbols (sort (package-symbols (string-upcase package)) #'string> :key #'string))
+          (exclude (split-sequence #\Space exclude)))
+      (loop with objects = ()
+            for symbol in symbols
+            do (loop for object in (symbol-objects symbol)
+                     do (unless (or (member (string (symb-scope object)) exclude :test #'string-equal)
+                                    (member (string (symb-type object)) exclude :test #'string-equal))
+                          (push object objects)))
+            finally (return objects)))
+  (name (element symbol) (symb-symbol symbol))
+  (scope (element symbol) (symb-scope symbol))
+  (type (element symbol) (symb-type symbol))
+  (qualifiers (element symbol) (format NIL "~@[~{~a~^ ~}~]" (symb-qualifiers symbol)))
+  (arguments (element symbol) (or (symb-arguments symbol) ""))
+  (documentation (element symbol) (or (symb-docstring symbol) "")))
 
 (define-block-processor documentation (element package)
   ($ element "code"
@@ -73,36 +60,3 @@
                                 ($ element (text) (node))
                                 (format NIL "<a href=\"#\\1\">~a:\\1</a>" package)))))))
   )
-
-(defun generate-symbol-entries (template package exclude)
-  (let ((data ())
-        (exclude (split-sequence #\Space exclude)))
-    (loop for symbol in (sort (package-symbols (string-upcase package)) #'string> :key #'string)
-          do (loop for symb-object in (symbol-objects symbol)
-                   do (unless (or (member (string (symb-scope symb-object)) exclude :test #'string-equal)
-                                  (member (string (symb-type symb-object)) exclude :test #'string-equal))
-                        (let ((template ($ template (clone) (node))))
-                          (process-symbol-object template symb-object)
-                          (push template data)))))
-    data))
-
-(defgeneric process-symbol-object (template symbol-object)
-  (:documentation ""))
-
-(defun html-escape (text)
-  (flet ((sr (search replace target)
-           (cl-ppcre:regex-replace-all search target replace)))
-    (sr "&" "&amp;"
-        (sr "<" "&lt;"
-            (sr ">" "&gt;"
-                (princ-to-string text))))))
-
-(defmethod process-symbol-object (template symb)
-  ($ template ".anchor" (attr :name (string-downcase (symb-symbol symb))))
-  ($ template ".anchor-link" (attr :href (format NIL "#~a" (string-downcase (symb-symbol symb)))))
-  ($ template ".name" (text (symb-symbol symb)))
-  ($ template ".scope" (text (symb-scope symb)))
-  ($ template ".type" (text (symb-type symb)))
-  ($ template ".qualifiers" (text (format NIL "~@[~{~a~^ ~}~]" (symb-qualifiers symb))))
-  ($ template ".arguments" (text (or (symb-argslist symb) "")))
-  ($ template ".documentation" (text (or (symb-docstring symb) ""))))
