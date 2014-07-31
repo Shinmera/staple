@@ -21,43 +21,47 @@
     </style>
   </head>
   <body>
-    <header block="asdf" system="staple">
-      <h1 form="text (name)">NAME</h1>
-      <span form="text (version)">VERSION</span>
-      <p form="text (description)">
+    <header asdf="staple">
+      <h1 lquery="(text name)">NAME</h1>
+      <span lquery="(text version)">VERSION</span>
+      <p lquery="(text description)">
         DESCRIPTION
       </p>
     </header>
     <div id="content">
-      <article block="documentation" package="staple">
-        <h2>Documentation</h2>
-        <p>
-          Generating documentation with staple is all down to one command:
-        </p>
-        <code>(staple:generate :staple)</code>
-        <p>
-          <code>staple:generate</code> expectes either a keyword, designating an ASDF system with an <code>about.html</code> at its directory root, a simple pathname, or a list designating the asdf system first and the relative path second.
-          Everything else is specified within the template file. On the programming side though, staple does offer a few ways to extend and control its abilities.
-        </p>
+      <article>
+        <documentate>
+          <h2>Documentation</h2>
+          <p>
+            Generating documentation with staple is all down to one command:
+          </p>
+          <code>(staple:generate :staple)</code>
+          <p>
+            <code>staple:generate</code> expectes either a keyword, designating an ASDF system with an <code>about.html</code> at its directory root, a simple pathname, or a list designating the asdf system first and the relative path second.
+            Everything else is specified within the template file. On the programming side though, staple does offer a few ways to extend and control its abilities.
+          </p>
+        </documentate>
       </article>
       <article>
         <h2>Package Index</h2>
-        <ul>
-          <li>
-            <h3>Staple</h3>
-            <ul block="package" package="staple" exclude="method internal" class="package">
+        <ul do="staple">
+          <li package="*" class="package">
+            <h3>
+              <a lquery="(text name) (attr :name name :href (anchor name))">PACKAGE</a>
+            </h3>
+            <do-symbols as="ul" package="package" exclude="method internal">
               <li>
-                <a form=""></a>
+                <a lquery="(attr :name full-name)"></a>
                 <article>
                   <header>
-                    <span form="text (type)">TYPE</span>
+                    <span lquery="(stext type)">TYPE</span>
                     <code>
-                      <h4><a form="progn (attr href (name)) (text (name))">NAME</a></h4>
-                      <span form="text (qualifiers)">QUALIFIERS</span>
-                      <span form="text (arguments)">ARGUMENTS</span>
+                      <h4><a lquery="(stext name) (attr :href (anchor full-name))">NAME</a></h4>
+                      <span lquery="(stext qualifiers)">QUALIFIERS</span>
+                      <span lquery="(stext arguments)">ARGUMENTS</span>
                     </code>
                   </header>
-                  <pre form="text (documentation)">DOCUMENTATION</pre>
+                  <pre lquery="(stext documentation)">DOCUMENTATION</pre>
                 </article>
               </li>
             </ul>
