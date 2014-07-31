@@ -6,13 +6,33 @@
 
 (in-package #:org.tymoonnext.staple)
 
+(defvar *default-template* (merge-pathnames "default.html" (asdf:system-source-directory :staple)))
+
 (defun to-out (pathname)
   (merge-pathnames (format NIL "~a.out.~a" (pathname-name pathname) (pathname-type pathname)) pathname))
 
-(defun staple (in &key (out (to-out in)) (if-exists :supersede))
+(defun system-out (system)
+  (merge-pathnames "about.html" (asdf:system-source-directory (asdf:find-system system))))
+
+(defun staple (in &key (out (to-out in)) (if-exists :supersede) clip-args)
   (let ((*package* (find-package "STAPLE"))
         (document (plump:parse in)))
-    (let ((document (clip:process document)))
+    (let ((document (apply #'clip:process document clip-args)))
       (with-open-file (stream out :direction :output :if-exists if-exists)
         (plump:serialize document stream)))
     out))
+
+(defun generate (asdf-system &key
+                               (packages (list asdf-system))
+                               (name asdf-system)
+                               documentation
+                               (out (system-out asdf-system))
+                               (template *default-template*)
+                               (if-exists :supersede))
+  (let ((name (string name))
+        (packages (mapcar #'string packages))
+        (documentation (or documentation "")))
+    (staple
+     template
+     :out out :if-exists if-exists
+     :clip-args (list 'asdf asdf-system 'name name 'packages packages 'documentation documentation))))
