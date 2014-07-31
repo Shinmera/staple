@@ -70,15 +70,17 @@
     (definition-pathname (asdf:system-definition-pathname system))
     (T (call-next-method))))
 
-(define-attribute-processor asdf (node value)
-  (setf *clipboard* (asdf:find-system value))
-  (plump:remove-attribute node "asdf"))
+(define-tag-processor asdf (node)
+  (let ((*clipboard* (asdf:find-system (resolve-attribute node "system"))))
+    (plump:remove-attribute node "system")
+    (process-attributes node)
+    (process-children node)))
 
-(define-attribute-processor package (node value)
-  (let ((package (find-package (resolve-value (read-from-string value)))))
-    (when package
-      (setf *clipboard* (make-clipboard `(name ,(package-name package) package ,package)))))
-  (plump:remove-attribute node "package"))
+(define-tag-processor package (node)
+  (let ((*clipboard* (find-package (resolve-attribute node "name"))))
+    (plump:remove-attribute node "name")
+    (process-attributes node)
+    (process-children node)))
 
 (defmethod clip ((symb symb-object) field)
   (case field
@@ -103,9 +105,9 @@
     (plump:remove-attribute node "package")
     (plump:remove-attribute node "exclude")
     (process-attributes node)
-    (let ((package (resolve-value (read-from-string package))))
-      (setf (clipboard 'symbols)
-            (remove-if #'(lambda (symb)
-                           (loop for ex in exclude thereis (symb-is symb (find-symbol (string-upcase ex) "KEYWORD"))))
-                       (package-symbol-objects package)))
+    (let* ((package (resolve-value (read-from-string package)))
+           (*clipboard* (make-clipboard (list 'symbols (remove-if #'(lambda (symb)
+                                                                      (loop for ex in exclude thereis (symb-is symb (find-symbol (string-upcase ex) "KEYWORD"))))
+                                                                  (package-symbol-objects package))))))
+      
       (process-attribute :iterate "symbols"))))
