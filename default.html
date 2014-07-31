@@ -1,8 +1,3 @@
-<!--
-  This file is a part of Staple
-  (c) 2014 TymoonNET/NexT http://tymoon.eu (shinmera@tymoon.eu)
-  Author: Nicolas Hafner <shinmera@tymoon.eu>
-  !-->
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
@@ -21,7 +16,7 @@
     </style>
   </head>
   <body>
-    <asdf as="header" system="asdf">
+    <asdf system="asdf" as="header">
       <h1 lquery="(text name)">NAME</h1>
       <span lquery="(text version)">VERSION</span>
       <p lquery="(text description)">
@@ -38,7 +33,7 @@
       <article>
         <h2>Package Index</h2>
         <ul iterate="packages">
-          <package as="li" name="*" class="package">
+          <package name="*" as="li" class="package">
             <h3>
               <a lquery="(text (package-name *)) (attr :name (package-name *) :href (anchor (package-name *)))">PACKAGE</a>
             </h3>
