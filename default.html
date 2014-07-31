@@ -4,10 +4,10 @@
   Author: Nicolas Hafner <shinmera@tymoon.eu>
   !-->
 <!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml" data-output="sample-out.html">
+<html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>Staple - Sample</title>
+    <title lquery="(text name)">NAME</title>
     <style type="text/css">
       code a{text-decoration:none;}
       h1{display:inline-block;}
@@ -21,35 +21,28 @@
     </style>
   </head>
   <body>
-    <header asdf="staple">
+    <asdf as="header" system="asdf">
       <h1 lquery="(text name)">NAME</h1>
       <span lquery="(text version)">VERSION</span>
       <p lquery="(text description)">
         DESCRIPTION
       </p>
-    </header>
+    </asdf>
     <div id="content">
       <article>
         <documentate>
           <h2>Documentation</h2>
-          <p>
-            Generating documentation with staple is all down to one command:
-          </p>
-          <code>(staple:generate :staple)</code>
-          <p>
-            <code>staple:generate</code> expectes either a keyword, designating an ASDF system with an <code>about.html</code> at its directory root, a simple pathname, or a list designating the asdf system first and the relative path second.
-            Everything else is specified within the template file. On the programming side though, staple does offer a few ways to extend and control its abilities.
-          </p>
+          <span lquery="(html documentation)"></span>
         </documentate>
       </article>
       <article>
         <h2>Package Index</h2>
-        <ul do="staple">
-          <li package="*" class="package">
+        <ul iterate="packages">
+          <package as="li" name="*" class="package">
             <h3>
-              <a lquery="(text name) (attr :name name :href (anchor name))">PACKAGE</a>
+              <a lquery="(text (package-name *)) (attr :name (package-name *) :href (anchor (package-name *)))">PACKAGE</a>
             </h3>
-            <do-symbols as="ul" package="package" exclude="method internal">
+            <do-symbols as="ul" package="*" exclude="method internal">
               <li>
                 <a lquery="(attr :name full-name)"></a>
                 <article>
