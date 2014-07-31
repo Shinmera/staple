@@ -10,6 +10,13 @@
   (:use #:cl #:lquery #:closer-mop #:clip)
   (:shadowing-import-from
    #:cl #:defmethod #:defgeneric #:standard-generic-function)
+  ;; stapler.lisp
+  (:export
+   #:*default-template*
+   #:to-out
+   #:system-out
+   #:staple
+   #:generate)
   ;; symbols.lisp
   (:export
    #:symb-object
@@ -37,9 +44,6 @@
    #:smybol-special-p
    #:symbol-class-p
 
+   #:package-symbols
    #:symbol-objects
-   #:package-symbols)
-
-  ;; templating.lisp
-  (:export
-   ))
+   #:package-symbol-objects))
