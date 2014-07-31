@@ -18,10 +18,8 @@
   :serial T
   :components ((:file "package")
                (:file "symbols")
-               (:file "templating"))
-  :depends-on (:lquery
-               :clip
+               (:file "clip")
+               (:file "stapler"))
+  :depends-on (:clip
                :closer-mop
-               :alexandria
-               :split-sequence
                :cl-ppcre))

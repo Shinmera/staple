@@ -6,17 +6,6 @@
 
 (in-package #:org.tymoonnext.staple)
 
-(defvar *symbol-object-transformers* (make-hash-table))
-
-(defmacro define-symbol-transformer (identifier (symbolvar) &body body)
-  `(setf (gethash ,identifier *symbol-object-transformers*)
-         #'(lambda (,symbolvar) ,@body)))
-
-(defun define-easy-symbol-transformer (symb-object-type test-function)
-  (define-symbol-transformer symb-object-type (symbolvar)
-    (when (funcall test-function symbolvar)
-      (make-instance symb-object-type :symbol symbolvar))))
-
 (defclass symb-object ()
   ((symbol :initarg :symbol :initform (error "SYMBOL required") :accessor symb-symbol)))
 (defclass symb-type (symb-object) ())
@@ -40,8 +29,18 @@
     (format stream "~a ~{~s ~}~s"
             (symb-symbol symb)
             (method-qualifiers (symb-method symb))
-            (symb-argslist symb)))
+            (symb-arguments symb)))
   symb)
+
+(defgeneric symb-name (symb-object)
+  (:documentation "")
+  (:method ((symb symb-object))
+    (symbol-name (symb-symbol symb))))
+
+(defgeneric symb-package (symb-object)
+  (:documentation "")
+  (:method ((symb symb-object))
+    (symbol-package (symb-symbol symb))))
 
 (defgeneric symb-type (symb-object)
   (:documentation "")
@@ -78,7 +77,7 @@
                                         (class (class-name specializer)))))
           finally (return args))))
 
-(defgeneric symb-docstring (symb-object)
+(defgeneric symb-documentation (symb-object)
   (:documentation "")
   (:method ((symb symb-function))
     (documentation (symb-symbol symb) 'function))
@@ -88,6 +87,25 @@
     (documentation (symb-symbol symb) 'variable))
   (:method ((symb symb-type))
     (documentation (symb-symbol symb) 'type)))
+
+(defgeneric symb-is (symb-object mask)
+  (:documentation "")
+  (:method (symb mask) NIL)
+  (:method ((symb symb-object) (mask (eql :inherited)))
+    (eql (symb-scope symb) :inherited))
+  (:method ((symb symb-object) (mask (eql :internal)))
+    (eql (symb-scope symb) :internal))
+  (:method ((symb symb-object) (mask (eql :external)))
+    (eql (symb-scope symb) :external))
+  (:method ((symb symb-type) (mask (eql :type))) T)
+  (:method ((symb symb-variable) (mask (eql :variable))) T)
+  (:method ((symb symb-function) (mask (eql :function))) T)
+  (:method ((symb symb-macro) (mask (eql :macro))) T)
+  (:method ((symb symb-generic) (mask (eql :generic))) T)
+  (:method ((symb symb-method) (mask (eql :method))) T)
+  (:method ((symb symb-class) (mask (eql :class))) T)
+  (:method ((symb symb-special) (mask (eql :special))) T)
+  (:method ((symb symb-constant) (mask (eql :constant))) T))
 
 (defun symbol-function-p (symbol)
   (and (fboundp symbol)
@@ -116,30 +134,31 @@
 (defun symbol-class-p (symbol)
   (if (find-class symbol nil) T NIL))
 
-(define-easy-symbol-transformer 'symb-function #'symbol-function-p)
-(define-easy-symbol-transformer 'symb-macro #'symbol-macro-p)
-(define-easy-symbol-transformer 'symb-generic #'symbol-generic-p)
-(define-easy-symbol-transformer 'symb-class #'symbol-class-p)
-(define-easy-symbol-transformer 'symb-special #'symbol-special-p)
-(define-easy-symbol-transformer 'symb-constant #'symbol-constant-p)
-
-(define-symbol-transformer 'symb-method (symbol)
-  (when (symbol-generic-p symbol)
-    (loop for method in (generic-function-methods (fdefinition symbol))
-          collect (make-instance 'symb-method :symbol symbol :method method))))
-
-(defun symbol-objects (symbol)
-  (flatten
-   (loop for transformer being the hash-values of *symbol-object-transformers*
-         collect (funcall transformer symbol))))
-
-(defun package-symbols (&optional package)
+(defun package-symbols (package)
   "Gets all symbols within a package."
   (let ((lst ())
         (package (find-package package)))
-    (do-all-symbols (s lst)
-      (if package
-          (when (eql (symbol-package s) package)
-            (push s lst))
-          (push s lst)))
-    lst))
+    (do-symbols (s package lst)
+      (when (eq (symbol-package s) package)
+        (push s lst)))))
+
+(defun symbol-objects (&rest symbols)
+  (let ((objs ()))
+    (dolist (symbol symbols objs)
+      (when (symbol-function-p symbol)
+        (push (make-instance 'symb-function :symbol symbol) objs))
+      (when (symbol-macro-p symbol)
+        (push (make-instance 'symb-macro :symbol symbol) objs))
+      (when (symbol-generic-p symbol)
+        (push (make-instance 'symb-generic :symbol symbol) objs)
+        (dolist (method (generic-function-methods (symbol-function symbol)))
+          (push (make-instance 'symb-method :symbol symbol :method method) objs)))
+      (when (symbol-special-p symbol)
+        (push (make-instance 'symb-special :symbol symbol) objs))
+      (when (symbol-constant-p symbol)
+        (push (make-instance 'symb-constant :symbol symbol) objs))
+      (when (symbol-class-p symbol)
+        (push (make-instance 'symb-class :symbol symbol) objs)))))
+
+(defun package-symbol-objects (package)
+  (apply #'symbol-objects (package-symbols package)))

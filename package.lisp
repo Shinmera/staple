@@ -7,15 +7,11 @@
 (in-package #:cl-user)
 (defpackage #:staple
   (:nicknames #:org.tymoonnext.staple)
-  (:use #:cl #:lquery #:alexandria #:closer-mop #:split-sequence #:clip)
+  (:use #:cl #:lquery #:closer-mop #:clip)
   (:shadowing-import-from
    #:cl #:defmethod #:defgeneric #:standard-generic-function)
   ;; symbols.lisp
   (:export
-   #:*symbol-object-transformers
-   #:define-symbol-transformer
-   #:define-easy-symbol-transformer
-   
    #:symb-object
    #:symb-symbol
    #:symb-type
@@ -32,7 +28,7 @@
    #:symb-scope
    #:symb-qualifiers
    #:symb-arguments
-   #:symb-docstring
+   #:symb-documentation
    
    #:symbol-function-p
    #:smybol-macro-p
