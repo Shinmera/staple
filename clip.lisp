@@ -13,7 +13,21 @@
   (lquery-funcs:text node (princ-to-string (or object ""))))
 
 (define-tag-processor documentate (node)
-  )
+  (process-attributes node)
+  (process-children node)
+  ($ node "code"
+    (combine (node) (html))
+    (map-apply #'(lambda (node html)
+                   ($ node
+                     (html
+                      (cl-ppcre:regex-replace-all
+                       "\\([^\\s)'`]+" html
+                       #'(lambda (target start end match-start match-end reg-starts reg-ends)
+                           (declare (ignore start end reg-starts reg-ends))
+                           (let ((name (subseq target (1+ match-start) match-end)))
+                             (if (find #\: name)
+                                 (format NIL "(<a href=\"#~a\">~a</a>" (string-upcase name) name)
+                                 (format NIL "(<a href=\"http://l1sp.org/cl/~a\">~a</a>" name name)))))))))))
 
 (defmethod clip ((component asdf:component) field)
   (unless (symbolp field)
