@@ -25,7 +25,7 @@
 (defun generate (asdf-system &key
                                (packages (list asdf-system))
                                (name asdf-system)
-                               documentation
+                               documentation logo
                                (out (system-out asdf-system))
                                (template *default-template*)
                                (if-exists :error))
@@ -40,4 +40,4 @@
     (staple
      template
      :out out :if-exists if-exists
-     :clip-args (list 'asdf asdf-system 'name name 'packages packages 'documentation documentation))))
+     :clip-args (list 'asdf asdf-system 'name name 'packages packages 'documentation documentation 'logo logo))))
