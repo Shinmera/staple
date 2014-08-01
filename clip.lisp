@@ -39,8 +39,10 @@ the symbol is attempted to be automatically found in either the
   (let ((name) (package) (symbol (string-upcase symbol)))
     (let ((colonpos (position #\: symbol)))
       (if colonpos
-          (setf package (subseq symbol 0 colonpos)
-                name (subseq symbol (1+ colonpos)))
+          (if (= 0 colonpos)
+              (return-from resolve-symbol-documentation NIL)
+              (setf package (subseq symbol 0 colonpos)
+                    name (subseq symbol (1+ colonpos))))
           (setf package "" name symbol)))
     (cond
       ((string-starts-with package "sb-")
