@@ -107,6 +107,19 @@
   (:method ((symb symb-special) (mask (eql :special))) T)
   (:method ((symb symb-constant) (mask (eql :constant))) T))
 
+(defgeneric symb< (a b)
+  (:documentation "")
+  (:method ((a symb-method) (b symb-generic))
+    (if (eql (symb-symbol a) (symb-symbol b))
+        T
+        (call-next-method)))
+  (:method ((a symb-generic) (b symb-method))
+    (if (eql (symb-symbol a) (symb-symbol b))
+        NIL
+        (call-next-method)))
+  (:method ((a symb-object) (b symb-object))
+    (string< (symb-symbol a) (symb-symbol b))))
+
 (defun symbol-function-p (symbol)
   (and (fboundp symbol)
        (or (listp symbol)
