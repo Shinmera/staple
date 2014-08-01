@@ -15,6 +15,7 @@
   :author "Nicolas Hafner <shinmera@tymoon.eu>"
   :maintainer "Nicolas Hafner <shinmera@tymoon.eu>"
   :description "A tool to generate documentation about Lisp projects through an HTML template."
+  :homepage "https://github.com/Shinmera/staple"
   :serial T
   :components ((:file "package")
                (:file "symbols")
