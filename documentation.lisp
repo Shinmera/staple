@@ -26,9 +26,10 @@ By default only .md files are specially handled, everything else is simply read 
   (plump::slurp-stream stream))
 
 (defmethod parse-documentation-file ((type (eql :md)) stream)
-  (with-output-to-string (string)
-    (3bmd:parse-string-and-print-to-stream
-     (parse-documentation-file T stream) string)))
+  (let ((3bmd-code-blocks:*code-blocks* T))
+    (with-output-to-string (string)
+      (3bmd:parse-string-and-print-to-stream
+       (parse-documentation-file T stream) string))))
 
 (defun find-documentation-file (asdf)
   "Attempts to find a documentation file in the given asdf system's source directory.
