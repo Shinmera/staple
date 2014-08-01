@@ -55,23 +55,34 @@
 (defun stext (node object)
   (lquery-funcs:text node (princ-to-string (or object ""))))
 
+(defun parse-block-symbols (html)
+  (cl-ppcre:regex-replace-all
+   "\\([^\\s)'`]+" html
+   #'(lambda (target start end match-start match-end reg-starts reg-ends)
+       (declare (ignore start end reg-starts reg-ends))
+       (let* ((name (subseq target (1+ match-start) match-end))
+              (href (resolve-symbol-documentation name)))
+         (if href
+             (format NIL "(<a href=\"~a\">~a</a>" href name)
+             (format NIL "(~a"  name))))))
+
+(defun parse-lone-symbols (html)
+  (cl-ppcre:regex-replace-all
+   "^[^:][^\\s]+$" html
+   #'(lambda (target &rest rest)
+       (declare (ignore rest))
+       (let* ((href (resolve-symbol-documentation target)))
+         (if href
+             (format NIL "<a href=\"~a\">~a</a>" href target)
+             (format NIL "~a"  target))))))
+
 (define-tag-processor documentate (node)
   (process-attributes node)
   (process-children node)
   ($ node "code"
     (combine (node) (html))
     (map-apply #'(lambda (node html)
-                   ($ node
-                     (html
-                      (cl-ppcre:regex-replace-all
-                       "\\([^\\s)'`]+" html
-                       #'(lambda (target start end match-start match-end reg-starts reg-ends)
-                           (declare (ignore start end reg-starts reg-ends))
-                           (let* ((name (subseq target (1+ match-start) match-end))
-                                  (href (resolve-symbol-documentation name)))
-                             (if href
-                                 (format NIL "(<a href=\"~a\">~a</a>" href name)
-                                 (format NIL "(~a"  name)))))))))))
+                   ($ node (html (parse-lone-symbols (parse-block-symbols html))))))))
 
 (defmethod clip ((component asdf:component) field)
   (unless (symbolp field)
