@@ -10,6 +10,22 @@
   (:use #:cl #:lquery #:closer-mop #:clip)
   (:shadowing-import-from
    #:cl #:defmethod #:defgeneric #:standard-generic-function)
+  ;; clip.lisp
+  (:export
+   #:year
+   #:month
+   #:day
+   #:licenselink
+   #:resolve-symbol-documentation
+   #:anchor
+   #:stext)
+  ;; documentation.lisp
+  (:export
+   #:*documentation-names*
+   #:*documentation-types*
+   #:parse-documentation-file
+   #:find-documentation-file
+   #:prepare-documentation)
   ;; stapler.lisp
   (:export
    #:*default-template*
@@ -36,6 +52,8 @@
    #:symb-qualifiers
    #:symb-arguments
    #:symb-documentation
+   #:symb<
+   #:symb-type<
    
    #:symbol-function-p
    #:smybol-macro-p
