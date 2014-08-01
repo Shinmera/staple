@@ -28,10 +28,14 @@
                                documentation
                                (out (system-out asdf-system))
                                (template *default-template*)
-                               (if-exists :supersede))
-  (let ((name (string name))
-        (packages (mapcar #'string packages))
-        (documentation (or documentation "")))
+                               (if-exists :error))
+  (when (typep asdf-system 'asdf:system)
+    (setf asdf-system (asdf:component-name asdf-system)))
+  (let* ((asdf (or (asdf:find-system asdf-system)
+                   (error "No such ASDF system: ~a" asdf-system)))
+         (name (string name))
+         (packages (mapcar #'string packages))
+         (documentation (prepare-documentation asdf documentation)))
     (staple
      template
      :out out :if-exists if-exists
