@@ -120,6 +120,11 @@
   (:method ((a symb-object) (b symb-object))
     (string< (symb-symbol a) (symb-symbol b))))
 
+(defun symb-type< (a b)
+  (if (string-equal (symb-type a) (symb-type b))
+      (symb< a b)
+      (string< (symb-type a) (symb-type b))))
+
 (defun symbol-function-p (symbol)
   (and (fboundp symbol)
        (or (listp symbol)
