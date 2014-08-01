@@ -7,17 +7,27 @@
 (in-package #:org.tymoonnext.staple)
 
 (defclass symb-object ()
-  ((symbol :initarg :symbol :initform (error "SYMBOL required") :accessor symb-symbol)))
-(defclass symb-type (symb-object) ())
-(defclass symb-variable (symb-object) ())
-(defclass symb-function (symb-object) ())
-(defclass symb-macro (symb-function) ())
-(defclass symb-generic (symb-function) ())
+  ((symbol :initarg :symbol :initform (error "SYMBOL required") :accessor symb-symbol))
+  (:documentation "Base class for symbol representation."))
+(defclass symb-type (symb-object) ()
+  (:documentation "Object representing a type."))
+(defclass symb-variable (symb-object) ()
+  (:documentation "Object representing a variable."))
+(defclass symb-function (symb-object) ()
+  (:documentation "Object representing a function."))
+(defclass symb-macro (symb-function) ()
+  (:documentation "Object representing a macro."))
+(defclass symb-generic (symb-function) ()
+  (:documentation "Object representing a generic function."))
 (defclass symb-method (symb-function)
-  ((method :initarg :method :initform (error "METHOD required") :accessor symb-method)))
-(defclass symb-class (symb-type) ())
-(defclass symb-special (symb-variable) ())
-(defclass symb-constant (symb-variable) ())
+  ((method :initarg :method :initform (error "METHOD required") :accessor symb-method))
+  (:documentation "Object representing a generic function method."))
+(defclass symb-class (symb-type) ()
+  (:documentation "Object representing a class."))
+(defclass symb-special (symb-variable) ()
+  (:documentation "Object representing a special variable."))
+(defclass symb-constant (symb-variable) ()
+  (:documentation "Object representing a constant."))
 
 (defmethod print-object ((symb symb-object) stream)
   (print-unreadable-object (symb stream :type T)
@@ -33,35 +43,35 @@
   symb)
 
 (defgeneric symb-name (symb-object)
-  (:documentation "")
+  (:documentation "Returns the symbol-name of the symbol.")
   (:method ((symb symb-object))
     (symbol-name (symb-symbol symb))))
 
 (defgeneric symb-package (symb-object)
-  (:documentation "")
+  (:documentation "Returns the symbol-package of the symbol.")
   (:method ((symb symb-object))
     (symbol-package (symb-symbol symb))))
 
 (defgeneric symb-type (symb-object)
-  (:documentation "")
+  (:documentation "Returns the string-name of the kind of object it represents.")
   (:method ((symb symb-object))
     (subseq (string-upcase (class-name (class-of symb))) 5)))
 
 (defgeneric symb-scope (symb-object)
-  (:documentation "")
+  (:documentation "Returns whether the symbol is :INHERITED, :EXTERNAL or :INTERNAL.")
   (:method ((symb symb-object))
     (let ((symbol (symb-symbol symb)))
       (nth-value 1 (find-symbol (symbol-name symbol) (symbol-package symbol))))))
 
 (defgeneric symb-qualifiers (symb-object)
-  (:documentation "")
+  (:documentation "Returns the qualifiers of the method or NIL.")
   (:method ((symb symb-method))
     (method-qualifiers (symb-method symb)))
   (:method ((symb symb-object))
     NIL))
 
 (defgeneric symb-arguments (symb-object)
-  (:documentation "")
+  (:documentation "Returns the arguments of the function or NIL.")
   (:method ((symb symb-object))
     NIL)
   (:method ((symb symb-function))
@@ -78,7 +88,7 @@
           finally (return args))))
 
 (defgeneric symb-documentation (symb-object)
-  (:documentation "")
+  (:documentation "Returns the documentation-string.")
   (:method ((symb symb-function))
     (documentation (symb-symbol symb) 'function))
   (:method ((symb symb-method))
@@ -89,7 +99,9 @@
     (documentation (symb-symbol symb) 'type)))
 
 (defgeneric symb-is (symb-object mask)
-  (:documentation "")
+  (:documentation "Checks if the symbol matches the mask.
+The mask should be a keyword of either :INHERITED, :INTERNAL, :EXTERNAL
+or one of the symb-object types.")
   (:method (symb mask) NIL)
   (:method ((symb symb-object) (mask (eql :inherited)))
     (eql (symb-scope symb) :inherited))
@@ -108,7 +120,9 @@
   (:method ((symb symb-constant) (mask (eql :constant))) T))
 
 (defgeneric symb< (a b)
-  (:documentation "")
+  (:documentation "Used to sort symbols alphabetically.
+Special treatment is done so that generic functions should
+always appear before their methods.")
   (:method ((a symb-method) (b symb-generic))
     (if (eql (symb-symbol a) (symb-symbol b))
         T
@@ -121,35 +135,42 @@
     (string< (symb-symbol a) (symb-symbol b))))
 
 (defun symb-type< (a b)
+  "Used to sort symbols alphabetically, grouped by their type."
   (if (string-equal (symb-type a) (symb-type b))
       (symb< a b)
       (string< (symb-type a) (symb-type b))))
 
 (defun symbol-function-p (symbol)
+  "Returns T if the symbol is a pure function."
   (and (fboundp symbol)
        (or (listp symbol)
            (not (macro-function symbol)))
        (not (typep (fdefinition symbol) 'standard-generic-function))))
 
 (defun symbol-macro-p (symbol)
+  "Returns T if the symbol is a macro."
   (and (fboundp symbol)
        (macro-function symbol)))
 
 (defun symbol-generic-p (symbol)
+  "Returns T if the symbol is a generic function."
   (and (fboundp symbol)
        (typep (fdefinition symbol) 'standard-generic-function)))
 
 (defun symbol-constant-p (symbol)
+  "Returns T if the symbol is a constant."
   #+:lispworks (sys:symbol-constant-p symbol)
   #-:lispworks (constantp symbol))
 
 (defun symbol-special-p (symbol)
+  "REturns T if the symbol is a special variable."
   (and (not (symbol-constant-p symbol))
        #+:lispworks (sys:declared-special-p symbol)
        #+:sbcl (eql :special (sb-int:info :variable :kind symbol))
        #+:allegro (eq (sys:variable-information symbol) :special)))
 
 (defun symbol-class-p (symbol)
+  "Returns T if the symbol is a class."
   (if (find-class symbol nil) T NIL))
 
 (defun package-symbols (package)
@@ -161,6 +182,7 @@
         (push s lst)))))
 
 (defun symbol-objects (&rest symbols)
+  "Gathers all possible symbol-objects out of the list of passed symbols."
   (let ((objs ()))
     (dolist (symbol symbols objs)
       (when (symbol-function-p symbol)
@@ -179,4 +201,5 @@
         (push (make-instance 'symb-class :symbol symbol) objs)))))
 
 (defun package-symbol-objects (package)
+  "Gathers all possible symbol-objects of the given package."
   (apply #'symbol-objects (package-symbols package)))

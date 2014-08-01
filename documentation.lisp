@@ -8,10 +8,19 @@
 
 (defvar *documentation-names* (list "DOCUMENTATION" "documentation"
                                     "README" "readme"
-                                    "ABOUT" "about"))
-(defvar *documentation-types* (list "md" "txt" "html" "htm" "xhtml" ""))
+                                    "ABOUT" "about")
+  "A list of strings denoting common file names (without extension) for documentation files.
+If you have your own file name, push it onto this list.")
 
-(defgeneric parse-documentation-file (type stream))
+(defvar *documentation-types* (list "md" "txt" "html" "htm" "xhtml" "")
+  "A list of strings denoting common file types/extensions for documentation files.
+If you have your own file type, push it onto this list.")
+
+(defgeneric parse-documentation-file (type stream)
+  (:documentation "Used to perform special parsing on certain documentation files (such as Markdown).
+The type should be an EQL-specializer to a keyword of the file-type/extension.
+
+By default only .md files are specially handled, everything else is simply read as a string."))
 
 (defmethod parse-documentation-file (type stream)
   (plump::slurp-stream stream))
@@ -22,6 +31,8 @@
      (parse-documentation-file T stream) string)))
 
 (defun find-documentation-file (asdf)
+  "Attempts to find a documentation file in the given asdf system's source directory.
+This relies on *DOCUMENTATION-NAMES* and *DOCUMENTATION-TYPES* to find an appropriate file."
   (dolist (type *documentation-types*)
     (dolist (name *documentation-names*)
       (let ((pathname (merge-pathnames (make-pathname :name name :type type)
@@ -30,6 +41,11 @@
           (return-from find-documentation-file pathname))))))
 
 (defun prepare-documentation (system doc)
+  "Attempts to prepare the documentation for the given system.
+In the case of a pathname, PARSE-DOCUMENTATION-FILE is called.
+If the doc is NIL, a matching documentation file is attempted to be found through
+FIND-DOCUMENTATION-FILE. If nothing is foudn for that as well, an empty string is
+returned instead."
   (let ((doc (or doc (find-documentation-file system))))
     (etypecase doc
       (string doc)
