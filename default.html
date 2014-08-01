@@ -18,8 +18,8 @@
   </head>
   <body>
     <asdf system="asdf" as="header">
-      <if test="logo">
-        <then><h1><img lquery="(attr :src logo :alt name)" /></h1></then>
+      <if test="(root 'logo)">
+        <then><h1><img lquery="(attr :src (root 'logo) :alt name)" /></h1></then>
         <else><h1 lquery="(text name)">NAME</h1></else>
       </if>
       <span lquery="(text version)">VERSION</span>
