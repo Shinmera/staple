@@ -6,8 +6,9 @@
 
 (in-package #:org.tymoonnext.staple)
 
-(defvar *documentation-names* (list "README" "ABOUT" "DOCUMENTATION"
-                                    "readme" "about" "documentation"))
+(defvar *documentation-names* (list "DOCUMENTATION" "documentation"
+                                    "README" "readme"
+                                    "ABOUT" "about"))
 (defvar *documentation-types* (list "md" "txt" "html" "htm" "xhtml" ""))
 
 (defgeneric parse-documentation-file (type stream))
