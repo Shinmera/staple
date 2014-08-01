@@ -166,7 +166,7 @@
     (plump:remove-attribute node "exclude")
     (process-attributes node)
     (let ((package (resolve-value (read-from-string package)))
-          (*clipboard* (make-clipboard ())))
+          (*clipboard* (make-clipboard)))
       (setf (clipboard 'symbols)
             (sort
              (remove-if #'(lambda (symb) (%is-excluded symb exclude))
