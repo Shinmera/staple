@@ -159,7 +159,7 @@
 
 (define-tag-processor do-symbols (node)
   (let ((package (plump:attribute node "package"))
-        (sort (or (plump:attribute node "sort") "#'symb<"))
+        (sort (or (plump:attribute node "sort") "#'symb-type<"))
         (exclude (cl-ppcre:split "\\s+" (plump:attribute node "exclude"))))
     (plump:remove-attribute node "package")
     (plump:remove-attribute node "sort")
