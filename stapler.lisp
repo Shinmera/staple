@@ -35,7 +35,8 @@
                    (error "No such ASDF system: ~a" asdf-system)))
          (name (string name))
          (packages (mapcar #'string packages))
-         (documentation (prepare-documentation asdf documentation)))
+         (documentation (prepare-documentation asdf documentation))
+         (*current-packages* packages))
     (staple
      template
      :out out :if-exists if-exists
