@@ -7,6 +7,10 @@
 (in-package #:org.tymoonnext.staple)
 
 (defvar *default-template* (merge-pathnames "default.html" (asdf:system-source-directory :staple)))
+(defvar *root-clipboard*)
+
+(defun root (field)
+  (clip *root-clipboard* field))
 
 (defun to-out (pathname)
   (merge-pathnames (format NIL "~a.out.~a" (pathname-name pathname) (pathname-type pathname)) pathname))
@@ -16,6 +20,7 @@
 
 (defun staple (in &key (out (to-out in)) (if-exists :supersede) clip-args)
   (let ((*package* (find-package "STAPLE"))
+        (*root-clipboard* (apply #'make-clipboard clip-args))
         (document (plump:parse in)))
     (let ((document (apply #'clip:process document clip-args)))
       (with-open-file (stream out :direction :output :if-exists if-exists)
