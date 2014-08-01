@@ -19,7 +19,9 @@
   :components ((:file "package")
                (:file "symbols")
                (:file "clip")
+               (:file "documentation")
                (:file "stapler"))
   :depends-on (:clip
                :closer-mop
-               :cl-ppcre))
+               :cl-ppcre
+               :3bmd))
