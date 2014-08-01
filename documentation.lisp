@@ -36,4 +36,5 @@
       (pathname
        (with-open-file (stream doc :direction :input :if-does-not-exist :error)
          (parse-documentation-file
-          (intern (string-upcase (pathname-type doc)) "KEYWORD") stream))))))
+          (intern (string-upcase (pathname-type doc)) "KEYWORD") stream)))
+      (null ""))))
