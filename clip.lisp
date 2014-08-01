@@ -6,6 +6,49 @@
 
 (in-package #:org.tymoonnext.staple)
 
+(defvar *current-packages* ())
+
+(defun year ()
+  (nth-value 5 (get-decoded-time)))
+
+(defun month ()
+  (nth-value 4 (get-decoded-time)))
+
+(defun day ()
+  (nth-value 3 (get-decoded-time)))
+
+(defun licenselink (license)
+  (format NIL "<a href=\"https://tldrlegal.com/search?q=~a\">~a</a>" license license))
+
+(defun string-starts-with (string sub)
+  (and (<= (length sub) (length string))
+       (string-equal (subseq string 0 (length sub)) sub)))
+
+(defun resolve-symbol-documentation (symbol)
+  (let ((name) (package) (symbol (string-upcase symbol)))
+    (let ((colonpos (position #\: symbol)))
+      (if colonpos
+          (setf package (subseq symbol 0 colonpos)
+                name (subseq symbol (1+ colonpos)))
+          (setf package "" name symbol)))
+    (cond
+      ((string-starts-with package "sb-")
+       (format NIL "http://l1sp.org/sbcl/~a:~a" package name))
+      ((string-equal package "mop")
+       (format NIL "http://l1sp.org/mop/~a" name))
+      ((or (string-equal package "cl")
+           (string-equal package "common-lisp"))
+       (format NIL "http://l1sp.org/cl/~a" name))
+      ((find package *current-packages* :test #'string-equal)
+       (format NIL "#~a:~a" (string-upcase package) name))
+      (T
+       (dolist (package *current-packages*)
+         (when (find-symbol name (find-package (string-upcase package)))
+           (return-from resolve-symbol-documentation
+             (format NIL "#~a:~a" (string-upcase package) name))))
+       (when (find-symbol name "CL")
+         (format NIL "http://l1sp.org/cl/~a" name))))))
+
 (defun anchor (object)
   (format NIL "#~a" object))
 
@@ -24,10 +67,11 @@
                        "\\([^\\s)'`]+" html
                        #'(lambda (target start end match-start match-end reg-starts reg-ends)
                            (declare (ignore start end reg-starts reg-ends))
-                           (let ((name (subseq target (1+ match-start) match-end)))
-                             (if (find #\: name)
-                                 (format NIL "(<a href=\"#~a\">~a</a>" (string-upcase name) name)
-                                 (format NIL "(<a href=\"http://l1sp.org/cl/~a\">~a</a>" name name)))))))))))
+                           (let* ((name (subseq target (1+ match-start) match-end))
+                                  (href (resolve-symbol-documentation name)))
+                             (if href
+                                 (format NIL "(<a href=\"~a\">~a</a>" href name)
+                                 (format NIL "(~a"  name)))))))))))
 
 (defmethod clip ((component asdf:component) field)
   (unless (symbolp field)
