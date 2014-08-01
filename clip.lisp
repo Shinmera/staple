@@ -43,9 +43,10 @@
        (format NIL "#~a:~a" (string-upcase package) name))
       (T
        (dolist (package *current-packages*)
-         (when (find-symbol name (find-package (string-upcase package)))
-           (return-from resolve-symbol-documentation
-             (format NIL "#~a:~a" (string-upcase package) name))))
+         (multiple-value-bind (found scope) (find-symbol name (find-package (string-upcase package)))
+           (when (and found (eql scope :external))
+             (return-from resolve-symbol-documentation
+               (format NIL "#~a:~a" (string-upcase package) name)))))
        (when (find-symbol name "CL")
          (format NIL "http://l1sp.org/cl/~a" name))))))
 
