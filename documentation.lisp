@@ -7,8 +7,7 @@
 (in-package #:org.tymoonnext.staple)
 
 (defvar *documentation-names* (list "DOCUMENTATION" "documentation"
-                                    "README" "readme"
-                                    "ABOUT" "about")
+                                    "README" "readme")
   "A list of strings denoting common file names (without extension) for documentation files.
 If you have your own file name, push it onto this list.")
 
