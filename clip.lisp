@@ -60,7 +60,7 @@ the symbol is attempted to be automatically found in either the
            (when (and found (eql scope :external))
              (return-from resolve-symbol-documentation
                (format NIL "#~a:~a" (string-upcase package) name)))))
-       (when (find-symbol name "CL")
+       (when (and (string= package "") (find-symbol name "CL"))
          (format NIL "http://l1sp.org/cl/~a" name))))))
 
 (defun anchor (object)
@@ -142,13 +142,13 @@ the symbol is attempted to be automatically found in either the
     (T (call-next-method))))
 
 (define-tag-processor asdf (node)
-  (let ((*clipboard* (asdf:find-system (resolve-attribute node "system"))))
+  (with-clipboard-bound ((asdf:find-system (resolve-attribute node "system")))
     (plump:remove-attribute node "system")
     (process-attributes node)
     (process-children node)))
 
 (define-tag-processor package (node)
-  (let ((*clipboard* (find-package (resolve-attribute node "name"))))
+  (with-clipboard-bound ((find-package (resolve-attribute node "name")))
     (plump:remove-attribute node "name")
     (process-attributes node)
     (process-children node)))
@@ -164,10 +164,10 @@ the symbol is attempted to be automatically found in either the
     (documentation (symb-documentation symb))))
 
 (define-attribute-processor symbols (node value)
-  (let ((package (resolve-value (read-from-string value))))
+  (let ((package (parse-and-resolve value)))
     (setf (clipboard 'symbols)
           (package-symbol-objects package))
-    (process-attribute "iterate" "symbols"))
+    (process-attribute node "iterate" "symbols"))
   (plump:remove-attribute node "symbols"))
 
 (defun %is-excluded (symb exclude)
@@ -181,11 +181,10 @@ the symbol is attempted to be automatically found in either the
     (plump:remove-attribute node "sort")
     (plump:remove-attribute node "exclude")
     (process-attributes node)
-    (let ((package (resolve-value (read-from-string package)))
-          (*clipboard* (make-clipboard)))
-      (setf (clipboard 'symbols)
-            (sort
-             (remove-if #'(lambda (symb) (%is-excluded symb exclude))
-                        (package-symbol-objects package))
-             (resolve-value (read-from-string sort))))
-      (process-attribute "iterate" "symbols"))))
+    (let ((package (resolve-value (read-from-string package))))
+      (process-attribute
+       node "iterate"
+       (sort
+        (remove-if #'(lambda (symb) (%is-excluded symb exclude))
+                   (package-symbol-objects package))
+        (resolve-value (read-from-string sort)))))))
