@@ -6,7 +6,7 @@
 
 (in-package #:org.tymoonnext.staple)
 
-(defvar *default-template* (merge-pathnames "default.html" (asdf:system-source-directory :staple))
+(defvar *default-template* (merge-pathnames "default.ctml" (asdf:system-source-directory :staple))
   "Pathname to the default template to use in GENERATE.")
 (defvar *root-clipboard* NIL
   "Side-storage in order to allow accessing of the lower-level clipboard 
