@@ -8,7 +8,7 @@
       h1{display:inline-block;font-size: 28pt;margin-bottom:0;}
       code{font-family: Consolas, Inconsolata, monospace;}
       h4{display: inline-block;margin:0;padding:0;}
-      ul{list-style: none;}
+      #symbol-index ul{list-style: none;}
       .package li{margin-bottom: 20px;}
       .package pre{margin: 0 0 0 10px; white-space: pre-wrap;}
       .package .nicknames{font-size: 12pt; font-weight: normal;}
@@ -37,7 +37,7 @@
         <h2>Copyright</h2>
         <span lquery="(text name)">NAME</span> is licensed under the <span lquery="(html (licenselink (or license licence)))">LICENSE</span> license and &#169;<span lquery="(text (year))">YEAR</span> <span lquery="(text author)">AUTHOR</span>. <when test="homepage">This library can be obtained on <a lquery="(text homepage) (attr :href homepage)">WEBSITE</a>.</when>
       </c:asdf>
-      <article>
+      <article id="symbol-index">
         <h2>Package Index</h2>
         <ul iterate="packages">
           <c:package name="*" as="li" class="package">
