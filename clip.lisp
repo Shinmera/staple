@@ -46,12 +46,12 @@ the symbol is attempted to be automatically found in either the
           (setf package "" name symbol)))
     (cond
       ((string-starts-with package "sb-")
-       (format NIL "http://l1sp.org/sbcl/~a:~a" package name))
+       (format NIL "http://l1sp.org/sbcl/~a:~a" (string-downcase package) (string-downcase name)))
       ((string-equal package "mop")
-       (format NIL "http://l1sp.org/mop/~a" name))
+       (format NIL "http://l1sp.org/mop/~a" (string-downcase name)))
       ((or (string-equal package "cl")
            (string-equal package "common-lisp"))
-       (format NIL "http://l1sp.org/cl/~a" name))
+       (format NIL "http://l1sp.org/cl/~a" (string-downcase name)))
       ((find package *current-packages* :test #'string-equal)
        (format NIL "#~a:~a" (string-upcase package) name))
       (T
@@ -61,7 +61,7 @@ the symbol is attempted to be automatically found in either the
              (return-from resolve-symbol-documentation
                (format NIL "#~a:~a" (string-upcase package) name)))))
        (when (and (string= package "") (find-symbol name "CL"))
-         (format NIL "http://l1sp.org/cl/~a" name))))))
+         (format NIL "http://l1sp.org/cl/~a" (string-downcase name)))))))
 
 (defun anchor (object)
   "Returns a href-anchor."
