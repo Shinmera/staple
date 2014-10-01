@@ -9,7 +9,8 @@
   (:nicknames #:org.tymoonnext.staple)
   (:use #:cl #:lquery #:closer-mop #:clip)
   (:shadowing-import-from
-   #:cl #:defmethod #:defgeneric #:standard-generic-function)
+   #:cl #:defmethod #:defgeneric #:standard-generic-function
+        #:standard-method #:standard-class)
   ;; clip.lisp
   (:export
    #:year
