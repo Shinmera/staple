@@ -52,6 +52,11 @@
   (:method ((symb symb-object))
     (symbol-package (symb-symbol symb))))
 
+(defgeneric symb-function (symb-object)
+  (:documentation "Returns the symbol-function of the symbol.")
+  (:method ((symb symb-object))
+    (symbol-function (symb-symbol symb))))
+
 (defgeneric symb-type (symb-object)
   (:documentation "Returns the string-name of the kind of object it represents.")
   (:method ((symb symb-object))
@@ -76,7 +81,9 @@
     NIL)
   (:method ((symb symb-function))
     #+:sbcl (sb-introspect:function-lambda-list (symb-symbol symb))
-    #+:allegro (excl:arglist (symb-symbol symb)))
+    #+:allegro (excl:arglist (symb-symbol symb))
+    #+(and swank (not (or sbcl allegro))) (swank-backend:arglist (symb-function symb))
+    #-(or swank sbcl allegro) (second (nth-value 2 (function-lambda-expression (symb-function symb)))))
   (:method ((symb symb-generic))
     ;; Apparently f.e. SBCL reports things from methods too? (???)
     (let ((args (call-next-method)))
@@ -169,9 +176,14 @@ always appear before their methods.")
 (defun symbol-special-p (symbol)
   "REturns T if the symbol is a special variable."
   (and (not (symbol-constant-p symbol))
+       ;; Oh gross.
+       #+:ccl (ccl::%ilogbitp ccl::$sym_vbit_special (ccl::%symbol-bits 'staple:generate))
+       ;; Nice.
        #+:lispworks (sys:declared-special-p symbol)
        #+:sbcl (eql :special (sb-int:info :variable :kind symbol))
-       #+:allegro (eq (sys:variable-information symbol) :special)))
+       #+:allegro (eq (sys:variable-information symbol) :special)
+       ;; Welp.
+       #-(or :ccl :lispworks :sbcl :allegro) NIL))
 
 (defun symbol-class-p (symbol)
   "Returns T if the symbol is a class."
