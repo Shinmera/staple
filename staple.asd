@@ -25,5 +25,6 @@
   :depends-on (:clip
                :closer-mop
                :cl-ppcre
+               :trivial-arguments
                :3bmd
                :3bmd-ext-code-blocks))
