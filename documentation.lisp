@@ -22,7 +22,7 @@ The type should be an EQL-specializer to a keyword of the file-type/extension.
 By default only .md files are specially handled, everything else is simply read as a string."))
 
 (defmethod parse-documentation-file (type stream)
-  (plump::slurp-stream stream))
+  (plump:slurp-stream stream))
 
 (defmethod parse-documentation-file ((type (eql :md)) stream)
   (let ((3bmd-code-blocks:*code-blocks* T))
