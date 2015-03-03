@@ -24,6 +24,13 @@ documentation page when referring to it through RESOLVE-SYMBOL-DOCUMENTATION.")
   "Returns an A tag linked to a TLDRLegal.com search on the license name."
   (format NIL "<a href=\"https://tldrlegal.com/search?q=~a\">~a</a>" license license))
 
+(defun present (thing)
+  (typecase thing
+    ((or keyword string pathname) (prin1-to-string thing))
+    (list (mapcar #'present thing))
+    (vector (map 'vector #'present thing))
+    (T (princ-to-string thing))))
+
 (defun string-starts-with (string sub)
   "Returns T if the string starts with sub, NIL otherwise."
   (and (<= (length sub) (length string))
@@ -156,6 +163,7 @@ the symbol is attempted to be automatically found in either the
 (defmethod clip ((symb symb-object) field)
   (case field
     (full-name (format NIL "~a:~a" (package-name (symb-package symb)) (symb-name symb)))
+    (symbol (symb-symbol symb))
     (name (symb-name symb))
     (type (symb-type symb))
     (scope (symb-scope symb))
