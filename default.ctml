@@ -53,9 +53,9 @@
                   <header>
                     <span lquery="(text type)">TYPE</span>
                     <code>
-                      <h4><a lquery="(text name) (attr :href (anchor full-name))">NAME</a></h4>
-                      <span lquery="(text qualifiers)">QUALIFIERS</span>
-                      <span lquery="(text arguments)">ARGUMENTS</span>
+                      <h4><a lquery="(text (present symbol)) (attr :href (anchor full-name))">NAME</a></h4>
+                      <span lquery="(text (present qualifiers))">QUALIFIERS</span>
+                      <span lquery="(text (present arguments))">ARGUMENTS</span>
                     </code>
                   </header>
                   <pre lquery="(text documentation)">DOCUMENTATION</pre>
