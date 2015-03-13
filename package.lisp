@@ -41,10 +41,13 @@
    #:symb-type
    #:symb-variable
    #:symb-function
+   #:symb-accessor
    #:symb-macro
    #:symb-generic
    #:symb-method
    #:symb-class
+   #:symb-structure
+   #:symb-condition
    #:symb-special
    #:symb-constant
    
@@ -57,11 +60,14 @@
    #:symb-type<
    
    #:symbol-function-p
+   #:symbol-setf-function-p
    #:smybol-macro-p
    #:symbol-generic-p
    #:symbol-constant-p
    #:smybol-special-p
    #:symbol-class-p
+   #:symbol-structure-p
+   #:symbol-condition-p
 
    #:package-symbols
    #:symbol-objects
