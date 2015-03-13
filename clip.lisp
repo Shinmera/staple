@@ -27,9 +27,23 @@ documentation page when referring to it through RESOLVE-SYMBOL-DOCUMENTATION.")
 (defun present (thing)
   (typecase thing
     ((or keyword string pathname) (prin1-to-string thing))
-    (list (mapcar #'present thing))
+    (list
+     (case (first thing)
+       (quote (format NIL "'~a" (present (second thing))))
+       #+sbcl (sb-int:quasiquote (format NIL "`~a" (present (second thing))))
+       (T (princ-to-string (mapcar #'present thing)))))
     (vector (map 'vector #'present thing))
     (T (princ-to-string thing))))
+
+(defun present-qualifiers (thing)
+  (typecase thing
+    (null "")
+    (T (present thing))))
+
+(defun present-arguments (thing)
+  (typecase thing
+    (null "()")
+    (T (present thing))))
 
 (defun string-starts-with (string sub)
   "Returns T if the string starts with sub, NIL otherwise."
