@@ -48,15 +48,24 @@
             (symb-arguments symb)))
   symb)
 
+(defgeneric symb-true-symbol (symb-object)
+  (:documentation "Returns the the true symbol of the symbol.
+Preferable over SYMB-SYMBOL as it takes SETF-function names into account.")
+  (:method ((symb symb-object))
+    (let ((symbol (symb-symbol symb)))
+      (if (listp symbol)
+          (second symbol)
+          symbol))))
+
 (defgeneric symb-name (symb-object)
   (:documentation "Returns the symbol-name of the symbol.")
   (:method ((symb symb-object))
-    (symbol-name (symb-symbol symb))))
+    (symbol-name (symb-true-symbol symb))))
 
 (defgeneric symb-package (symb-object)
   (:documentation "Returns the symbol-package of the symbol.")
   (:method ((symb symb-object))
-    (symbol-package (symb-symbol symb))))
+    (symbol-package (symb-true-symbol symb))))
 
 (defgeneric symb-function (symb-object)
   (:documentation "Returns the symbol-function of the symbol.")
@@ -71,8 +80,8 @@
 (defgeneric symb-scope (symb-object)
   (:documentation "Returns whether the symbol is :INHERITED, :EXTERNAL or :INTERNAL.")
   (:method ((symb symb-object))
-    (let ((symbol (symb-symbol symb)))
-      (nth-value 1 (find-symbol (symbol-name symbol) (symbol-package symbol))))))
+    (nth-value 1 (find-symbol (symb-name symb)
+                              (symb-package symb)))))
 
 (defgeneric symb-qualifiers (symb-object)
   (:documentation "Returns the qualifiers of the method or NIL.")
@@ -151,7 +160,9 @@ always appear before their methods.")
         NIL
         (call-next-method)))
   (:method ((a symb-object) (b symb-object))
-    (string< (symb-symbol a) (symb-symbol b))))
+    (if (string= (symb-true-symbol a) (symb-true-symbol b))
+        (listp (symb-symbol b))
+        (string< (symb-true-symbol a) (symb-true-symbol b)))))
 
 (defun symb-type< (a b)
   "Used to sort symbols alphabetically, grouped by their type."
