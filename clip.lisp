@@ -169,10 +169,12 @@ the symbol is attempted to be automatically found in either the
     (process-children node)))
 
 (define-tag-processor package (node)
-  (with-clipboard-bound ((find-package (resolve-attribute node "name")))
-    (plump:remove-attribute node "name")
-    (process-attributes node)
-    (process-children node)))
+  (let ((name (resolve-attribute node "name")))
+    (with-clipboard-bound ((or (find-package name)
+                               (find-package (string-upcase name))))
+      (plump:remove-attribute node "name")
+      (process-attributes node)
+      (process-children node))))
 
 (defmethod clip ((symb symb-object) field)
   (case field
