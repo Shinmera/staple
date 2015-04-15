@@ -131,4 +131,6 @@
             (asdf:system-relative-pathname
              (format NIL "~{~a~^/~}" (butlast dirs))
              (car (last dirs)))))))))
-  (setf hunchentoot:*dispatch-table* (list #'handler)))
+  (setf hunchentoot:*dispatch-table* (list #'handler)
+        hunchentoot:*show-lisp-errors-p* T
+        hunchentoot:*show-lisp-backtraces-p* T))
