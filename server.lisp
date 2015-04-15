@@ -25,7 +25,7 @@
                                  :access-log-destination NIL)))
     (hunchentoot:start acceptor)
     (setf *acceptor* acceptor)
-    (setf *cache* (make-hash-table :test 'equalp))
+    (recache)
     (format T "~&Your documentation browser is now running on http://localhost:8080/~%")))
 
 (defun stop ()
@@ -33,6 +33,21 @@
     (error "Server is not running!"))
   (hunchentoot:stop *acceptor*)
   (setf *acceptor* NIL))
+
+(defun all-systems ()
+  (let ((systems ()))
+    (asdf:map-systems (lambda (sys) (push sys systems)))
+    (sort systems #'string< :key #'asdf:component-name)))
+
+(defun recache (&optional (systems (all-systems)))
+  (setf *cache* (make-hash-table :test 'equalp))
+  (dolist (system systems)
+    (ignore-errors
+     (handler-bind ((error (lambda (err)
+                             (format T "~&Warning: Error during processing of system ~a: ~%~a" system err))))
+       (show-system (etypecase system
+                      ((or string symbol) system)
+                      (asdf:system (asdf:component-name system))))))))
 
 (defun split (char string &key (start 0) (end (length string)))
   (loop with result = ()
@@ -51,9 +66,7 @@
 (defun show-system-list ()
   (plump:serialize
    (clip:process (asdf:system-relative-pathname :staple-server "server.ctml")
-                 :systems (let ((systems ()))
-                            (asdf:map-systems (lambda (sys) (push sys systems)))
-                            (sort systems #'string< :key #'asdf:component-name)))
+                 :systems (all-systems))
    NIL))
 
 (defun system-url (name)
@@ -92,14 +105,13 @@
             (format NIL "~a.~a" (pathname-name file) (pathname-type file))))))))
 
 (defun show-system (name)
-  (handler-bind ((error #'invoke-debugger))
-    (or (gethash name *cache*)
-        (setf (gethash name *cache*)
-              (staple:generate
-               name
-               :packages (smart-find-packages name)
-               :logo (smart-find-logo name)
-               :out NIL)))))
+  (or (gethash name *cache*)
+      (setf (gethash name *cache*)
+            (staple:generate
+             name
+             :packages (smart-find-packages name)
+             :logo (smart-find-logo name)
+             :out NIL))))
 
 (progn
   (defun handler (request)
