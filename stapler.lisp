@@ -34,9 +34,16 @@ These will also appear in the *ROOT-CLIPBOARD*."
         (*root-clipboard* (apply #'make-clipboard clip-args))
         (document (plump:parse in)))
     (let ((document (apply #'clip:process document clip-args)))
-      (with-open-file (stream out :direction :output :if-exists if-exists)
-        (plump:serialize document stream)))
-    out))
+      (etypecase out
+        ((or string pathname)
+         (with-open-file (stream out :direction :output :if-exists if-exists)
+           (plump:serialize document stream))
+         out)
+        (stream
+         (plump:serialize document out)
+         out)
+        (null
+         (plump:serialize document NIL))))))
 
 (defun generate (asdf-system &key
                                (packages (list asdf-system))
