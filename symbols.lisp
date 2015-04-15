@@ -168,7 +168,15 @@ always appear before their methods.")
   "Used to sort symbols alphabetically, grouped by their type."
   (if (string-equal (symb-type a) (symb-type b))
       (symb< a b)
-      (string< (symb-type a) (symb-type b))))
+      (flet ((type-order (symb)
+               (loop for type in '(constant special variable
+                                   class condition struct type
+                                   accessor function generic method
+                                   macro)
+                     for i from 0
+                     do (when (string-equal (symb-type symb) type)
+                          (return i)))))
+        (< (type-order a) (type-order b)))))
 
 (defun symbol-function-p (symbol)
   "Returns T if the symbol is a pure function."
