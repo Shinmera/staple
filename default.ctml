@@ -55,15 +55,15 @@
                 <li>
                   <a lquery="(attr :name full-name)"></a>
                   <article>
-                    <header>
-                      <span lquery="(text type)">TYPE</span>
+                    <header lquery="(add-class type)">
+                      <span lquery="(text type)" class="type">TYPE</span>
                       <code>
-                        <h4><a lquery="(text (present symbol)) (attr :href (anchor full-name))">NAME</a></h4>
-                        <span lquery="(text (present-qualifiers qualifiers))">QUALIFIERS</span>
-                        <span lquery="(text (present-arguments arguments))">ARGUMENTS</span>
+                        <h4><a lquery="(text (present symbol)) (attr :href (anchor full-name))" class="name">NAME</a></h4>
+                        <span lquery="(text (present-qualifiers qualifiers))" class="qualifiers">QUALIFIERS</span>
+                        <span lquery="(text (present-arguments arguments))" class="arguments">ARGUMENTS</span>
                       </code>
                     </header>
-                    <pre lquery="(text documentation)">DOCUMENTATION</pre>
+                    <pre lquery="(text documentation)" class="docstring">DOCUMENTATION</pre>
                   </article>
                 </li>
               </c:do-symbols>
