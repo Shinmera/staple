@@ -35,36 +35,42 @@
         </c:documentate>
       </article>
       <c:asdf system="asdf" as="article">
-        <h2>Copyright</h2>
-        <span lquery="(text name)">NAME</span> is licensed under the <span lquery="(html (licenselink (or license licence)))">LICENSE</span> license and &#169;<span lquery="(text (year))">YEAR</span> <span lquery="(text author)">AUTHOR</span>. <when test="homepage">This library can be obtained on <a lquery="(text homepage) (attr :href homepage)">WEBSITE</a>.</when>
+        <c:when test="(or license licence author homepage)">
+          <h2>Copyright</h2>
+          <c:when test="(or license licence)"><span lquery="(text name)">NAME</span> is licensed under the <span lquery="(html (licenselink (or license licence)))">LICENSE</span> license.</c:when>
+          <c:when test="author">&#169;<span lquery="(text (year))">YEAR</span> <span lquery="(text author)">AUTHOR</span>.</c:when>
+          <c:when test="homepage">This library can be obtained on <a lquery="(text homepage) (attr :href homepage)">WEBSITE</a>.</c:when>
+        </c:when>
       </c:asdf>
-      <article id="symbol-index">
-        <h2>Package Index</h2>
-        <ul iterate="packages">
-          <c:package name="*" as="li" class="package">
-            <h3>
-              <a lquery="(text (package-name *)) (attr :name (package-name *) :href (anchor (package-name *)))">PACKAGE</a>
-              <span lquery="(text (package-nicknames *))" class="nicknames">NICKS</span>
-            </h3>
-            <c:do-symbols as="ul" package="*" exclude="method internal">
-              <li>
-                <a lquery="(attr :name full-name)"></a>
-                <article>
-                  <header>
-                    <span lquery="(text type)">TYPE</span>
-                    <code>
-                      <h4><a lquery="(text (present symbol)) (attr :href (anchor full-name))">NAME</a></h4>
-                      <span lquery="(text (present-qualifiers qualifiers))">QUALIFIERS</span>
-                      <span lquery="(text (present-arguments arguments))">ARGUMENTS</span>
-                    </code>
-                  </header>
-                  <pre lquery="(text documentation)">DOCUMENTATION</pre>
-                </article>
-              </li>
-            </c:do-symbols>
-          </c:package>
-        </ul>
-      </article>
+      <c:when test="packages">
+        <article id="symbol-index">
+          <h2>Package Index</h2>
+          <ul iterate="packages">
+            <c:package name="*" as="li" class="package">
+              <h3>
+                <a lquery="(text (package-name *)) (attr :name (package-name *) :href (anchor (package-name *)))">PACKAGE</a>
+                <span lquery="(text (package-nicknames *))" class="nicknames">NICKS</span>
+              </h3>
+              <c:do-symbols as="ul" package="*" exclude="method internal">
+                <li>
+                  <a lquery="(attr :name full-name)"></a>
+                  <article>
+                    <header>
+                      <span lquery="(text type)">TYPE</span>
+                      <code>
+                        <h4><a lquery="(text (present symbol)) (attr :href (anchor full-name))">NAME</a></h4>
+                        <span lquery="(text (present-qualifiers qualifiers))">QUALIFIERS</span>
+                        <span lquery="(text (present-arguments arguments))">ARGUMENTS</span>
+                      </code>
+                    </header>
+                    <pre lquery="(text documentation)">DOCUMENTATION</pre>
+                  </article>
+                </li>
+              </c:do-symbols>
+            </c:package>
+          </ul>
+        </article>
+      </c:when>
     </div>
   </body>
 </html>
