@@ -10,13 +10,16 @@
   (:use #:cl)
   (:export
    #:start
-   #:stop))
+   #:stop
+   #:recache))
 (in-package #:staple-server)
 
 (defvar *acceptor* NIL)
 (defvar *cache* NIL)
 
 (defun start ()
+  "Start the documentation server if it isn't already running.
+This will launch an HTTP server on port 8080."
   (when *acceptor*
     (error "Server already running!"))
   (let ((acceptor (make-instance 'hunchentoot:easy-acceptor
@@ -29,6 +32,7 @@
     (format T "~&Your documentation browser is now running on http://localhost:8080/~%")))
 
 (defun stop ()
+  "Stop the documentation server if it is running."
   (unless *acceptor*
     (error "Server is not running!"))
   (hunchentoot:stop *acceptor*)
@@ -40,6 +44,7 @@
     (sort systems #'string< :key #'asdf:component-name)))
 
 (defun recache (&optional (systems (all-systems)))
+  "Produce freshly cached documentation pages for the given list of ASDF systems."
   (setf *cache* (make-hash-table :test 'equalp))
   (dolist (system systems)
     (ignore-errors
