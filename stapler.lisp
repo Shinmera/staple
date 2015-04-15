@@ -43,7 +43,9 @@ These will also appear in the *ROOT-CLIPBOARD*."
          (plump:serialize document out)
          out)
         (null
-         (plump:serialize document NIL))))))
+         (plump:serialize document NIL))
+        (T
+         document)))))
 
 (defun generate (asdf-system &key
                                (packages (list asdf-system))
