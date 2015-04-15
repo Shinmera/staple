@@ -35,10 +35,11 @@ By default only .md files are specially handled, everything else is simply read 
 This relies on *DOCUMENTATION-NAMES* and *DOCUMENTATION-TYPES* to find an appropriate file."
   (dolist (type *documentation-types*)
     (dolist (name *documentation-names*)
-      (let ((pathname (merge-pathnames (make-pathname :name name :type type)
-                                       (asdf:system-source-directory asdf))))
-        (when (probe-file pathname)
-          (return-from find-documentation-file pathname))))))
+      (let ((dir (asdf:system-source-directory asdf)))
+        (when dir
+          (let ((pathname (merge-pathnames (make-pathname :name name :type type) dir)))
+            (when (probe-file pathname)
+              (return-from find-documentation-file pathname))))))))
 
 (defun prepare-documentation (system doc)
   "Attempts to prepare the documentation for the given system.
