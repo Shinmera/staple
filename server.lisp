@@ -14,7 +14,7 @@
 (in-package #:staple-server)
 
 (defvar *acceptor* NIL)
-(defvar *cache* (make-hash-table :test 'equalp))
+(defvar *cache* NIL)
 
 (defun start ()
   (when *acceptor*
@@ -24,7 +24,9 @@
                                  :message-log-destination NIL
                                  :access-log-destination NIL)))
     (hunchentoot:start acceptor)
-    (setf *acceptor* acceptor)))
+    (setf *acceptor* acceptor)
+    (setf *cache* (make-hash-table :test 'equalp))
+    (format T "~&Your documentation browser is now running on http://localhost:8080/~%")))
 
 (defun stop ()
   (unless *acceptor*
@@ -55,7 +57,7 @@
    NIL))
 
 (defun system-url (name)
-  (format NIL "/~a/" name))
+  (format NIL "/~a/" (hunchentoot:url-encode name)))
 
 (defun find-package* (name)
   (or (find-package name)
@@ -70,7 +72,7 @@
 (defun smart-find-packages (name)
   (delete-if-not
    (lambda (name)
-     (block NIL
+     (when (find-package* name)
        (do-external-symbols (symbol (find-package* name))
          (when (eql (find-package* name) (symbol-package symbol))
            (return T)))))
@@ -81,11 +83,23 @@
                 collect (package-name package)))
     :test #'string-equal)))
 
+(defun smart-find-logo (name)
+  (let ((dir (asdf:system-source-directory name)))
+    (when dir
+      (dolist (file (uiop:directory-files dir))
+        (when (search "logo" (pathname-name file) :test #'char-equal)
+          (return
+            (format NIL "~a.~a" (pathname-name file) (pathname-type file))))))))
+
 (defun show-system (name)
   (handler-bind ((error #'invoke-debugger))
     (or (gethash name *cache*)
         (setf (gethash name *cache*)
-              (staple:generate name :packages (smart-find-packages name) :out NIL)))))
+              (staple:generate
+               name
+               :packages (smart-find-packages name)
+               :logo (smart-find-logo name)
+               :out NIL)))))
 
 (progn
   (defun handler (request)
