@@ -205,11 +205,13 @@ always appear before their methods.")
 
 (defun symbol-structure-p (symbol)
   "Returns T if the symbol is a structure."
-  (subtypep symbol 'structure-class))
+  (ignore-errors
+   (subtypep symbol 'structure-class)))
 
 (defun symbol-condition-p (symbol)
   "Returns T if the symbol is a condition."
-  (subtypep symbol 'condition))
+  (ignore-errors
+   (subtypep symbol 'condition)))
 
 (defun symbol-class-p (symbol)
   "Returns T if the symbol is a class."
@@ -225,7 +227,7 @@ always appear before their methods.")
       (when (eq (symbol-package s) package)
         (push s lst)))))
 
-(defun symbol-objects (&rest symbols)
+(defun symbol-objects (symbols)
   "Gathers all possible symbol-objects out of the list of passed symbols."
   (let ((objs ()))
     (dolist (symbol symbols objs)
@@ -266,4 +268,4 @@ always appear before their methods.")
 
 (defun package-symbol-objects (package)
   "Gathers all possible symbol-objects of the given package."
-  (apply #'symbol-objects (package-symbols package)))
+  (symbol-objects (package-symbols package)))
