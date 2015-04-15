@@ -69,10 +69,11 @@ This will launch an HTTP server on port 8080."
                   (return (nreverse result)))))
 
 (defun show-system-list ()
-  (plump:serialize
-   (clip:process (asdf:system-relative-pathname :staple-server "server.ctml")
-                 :systems (all-systems))
-   NIL))
+  (let ((*package* (find-package :staple)))
+    (plump:serialize
+     (clip:process (asdf:system-relative-pathname :staple-server "server.ctml")
+                   :systems (all-systems))
+     NIL)))
 
 (defun system-url (name)
   (format NIL "/~a/" (hunchentoot:url-encode name)))
