@@ -113,17 +113,23 @@ This will launch an HTTP server on port 8080."
 (defun show-system (name)
   (or (gethash name *cache*)
       (setf (gethash name *cache*)
-            (staple:generate
-             name
-             :packages (smart-find-packages name)
-             :logo (smart-find-logo name)
-             :out NIL))))
+            (let ((page (staple:generate
+                         name
+                         :packages (smart-find-packages name)
+                         :logo (smart-find-logo name)
+                         :out T)))
+              (lquery:$ page "head" "style,link" (remove))
+              (lquery:$ page "head" (append "<link rel=\"stylesheet\" type=\"text/css\" href=\"/server.css\"/>"))
+              (plump:serialize page NIL)))))
 
 (progn
   (defun handler (request)
     (let* ((path (hunchentoot:url-decode (hunchentoot:script-name request)))
            (dirs (split #\/ path :start 1)))
       (cond
+        ((string= path "/server.css")
+         (hunchentoot:handle-static-file
+          (asdf:system-relative-pathname :staple-server "server.css")))
         ((and (null (cdr dirs))
               (string= (car dirs) ""))
          (lambda ()

@@ -181,7 +181,7 @@ the symbol is attempted to be automatically found in either the
     (full-name (format NIL "~a:~a" (package-name (symb-package symb)) (symb-name symb)))
     (symbol (symb-symbol symb))
     (name (symb-name symb))
-    (type (symb-type symb))
+    (type (string-downcase (symb-type symb)))
     (scope (symb-scope symb))
     (qualifiers (symb-qualifiers symb))
     (arguments (symb-arguments symb))
