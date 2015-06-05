@@ -213,11 +213,9 @@ always appear before their methods.")
 (defun symbol-special-p (symbol)
   "REturns T if the symbol is a special variable."
   (and (not (symbol-constant-p symbol))
-       ;; Oh gross.
-       #+:ccl (ccl::%ilogbitp ccl::$sym_vbit_special (ccl::%symbol-bits 'staple:generate))
-       ;; Nice.
+       #+:ccl (ccl:proclaimed-special-p symbol)
        #+:lispworks (sys:declared-special-p symbol)
-       #+:sbcl (eql :special (sb-int:info :variable :kind symbol))
+       #+:sbcl (eq (sb-cltl2:variable-information symbol) :special)
        #+:allegro (eq (sys:variable-information symbol) :special)
        ;; Welp.
        #-(or :ccl :lispworks :sbcl :allegro) NIL))
