@@ -24,9 +24,12 @@
   (:export
    #:*documentation-names*
    #:*documentation-types*
+   #:*logo-names*
+   #:*logo-types*
    #:parse-documentation-file
    #:find-documentation-file
-   #:prepare-documentation)
+   #:prepare-documentation
+   #:find-logo-file)
   ;; stapler.lisp
   (:export
    #:*default-template*
