@@ -72,8 +72,9 @@ IF-EXISTS      --- Argument for WITH-OPEN-FILE."
          (name (string name))
          (packages (mapcar #'string packages))
          (documentation (prepare-documentation asdf documentation))
-         (logo (uiop:enough-pathname (or logo (find-logo-file asdf))
-                                     (uiop:pathname-directory-pathname out)))
+         (logo (if (pathnamep out)
+                   (uiop:enough-pathname (or logo (find-logo-file asdf)) (uiop:pathname-directory-pathname out))
+                   logo))
          (*current-packages* packages))
     (staple
      template
