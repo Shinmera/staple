@@ -119,7 +119,8 @@ the symbol is attempted to be automatically found in either the
   ($ node "code"
     (combine (node) (html))
     (map-apply #'(lambda (node html)
-                   ($ node (html (parse-lone-symbols (parse-block-symbols html))))))))
+                   ($ node (html (parse-lone-symbols (parse-block-symbols html)))))))
+  (process-tag "splice" node))
 
 (defmethod clip ((component asdf:component) field)
   (unless (symbolp field)
