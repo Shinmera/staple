@@ -1,113 +1,122 @@
-(html
- :font-family sans-serif
- :font-size 12pt
- :color (hex FFFFFF)
- :background (hex 000000)
- 
- (body
-  :margin 0
-  :padding 0
-  
-  (code :font-family monospace)
-  (a :text-decoration none)
-  
-  (>header
-   :background (hex 151515)
-   :border-bottom 3px solid (hex 0088EE)
-   :margin 20px 0 0 0
-   :padding 10px 20% 10px 20%
-
-   (h1
-    :margin 0
-    :font-size 30pt
-    :padding 0
-    :display inline-block
-    (img :background white
-         :border 5px solid (hex 0088EE)
-         :max-height 96px
-         :max-width 512px
-         :margin-bottom -64px
-         :position relative
-         :z-index 1000))
-
-   (p :display inline-block
-      :padding 5px))
-
-  ((:or >main "#content")
-   :background (hex EEEEEE)
-   :color (hex 000000)
-   :margin 0 auto 0 auto
-   :padding 20px 30px 20px 30px
-   :max-width 1000px
-   :position relative
-
-   (img :max-width 100%
-        :max-height 100%)
-
-   (article
-    :margin 0 0 10px 0)
-
-   ("#systemlist"
+(:let ((header (hex 151515))
+       (header2 (hex 333333))
+       (headerc (hex FFFFFF))
+       (body (hex EEEEEE))
+       (bodyc (hex 101010))
+       (border (hex 0088EE))
+       (highlight (hex 33BBFF)))
+  (html
+   :font-family sans-serif
+   :font-size 12pt
+   :color (hex FFFFFF)
+   :background (hex 000000)
+   
+   (body
     :margin 0
     :padding 0
-    :list-style none
+    
+    (code :font-family monospace)
+    (a :text-decoration none
+       :color #(border))
+    ((:and a :hover)
+     :color #(highlight))
+    :margin 0 auto 0 auto
+    :max-width 1000px
+    
+    (>header
+     :background #(header)
+     :border-bottom 3px solid #(border)
+     :display flex
+     :align-items center
+     (>* 
+      :margin 3px)
+     (h1
+      :padding 0
+      :font-size 30pt
+      :display flex
+      :align-items stretch
+      (img :background #(body)
+           :max-height 96px
+           :max-width 512px
+           :z-index 1000
+           :margin -3px 3px -6px -3px))
+     (.version
+      :font-size 2em)
+     (.description
+      :display inline-block
+      :font-size 1.5em))
 
-    (h2
-     :margin 0))
-   ("#symbol-index"
+    ((:or >main "#content")
+     :background #(body)
+     :color #(bodyc)
+     :padding 20px 30px 0 30px
+     :position relative
 
-    ((:or h2 h3 h4 h5 h6)
-     :display inline-block
-     :margin 0
-     :padding 0)
+     (img :max-width 100%
+          :max-height 100%)
 
-    (>h2
-     :margin 10px 0 10px 0)
-
-    (ul
-     :list-style none
-     :margin 0
-     :padding 0 0 0 0
-
-     (.package
-      (h3
-       :font-size 18pt
-       :background (hex 151515)
-       :display block
-       :color (hex FFFFFF)
-       :border-bottom 2px solid (hex 0088EE)
-       :padding 5px 10px 5px 10px
-       :margin 0 -30px 10px -30px
-       (a :color (hex FFFFFF)))
+     ("#systemlist"
+      :margin 0
+      :padding 0
+      :list-style none
+      (h2 :margin 0))
+     ("#symbol-index"
+      :background (hex 333333)
+      :margin 20px -30px 0 -30px
+      :padding 0 0 10px 0
+      :color white
       
-      (li :margin-bottom 20px)
+      ((:or h2 h3 h4 h5 h6)
+       :display inline-block
+       :margin 0
+       :padding 0)
 
-      (pre :margin 0 0 0 10px
-           :white-space pre-wrap)
+      (>h2 :display none)
 
-      (.nicknames :font-weight normal)
+      (ul
+       :list-style none
+       :margin 0
+       :padding 0 0 0 0
 
-      (header
-       :background (hex 000000)
-       :color (hex FFFFFF)
-       :padding 2px 5px 2px 5px
-       :margin 0 0 5px 0
-       :border-bottom 1px solid (hex 0088EE)
+       (.package
+        (h3
+         :font-size 18pt
+         :background #(header)
+         :display block
+         :color #(headerc)
+         :border-left 5px solid #(border)
+         :padding 5px 10px 5px 10px
+         :margin 0 0 10px 0
+         (a :color (hex FFFFFF)))
+        
+        (li :margin-bottom 20px)
 
-       (.type
-        :text-transform capitalize
-        :font-family monospace
-        :min-width 96px)
-       (.name :white-space nowrap)
-       (* :display table-cell
-          :padding 0 2px 0 0))
-      ((header.accessor .name) :color (hex 9EFF9E))
-      ((header.function .name) :color (hex 33EE33))
-      ((header.generic .name) :color (hex 14BA14))
-      ((header.method .name) :color (hex 63A80F))
-      ((header.macro .name) :color (hex EE3333))
-      ((header.special .name) :color (hex 00EEFF))
-      ((header.constant .name) :color (hex 0088EE))
-      ((header.class .name) :color (hex D585F2))
-      ((header.condition .name) :color (hex 9B59DE))
-      ((header.struct .name) :color (hex B344DB))))))))
+        (pre :margin 0 0 0 10px
+             :white-space pre-wrap)
+
+        (.nicknames :font-weight normal)
+
+        (header
+         :background #(header2)
+         :color #(headerc)
+         :padding 2px 5px 2px 5px
+         :margin 0 0 5px 0
+         :border-left 3px solid #(border)
+
+         (.type
+          :text-transform capitalize
+          :font-family monospace
+          :min-width 96px)
+         (.name :white-space nowrap)
+         (* :display table-cell
+            :padding 0 2px 0 0))
+        ((header.accessor .name) :color (hex 9EFF9E))
+        ((header.function .name) :color (hex 33EE33))
+        ((header.generic .name) :color (hex 14BA14))
+        ((header.method .name) :color (hex 63A80F))
+        ((header.macro .name) :color (hex EE3333))
+        ((header.special .name) :color (hex 00EEFF))
+        ((header.constant .name) :color #(border))
+        ((header.class .name) :color (hex D585F2))
+        ((header.condition .name) :color (hex 9B59DE))
+        ((header.struct .name) :color (hex B344DB)))))))))

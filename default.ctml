@@ -23,8 +23,8 @@
         <c:then><h1><img lquery="(attr :src (root 'logo) :alt name)" /></h1></c:then>
         <c:else><h1 lquery="(text name)">NAME</h1></c:else>
       </c:if>
-      <span lquery="(text version)">VERSION</span>
-      <p lquery="(text description)">
+      <span class="version" lquery="(text version)">VERSION</span>
+      <p class="description" lquery="(text description)">
         DESCRIPTION
       </p>
     </c:asdf>
