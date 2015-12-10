@@ -24,14 +24,24 @@ documentation page when referring to it through RESOLVE-SYMBOL-DOCUMENTATION.")
   "Returns an A tag linked to a TLDRLegal.com search on the license name."
   (format NIL "<a href=\"https://tldrlegal.com/search?q=~a\">~a</a>" license license))
 
+(defun present-improper-list (list)
+  (loop for (car . cdr) on list
+        collect (present car) into result
+        while (or (consp cdr) (null cdr))
+        finally (when cdr
+                  (setf (cdr (last result)) (present cdr)))
+                (return result)))
+
 (defun present (thing)
   (typecase thing
     ((or keyword string pathname) (prin1-to-string thing))
+    #+sbcl (sb-impl::comma (format NIL ",~a" (present (sb-impl::comma-expr thing))))
     (list
      (case (first thing)
        (quote (format NIL "'~a" (present (second thing))))
        #+sbcl (sb-int:quasiquote (format NIL "`~a" (present (second thing))))
-       (T (princ-to-string (mapcar #'present thing)))))
+       (T (princ-to-string
+           (present-improper-list thing)))))
     (vector (map 'vector #'present thing))
     (T (princ-to-string thing))))
 
