@@ -6,9 +6,18 @@
 
 (in-package #:org.tymoonnext.staple)
 
+(defgeneric symb-package (symb-object)
+  (:documentation "Returns the symbol-package of the symbol."))
+
 (defclass symb-object ()
-  ((symbol :initarg :symbol :initform (error "SYMBOL required") :accessor symb-symbol))
+  ((symbol :initarg :symbol :initform (error "SYMBOL required") :accessor symb-symbol)
+   (package :initarg :package :accessor symb-package))
   (:documentation "Base class for symbol representation."))
+
+(defmethod initialize-instance :after ((symb symb-object) &key)
+  (unless (slot-boundp symb 'package)
+    (setf (symb-package symb) (symbol-package (symb-true-symbol symb)))))
+
 (defclass symb-type (symb-object) ()
   (:documentation "Object representing a type."))
 (defclass symb-variable (symb-object) ()
@@ -61,11 +70,6 @@ Preferable over SYMB-SYMBOL as it takes SETF-function names into account.")
   (:documentation "Returns the symbol-name of the symbol.")
   (:method ((symb symb-object))
     (symbol-name (symb-true-symbol symb))))
-
-(defgeneric symb-package (symb-object)
-  (:documentation "Returns the symbol-package of the symbol.")
-  (:method ((symb symb-object))
-    (symbol-package (symb-true-symbol symb))))
 
 (defgeneric symb-function (symb-object)
   (:documentation "Returns the symbol-function of the symbol.")
@@ -238,22 +242,25 @@ always appear before their methods.")
 
 (defun package-symbols (package)
   "Gets all symbols within a package."
-  (let ((lst ())
-        (package (find-package package)))
+  (let ((lst ()))
     (do-symbols (s package lst)
-      (when (eq (symbol-package s) package)
-        (push s lst)))))
+      (push s lst))))
 
-(defun symbol-objects (symbols)
+(defun symbol-objects (symbols &optional package)
   "Gathers all possible symbol-objects out of the list of passed symbols."
   (let ((objs ()))
     (dolist (symbol symbols objs)
       (flet ((push-symb (class &optional (symbol symbol))
-               (push (make-instance class :symbol symbol) objs))
+               (push (make-instance class :symbol symbol
+                                          :package (or package (symbol-package symbol)))
+                     objs))
              (push-methods (symbol)
                (when (symbol-generic-p symbol)
                  (dolist (method (generic-function-methods (fdefinition symbol)))
-                   (push (make-instance 'symb-method :symbol symbol :method method) objs)))))
+                   (push (make-instance 'symb-method :symbol symbol
+                                                     :package (or package (symbol-package symbol))
+                                                     :method method)
+                         objs)))))
         (cond ((symbol-accessor-p symbol)
                (push-symb 'symb-accessor)
                (push-methods symbol)
@@ -285,4 +292,4 @@ always appear before their methods.")
 
 (defun package-symbol-objects (package)
   "Gathers all possible symbol-objects of the given package."
-  (symbol-objects (package-symbols package)))
+  (symbol-objects (package-symbols package) package))
