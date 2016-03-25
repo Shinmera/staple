@@ -170,9 +170,9 @@ always appear before their methods.")
       (symb< a b)
       (flet ((type-order (symb)
                (loop for type in '(constant special variable
-                                   class condition struct type
+                                   class condition structure type
                                    accessor function generic method
-                                   macro)
+                                   macro object)
                      for i from 0
                      do (when (string-equal (symb-type symb) type)
                           (return i)))))
