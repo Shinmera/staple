@@ -20,12 +20,12 @@
   <body>
     <header>
       <h1><img src="staple-logo.png" alt="staple"/></h1>
-      <span>0.0.1</span>
-      <p>A tool to generate documentation about Lisp projects through an HTML template.</p>
+      <span class="version">0.0.1</span>
+      <p class="description">A tool to generate documentation about Lisp projects through an HTML template.</p>
     </header>
     <div id="content">
       <article>
-        <c:documentate>
+        
           <span><h2>About Staple</h2>
 
 <p>Staple is yet another Common Lisp documentation generation application. It uses <a href="http://shinmera.github.io/clip">Clip</a> and <a href="http://shinmera.github.io/lquery">lQuery</a> to do most of the work. The main features include automatic package symbol index processing, documentation gathering from related files and generation through expressive templates.</p>
@@ -51,18 +51,21 @@
 <p>Staple includes a server so that you can view the documentation and symbol index of all available ASDF systems on the fly.</p>
 
 <pre><code>(ql:quickload :staple-server)
-(<a href="#STAPLE-SERVER:START">staple-server:start</a>)
+(staple-server:start)
 </code></pre>
 
-<p>Depending on how many systems you have loaded, starting the server may take a while as it produces a cache of all documentation pages. Once it's done, visit the <a href="http://localhost:8080/">url in the message</a>. If you change the systems and want to view the updated documentation, use <code><a href="#STAPLE-SERVER:RECACHE">staple-server:recache</a></code>.</p>
+<p>Depending on how many systems you have loaded, starting the server may take a while as it produces a cache of all documentation pages. Once it's done, visit the <a href="http://localhost:8080/">url in the message</a>. If you change the systems and want to view the updated documentation, use <code>staple-server:recache</code>.</p>
 </span>
-        </c:documentate>
+        
       </article>
       <article>
         
           <h2>Copyright</h2>
           <span>staple</span> is licensed under the <span><a href="https://tldrlegal.com/search?q=Artistic">Artistic</a></span> license.
-          ©<span>2015</span> <span>Nicolas Hafner &lt;shinmera@tymoon.eu&gt;</span>.
+          
+            © <span>Nicolas Hafner &lt;shinmera@tymoon.eu&gt;</span>
+            .
+          
           This library can be obtained on <a href="https://github.com/Shinmera/staple">https://github.com/Shinmera/staple</a>.
         
       </article>
@@ -75,254 +78,338 @@
                 <span class="nicknames">(ORG.TYMOONNEXT.STAPLE)</span>
               </h3>
               <ul><li>
-                  <a name="STAPLE:SYMB-METHOD"/>
+                  <a name="STAPLE:*DEFAULT-TEMPLATE*"/>
                   <article>
-                    <header>
-                      <span>ACCESSOR</span>
+                    <header class="special">
+                      <span class="type">special</span>
                       <code>
-                        <h4><a href="#STAPLE:SYMB-METHOD">SYMB-METHOD</a></h4>
-                        <span></span>
-                        <span>(OBJECT)</span>
+                        <h4><a href="#STAPLE:*DEFAULT-TEMPLATE*" class="name">*DEFAULT-TEMPLATE*</a></h4>
+                        <span class="qualifiers"></span>
+                        <span class="arguments">()</span>
                       </code>
                     </header>
-                    <pre/>
+                    <pre class="docstring">Pathname to the default template to use in GENERATE.</pre>
                   </article>
                 </li><li>
-                  <a name="STAPLE:SYMB-SYMBOL"/>
+                  <a name="STAPLE:*DOCUMENTATION-NAMES*"/>
                   <article>
-                    <header>
-                      <span>ACCESSOR</span>
+                    <header class="special">
+                      <span class="type">special</span>
                       <code>
-                        <h4><a href="#STAPLE:SYMB-SYMBOL">SYMB-SYMBOL</a></h4>
-                        <span></span>
-                        <span>(OBJECT)</span>
+                        <h4><a href="#STAPLE:*DOCUMENTATION-NAMES*" class="name">*DOCUMENTATION-NAMES*</a></h4>
+                        <span class="qualifiers"></span>
+                        <span class="arguments">()</span>
                       </code>
                     </header>
-                    <pre/>
+                    <pre class="docstring">A list of strings denoting common file names (without extension) for documentation files.
+If you have your own file name, push it onto this list.</pre>
+                  </article>
+                </li><li>
+                  <a name="STAPLE:*DOCUMENTATION-TYPES*"/>
+                  <article>
+                    <header class="special">
+                      <span class="type">special</span>
+                      <code>
+                        <h4><a href="#STAPLE:*DOCUMENTATION-TYPES*" class="name">*DOCUMENTATION-TYPES*</a></h4>
+                        <span class="qualifiers"></span>
+                        <span class="arguments">()</span>
+                      </code>
+                    </header>
+                    <pre class="docstring">A list of strings denoting common file types/extensions for documentation files.
+If you have your own file type, push it onto this list.</pre>
+                  </article>
+                </li><li>
+                  <a name="STAPLE:*LOGO-NAMES*"/>
+                  <article>
+                    <header class="special">
+                      <span class="type">special</span>
+                      <code>
+                        <h4><a href="#STAPLE:*LOGO-NAMES*" class="name">*LOGO-NAMES*</a></h4>
+                        <span class="qualifiers"></span>
+                        <span class="arguments">()</span>
+                      </code>
+                    </header>
+                    <pre class="docstring">A list of strings denoting commong file names (without extension) for logos.
+If you have your own file name, push it onto this list.</pre>
+                  </article>
+                </li><li>
+                  <a name="STAPLE:*LOGO-TYPES*"/>
+                  <article>
+                    <header class="special">
+                      <span class="type">special</span>
+                      <code>
+                        <h4><a href="#STAPLE:*LOGO-TYPES*" class="name">*LOGO-TYPES*</a></h4>
+                        <span class="qualifiers"></span>
+                        <span class="arguments">()</span>
+                      </code>
+                    </header>
+                    <pre class="docstring">A list of strings denoting commong image types/extensions for logos.
+If you have your own file type, push it onto this list.</pre>
                   </article>
                 </li><li>
                   <a name="STAPLE:SYMB-ACCESSOR"/>
                   <article>
-                    <header>
-                      <span>CLASS</span>
+                    <header class="class">
+                      <span class="type">class</span>
                       <code>
-                        <h4><a href="#STAPLE:SYMB-ACCESSOR">SYMB-ACCESSOR</a></h4>
-                        <span></span>
-                        <span>()</span>
+                        <h4><a href="#STAPLE:SYMB-ACCESSOR" class="name">SYMB-ACCESSOR</a></h4>
+                        <span class="qualifiers"></span>
+                        <span class="arguments">()</span>
                       </code>
                     </header>
-                    <pre>Object representing an accessor.</pre>
+                    <pre class="docstring">Object representing an accessor.</pre>
                   </article>
                 </li><li>
                   <a name="STAPLE:SYMB-CLASS"/>
                   <article>
-                    <header>
-                      <span>CLASS</span>
+                    <header class="class">
+                      <span class="type">class</span>
                       <code>
-                        <h4><a href="#STAPLE:SYMB-CLASS">SYMB-CLASS</a></h4>
-                        <span></span>
-                        <span>()</span>
+                        <h4><a href="#STAPLE:SYMB-CLASS" class="name">SYMB-CLASS</a></h4>
+                        <span class="qualifiers"></span>
+                        <span class="arguments">()</span>
                       </code>
                     </header>
-                    <pre>Object representing a class.</pre>
+                    <pre class="docstring">Object representing a class.</pre>
                   </article>
                 </li><li>
                   <a name="STAPLE:SYMB-CONDITION"/>
                   <article>
-                    <header>
-                      <span>CLASS</span>
+                    <header class="class">
+                      <span class="type">class</span>
                       <code>
-                        <h4><a href="#STAPLE:SYMB-CONDITION">SYMB-CONDITION</a></h4>
-                        <span></span>
-                        <span>()</span>
+                        <h4><a href="#STAPLE:SYMB-CONDITION" class="name">SYMB-CONDITION</a></h4>
+                        <span class="qualifiers"></span>
+                        <span class="arguments">()</span>
                       </code>
                     </header>
-                    <pre>Object representing a condition.</pre>
+                    <pre class="docstring">Object representing a condition.</pre>
                   </article>
                 </li><li>
                   <a name="STAPLE:SYMB-CONSTANT"/>
                   <article>
-                    <header>
-                      <span>CLASS</span>
+                    <header class="class">
+                      <span class="type">class</span>
                       <code>
-                        <h4><a href="#STAPLE:SYMB-CONSTANT">SYMB-CONSTANT</a></h4>
-                        <span></span>
-                        <span>()</span>
+                        <h4><a href="#STAPLE:SYMB-CONSTANT" class="name">SYMB-CONSTANT</a></h4>
+                        <span class="qualifiers"></span>
+                        <span class="arguments">()</span>
                       </code>
                     </header>
-                    <pre>Object representing a constant.</pre>
+                    <pre class="docstring">Object representing a constant.</pre>
                   </article>
                 </li><li>
                   <a name="STAPLE:SYMB-FUNCTION"/>
                   <article>
-                    <header>
-                      <span>CLASS</span>
+                    <header class="class">
+                      <span class="type">class</span>
                       <code>
-                        <h4><a href="#STAPLE:SYMB-FUNCTION">SYMB-FUNCTION</a></h4>
-                        <span></span>
-                        <span>()</span>
+                        <h4><a href="#STAPLE:SYMB-FUNCTION" class="name">SYMB-FUNCTION</a></h4>
+                        <span class="qualifiers"></span>
+                        <span class="arguments">()</span>
                       </code>
                     </header>
-                    <pre>Object representing a function.</pre>
+                    <pre class="docstring">Object representing a function.</pre>
                   </article>
                 </li><li>
                   <a name="STAPLE:SYMB-GENERIC"/>
                   <article>
-                    <header>
-                      <span>CLASS</span>
+                    <header class="class">
+                      <span class="type">class</span>
                       <code>
-                        <h4><a href="#STAPLE:SYMB-GENERIC">SYMB-GENERIC</a></h4>
-                        <span></span>
-                        <span>()</span>
+                        <h4><a href="#STAPLE:SYMB-GENERIC" class="name">SYMB-GENERIC</a></h4>
+                        <span class="qualifiers"></span>
+                        <span class="arguments">()</span>
                       </code>
                     </header>
-                    <pre>Object representing a generic function.</pre>
+                    <pre class="docstring">Object representing a generic function.</pre>
                   </article>
                 </li><li>
                   <a name="STAPLE:SYMB-MACRO"/>
                   <article>
-                    <header>
-                      <span>CLASS</span>
+                    <header class="class">
+                      <span class="type">class</span>
                       <code>
-                        <h4><a href="#STAPLE:SYMB-MACRO">SYMB-MACRO</a></h4>
-                        <span></span>
-                        <span>()</span>
+                        <h4><a href="#STAPLE:SYMB-MACRO" class="name">SYMB-MACRO</a></h4>
+                        <span class="qualifiers"></span>
+                        <span class="arguments">()</span>
                       </code>
                     </header>
-                    <pre>Object representing a macro.</pre>
+                    <pre class="docstring">Object representing a macro.</pre>
                   </article>
                 </li><li>
                   <a name="STAPLE:SYMB-METHOD"/>
                   <article>
-                    <header>
-                      <span>CLASS</span>
+                    <header class="class">
+                      <span class="type">class</span>
                       <code>
-                        <h4><a href="#STAPLE:SYMB-METHOD">SYMB-METHOD</a></h4>
-                        <span></span>
-                        <span>()</span>
+                        <h4><a href="#STAPLE:SYMB-METHOD" class="name">SYMB-METHOD</a></h4>
+                        <span class="qualifiers"></span>
+                        <span class="arguments">()</span>
                       </code>
                     </header>
-                    <pre>Object representing a generic function method.</pre>
+                    <pre class="docstring">Object representing a generic function method.</pre>
                   </article>
                 </li><li>
                   <a name="STAPLE:SYMB-OBJECT"/>
                   <article>
-                    <header>
-                      <span>CLASS</span>
+                    <header class="class">
+                      <span class="type">class</span>
                       <code>
-                        <h4><a href="#STAPLE:SYMB-OBJECT">SYMB-OBJECT</a></h4>
-                        <span></span>
-                        <span>()</span>
+                        <h4><a href="#STAPLE:SYMB-OBJECT" class="name">SYMB-OBJECT</a></h4>
+                        <span class="qualifiers"></span>
+                        <span class="arguments">()</span>
                       </code>
                     </header>
-                    <pre>Base class for symbol representation.</pre>
+                    <pre class="docstring">Base class for symbol representation.</pre>
                   </article>
                 </li><li>
                   <a name="STAPLE:SYMB-SPECIAL"/>
                   <article>
-                    <header>
-                      <span>CLASS</span>
+                    <header class="class">
+                      <span class="type">class</span>
                       <code>
-                        <h4><a href="#STAPLE:SYMB-SPECIAL">SYMB-SPECIAL</a></h4>
-                        <span></span>
-                        <span>()</span>
+                        <h4><a href="#STAPLE:SYMB-SPECIAL" class="name">SYMB-SPECIAL</a></h4>
+                        <span class="qualifiers"></span>
+                        <span class="arguments">()</span>
                       </code>
                     </header>
-                    <pre>Object representing a special variable.</pre>
+                    <pre class="docstring">Object representing a special variable.</pre>
                   </article>
                 </li><li>
                   <a name="STAPLE:SYMB-STRUCTURE"/>
                   <article>
-                    <header>
-                      <span>CLASS</span>
+                    <header class="class">
+                      <span class="type">class</span>
                       <code>
-                        <h4><a href="#STAPLE:SYMB-STRUCTURE">SYMB-STRUCTURE</a></h4>
-                        <span></span>
-                        <span>()</span>
+                        <h4><a href="#STAPLE:SYMB-STRUCTURE" class="name">SYMB-STRUCTURE</a></h4>
+                        <span class="qualifiers"></span>
+                        <span class="arguments">()</span>
                       </code>
                     </header>
-                    <pre>Object representing a structure.</pre>
+                    <pre class="docstring">Object representing a structure.</pre>
                   </article>
                 </li><li>
                   <a name="STAPLE:SYMB-TYPE"/>
                   <article>
-                    <header>
-                      <span>CLASS</span>
+                    <header class="class">
+                      <span class="type">class</span>
                       <code>
-                        <h4><a href="#STAPLE:SYMB-TYPE">SYMB-TYPE</a></h4>
-                        <span></span>
-                        <span>()</span>
+                        <h4><a href="#STAPLE:SYMB-TYPE" class="name">SYMB-TYPE</a></h4>
+                        <span class="qualifiers"></span>
+                        <span class="arguments">()</span>
                       </code>
                     </header>
-                    <pre>Object representing a type.</pre>
+                    <pre class="docstring">Object representing a type.</pre>
                   </article>
                 </li><li>
                   <a name="STAPLE:SYMB-VARIABLE"/>
                   <article>
-                    <header>
-                      <span>CLASS</span>
+                    <header class="class">
+                      <span class="type">class</span>
                       <code>
-                        <h4><a href="#STAPLE:SYMB-VARIABLE">SYMB-VARIABLE</a></h4>
-                        <span></span>
-                        <span>()</span>
+                        <h4><a href="#STAPLE:SYMB-VARIABLE" class="name">SYMB-VARIABLE</a></h4>
+                        <span class="qualifiers"></span>
+                        <span class="arguments">()</span>
                       </code>
                     </header>
-                    <pre>Object representing a variable.</pre>
+                    <pre class="docstring">Object representing a variable.</pre>
+                  </article>
+                </li><li>
+                  <a name="STAPLE:SYMB-METHOD"/>
+                  <article>
+                    <header class="accessor">
+                      <span class="type">accessor</span>
+                      <code>
+                        <h4><a href="#STAPLE:SYMB-METHOD" class="name">SYMB-METHOD</a></h4>
+                        <span class="qualifiers"></span>
+                        <span class="arguments">(OBJECT)</span>
+                      </code>
+                    </header>
+                    <pre class="docstring"/>
+                  </article>
+                </li><li>
+                  <a name="STAPLE:SYMB-SYMBOL"/>
+                  <article>
+                    <header class="accessor">
+                      <span class="type">accessor</span>
+                      <code>
+                        <h4><a href="#STAPLE:SYMB-SYMBOL" class="name">SYMB-SYMBOL</a></h4>
+                        <span class="qualifiers"></span>
+                        <span class="arguments">(OBJECT)</span>
+                      </code>
+                    </header>
+                    <pre class="docstring"/>
                   </article>
                 </li><li>
                   <a name="STAPLE:ANCHOR"/>
                   <article>
-                    <header>
-                      <span>FUNCTION</span>
+                    <header class="function">
+                      <span class="type">function</span>
                       <code>
-                        <h4><a href="#STAPLE:ANCHOR">ANCHOR</a></h4>
-                        <span></span>
-                        <span>(OBJECT)</span>
+                        <h4><a href="#STAPLE:ANCHOR" class="name">ANCHOR</a></h4>
+                        <span class="qualifiers"></span>
+                        <span class="arguments">(OBJECT)</span>
                       </code>
                     </header>
-                    <pre>Returns a href-anchor.</pre>
+                    <pre class="docstring">Returns a href-anchor.</pre>
                   </article>
                 </li><li>
                   <a name="STAPLE:DAY"/>
                   <article>
-                    <header>
-                      <span>FUNCTION</span>
+                    <header class="function">
+                      <span class="type">function</span>
                       <code>
-                        <h4><a href="#STAPLE:DAY">DAY</a></h4>
-                        <span></span>
-                        <span>()</span>
+                        <h4><a href="#STAPLE:DAY" class="name">DAY</a></h4>
+                        <span class="qualifiers"></span>
+                        <span class="arguments">()</span>
                       </code>
                     </header>
-                    <pre/>
+                    <pre class="docstring"/>
                   </article>
                 </li><li>
                   <a name="STAPLE:FIND-DOCUMENTATION-FILE"/>
                   <article>
-                    <header>
-                      <span>FUNCTION</span>
+                    <header class="function">
+                      <span class="type">function</span>
                       <code>
-                        <h4><a href="#STAPLE:FIND-DOCUMENTATION-FILE">FIND-DOCUMENTATION-FILE</a></h4>
-                        <span></span>
-                        <span>(ASDF)</span>
+                        <h4><a href="#STAPLE:FIND-DOCUMENTATION-FILE" class="name">FIND-DOCUMENTATION-FILE</a></h4>
+                        <span class="qualifiers"></span>
+                        <span class="arguments">(ASDF)</span>
                       </code>
                     </header>
-                    <pre>Attempts to find a documentation file in the given asdf system's source directory.
+                    <pre class="docstring">Attempts to find a documentation file in the given asdf system's source directory.
 This relies on *DOCUMENTATION-NAMES* and *DOCUMENTATION-TYPES* to find an appropriate file.</pre>
+                  </article>
+                </li><li>
+                  <a name="STAPLE:FIND-LOGO-FILE"/>
+                  <article>
+                    <header class="function">
+                      <span class="type">function</span>
+                      <code>
+                        <h4><a href="#STAPLE:FIND-LOGO-FILE" class="name">FIND-LOGO-FILE</a></h4>
+                        <span class="qualifiers"></span>
+                        <span class="arguments">(ASDF)</span>
+                      </code>
+                    </header>
+                    <pre class="docstring">Attempts to find a logo file in the given asdf system's source directory.
+See *LOGO-NAMES* and *LOGO-TYPES*. The system will also try to find files by 
+prepending or appending the system name to the logo names.</pre>
                   </article>
                 </li><li>
                   <a name="STAPLE:GENERATE"/>
                   <article>
-                    <header>
-                      <span>FUNCTION</span>
+                    <header class="function">
+                      <span class="type">function</span>
                       <code>
-                        <h4><a href="#STAPLE:GENERATE">GENERATE</a></h4>
-                        <span></span>
-                        <span>(ASDF-SYSTEM &amp;KEY (PACKAGES (LIST ASDF-SYSTEM)) (NAME ASDF-SYSTEM)
+                        <h4><a href="#STAPLE:GENERATE" class="name">GENERATE</a></h4>
+                        <span class="qualifiers"></span>
+                        <span class="arguments">(ASDF-SYSTEM &amp;KEY (PACKAGES (LIST ASDF-SYSTEM)) (NAME ASDF-SYSTEM)
  DOCUMENTATION LOGO (OUT (SYSTEM-OUT ASDF-SYSTEM))
  (TEMPLATE *DEFAULT-TEMPLATE*) (IF-EXISTS :ERROR))</span>
                       </code>
                     </header>
-                    <pre>Generates documentation for the given asdf-system.
+                    <pre class="docstring">Generates documentation for the given asdf-system.
 
 ASDF-SYSTEM    --- The name or object of the ASDF system to write documentation for.
 PACKAGES       --- A list of package names to documentate.
@@ -337,67 +424,67 @@ IF-EXISTS      --- Argument for WITH-OPEN-FILE.</pre>
                 </li><li>
                   <a name="STAPLE:LICENSELINK"/>
                   <article>
-                    <header>
-                      <span>FUNCTION</span>
+                    <header class="function">
+                      <span class="type">function</span>
                       <code>
-                        <h4><a href="#STAPLE:LICENSELINK">LICENSELINK</a></h4>
-                        <span></span>
-                        <span>(LICENSE)</span>
+                        <h4><a href="#STAPLE:LICENSELINK" class="name">LICENSELINK</a></h4>
+                        <span class="qualifiers"></span>
+                        <span class="arguments">(LICENSE)</span>
                       </code>
                     </header>
-                    <pre>Returns an A tag linked to a TLDRLegal.com search on the license name.</pre>
+                    <pre class="docstring">Returns an A tag linked to a TLDRLegal.com search on the license name.</pre>
                   </article>
                 </li><li>
                   <a name="STAPLE:MONTH"/>
                   <article>
-                    <header>
-                      <span>FUNCTION</span>
+                    <header class="function">
+                      <span class="type">function</span>
                       <code>
-                        <h4><a href="#STAPLE:MONTH">MONTH</a></h4>
-                        <span></span>
-                        <span>()</span>
+                        <h4><a href="#STAPLE:MONTH" class="name">MONTH</a></h4>
+                        <span class="qualifiers"></span>
+                        <span class="arguments">()</span>
                       </code>
                     </header>
-                    <pre/>
+                    <pre class="docstring"/>
                   </article>
                 </li><li>
                   <a name="STAPLE:PACKAGE-SYMBOL-OBJECTS"/>
                   <article>
-                    <header>
-                      <span>FUNCTION</span>
+                    <header class="function">
+                      <span class="type">function</span>
                       <code>
-                        <h4><a href="#STAPLE:PACKAGE-SYMBOL-OBJECTS">PACKAGE-SYMBOL-OBJECTS</a></h4>
-                        <span></span>
-                        <span>(PACKAGE)</span>
+                        <h4><a href="#STAPLE:PACKAGE-SYMBOL-OBJECTS" class="name">PACKAGE-SYMBOL-OBJECTS</a></h4>
+                        <span class="qualifiers"></span>
+                        <span class="arguments">(PACKAGE)</span>
                       </code>
                     </header>
-                    <pre>Gathers all possible symbol-objects of the given package.</pre>
+                    <pre class="docstring">Gathers all possible symbol-objects of the given package.</pre>
                   </article>
                 </li><li>
                   <a name="STAPLE:PACKAGE-SYMBOLS"/>
                   <article>
-                    <header>
-                      <span>FUNCTION</span>
+                    <header class="function">
+                      <span class="type">function</span>
                       <code>
-                        <h4><a href="#STAPLE:PACKAGE-SYMBOLS">PACKAGE-SYMBOLS</a></h4>
-                        <span></span>
-                        <span>(PACKAGE)</span>
+                        <h4><a href="#STAPLE:PACKAGE-SYMBOLS" class="name">PACKAGE-SYMBOLS</a></h4>
+                        <span class="qualifiers"></span>
+                        <span class="arguments">(PACKAGE)</span>
                       </code>
                     </header>
-                    <pre>Gets all symbols within a package.</pre>
+                    <pre class="docstring">Gets all symbols within a package.</pre>
                   </article>
                 </li><li>
                   <a name="STAPLE:PREPARE-DOCUMENTATION"/>
                   <article>
-                    <header>
-                      <span>FUNCTION</span>
+                    <header class="function">
+                      <span class="type">function</span>
                       <code>
-                        <h4><a href="#STAPLE:PREPARE-DOCUMENTATION">PREPARE-DOCUMENTATION</a></h4>
-                        <span></span>
-                        <span>(SYSTEM DOC)</span>
+                        <h4><a href="#STAPLE:PREPARE-DOCUMENTATION" class="name">PREPARE-DOCUMENTATION</a></h4>
+                        <span class="qualifiers"></span>
+                        <span class="arguments">(SYSTEM DOC)</span>
                       </code>
                     </header>
-                    <pre>Attempts to prepare the documentation for the given system.
+                    <pre class="docstring">Attempts to prepare the documentation for the given system.
 In the case of a pathname, PARSE-DOCUMENTATION-FILE is called.
 If the doc is NIL, a matching documentation file is attempted to be found through
 FIND-DOCUMENTATION-FILE. If nothing is foudn for that as well, an empty string is
@@ -406,15 +493,15 @@ returned instead.</pre>
                 </li><li>
                   <a name="STAPLE:RESOLVE-SYMBOL-DOCUMENTATION"/>
                   <article>
-                    <header>
-                      <span>FUNCTION</span>
+                    <header class="function">
+                      <span class="type">function</span>
                       <code>
-                        <h4><a href="#STAPLE:RESOLVE-SYMBOL-DOCUMENTATION">RESOLVE-SYMBOL-DOCUMENTATION</a></h4>
-                        <span></span>
-                        <span>(SYMBOL)</span>
+                        <h4><a href="#STAPLE:RESOLVE-SYMBOL-DOCUMENTATION" class="name">RESOLVE-SYMBOL-DOCUMENTATION</a></h4>
+                        <span class="qualifiers"></span>
+                        <span class="arguments">(SYMBOL)</span>
                       </code>
                     </header>
-                    <pre>Attempts to resolve the (string) symbol to either an URL or an anchor.
+                    <pre class="docstring">Attempts to resolve the (string) symbol to either an URL or an anchor.
 This works by first testing against the package. If it is known (such as the
 sb-*, mop, cl and *current-packages*) a link/anchor is returned. If nothing
 can be found, NIL is returned instead. If no package designator is given,
@@ -424,15 +511,15 @@ the symbol is attempted to be automatically found in either the
                 </li><li>
                   <a name="STAPLE:STAPLE"/>
                   <article>
-                    <header>
-                      <span>FUNCTION</span>
+                    <header class="function">
+                      <span class="type">function</span>
                       <code>
-                        <h4><a href="#STAPLE:STAPLE">STAPLE</a></h4>
-                        <span></span>
-                        <span>(IN &amp;KEY (OUT (TO-OUT IN)) (IF-EXISTS :SUPERSEDE) CLIP-ARGS)</span>
+                        <h4><a href="#STAPLE:STAPLE" class="name">STAPLE</a></h4>
+                        <span class="qualifiers"></span>
+                        <span class="arguments">(IN &amp;KEY (OUT (TO-OUT IN)) (IF-EXISTS :SUPERSEDE) CLIP-ARGS)</span>
                       </code>
                     </header>
-                    <pre>Performs stapling actions/clip processing on the IN document.
+                    <pre class="docstring">Performs stapling actions/clip processing on the IN document.
 
 IN is parsed by PLUMP:PARSE and the results are written to OUT.
 Through CLIP-ARGS additional arguments can be passed to CLIP:GENERATE.
@@ -441,184 +528,184 @@ These will also appear in the *ROOT-CLIPBOARD*.</pre>
                 </li><li>
                   <a name="STAPLE:STEXT"/>
                   <article>
-                    <header>
-                      <span>FUNCTION</span>
+                    <header class="function">
+                      <span class="type">function</span>
                       <code>
-                        <h4><a href="#STAPLE:STEXT">STEXT</a></h4>
-                        <span></span>
-                        <span>(NODE OBJECT)</span>
+                        <h4><a href="#STAPLE:STEXT" class="name">STEXT</a></h4>
+                        <span class="qualifiers"></span>
+                        <span class="arguments">(NODE OBJECT)</span>
                       </code>
                     </header>
-                    <pre>Same as lQuery's TEXT, but calls PRINC-TO-STRING on the object or uses an empty string on NIL.</pre>
+                    <pre class="docstring">Same as lQuery's TEXT, but calls PRINC-TO-STRING on the object or uses an empty string on NIL.</pre>
                   </article>
                 </li><li>
                   <a name="STAPLE:SYMB-TYPE&lt;"/>
                   <article>
-                    <header>
-                      <span>FUNCTION</span>
+                    <header class="function">
+                      <span class="type">function</span>
                       <code>
-                        <h4><a href="#STAPLE:SYMB-TYPE&lt;">SYMB-TYPE&lt;</a></h4>
-                        <span></span>
-                        <span>(A B)</span>
+                        <h4><a href="#STAPLE:SYMB-TYPE&lt;" class="name">SYMB-TYPE&lt;</a></h4>
+                        <span class="qualifiers"></span>
+                        <span class="arguments">(A B)</span>
                       </code>
                     </header>
-                    <pre>Used to sort symbols alphabetically, grouped by their type.</pre>
+                    <pre class="docstring">Used to sort symbols alphabetically, grouped by their type.</pre>
                   </article>
                 </li><li>
                   <a name="STAPLE:SYMBOL-CLASS-P"/>
                   <article>
-                    <header>
-                      <span>FUNCTION</span>
+                    <header class="function">
+                      <span class="type">function</span>
                       <code>
-                        <h4><a href="#STAPLE:SYMBOL-CLASS-P">SYMBOL-CLASS-P</a></h4>
-                        <span></span>
-                        <span>(SYMBOL)</span>
+                        <h4><a href="#STAPLE:SYMBOL-CLASS-P" class="name">SYMBOL-CLASS-P</a></h4>
+                        <span class="qualifiers"></span>
+                        <span class="arguments">(SYMBOL)</span>
                       </code>
                     </header>
-                    <pre>Returns T if the symbol is a class.</pre>
+                    <pre class="docstring">Returns T if the symbol is a class.</pre>
                   </article>
                 </li><li>
                   <a name="STAPLE:SYMBOL-CONDITION-P"/>
                   <article>
-                    <header>
-                      <span>FUNCTION</span>
+                    <header class="function">
+                      <span class="type">function</span>
                       <code>
-                        <h4><a href="#STAPLE:SYMBOL-CONDITION-P">SYMBOL-CONDITION-P</a></h4>
-                        <span></span>
-                        <span>(SYMBOL)</span>
+                        <h4><a href="#STAPLE:SYMBOL-CONDITION-P" class="name">SYMBOL-CONDITION-P</a></h4>
+                        <span class="qualifiers"></span>
+                        <span class="arguments">(SYMBOL)</span>
                       </code>
                     </header>
-                    <pre>Returns T if the symbol is a condition.</pre>
+                    <pre class="docstring">Returns T if the symbol is a condition.</pre>
                   </article>
                 </li><li>
                   <a name="STAPLE:SYMBOL-CONSTANT-P"/>
                   <article>
-                    <header>
-                      <span>FUNCTION</span>
+                    <header class="function">
+                      <span class="type">function</span>
                       <code>
-                        <h4><a href="#STAPLE:SYMBOL-CONSTANT-P">SYMBOL-CONSTANT-P</a></h4>
-                        <span></span>
-                        <span>(SYMBOL)</span>
+                        <h4><a href="#STAPLE:SYMBOL-CONSTANT-P" class="name">SYMBOL-CONSTANT-P</a></h4>
+                        <span class="qualifiers"></span>
+                        <span class="arguments">(SYMBOL)</span>
                       </code>
                     </header>
-                    <pre>Returns T if the symbol is a constant.</pre>
+                    <pre class="docstring">Returns T if the symbol is a constant.</pre>
                   </article>
                 </li><li>
                   <a name="STAPLE:SYMBOL-FUNCTION-P"/>
                   <article>
-                    <header>
-                      <span>FUNCTION</span>
+                    <header class="function">
+                      <span class="type">function</span>
                       <code>
-                        <h4><a href="#STAPLE:SYMBOL-FUNCTION-P">SYMBOL-FUNCTION-P</a></h4>
-                        <span></span>
-                        <span>(SYMBOL)</span>
+                        <h4><a href="#STAPLE:SYMBOL-FUNCTION-P" class="name">SYMBOL-FUNCTION-P</a></h4>
+                        <span class="qualifiers"></span>
+                        <span class="arguments">(SYMBOL)</span>
                       </code>
                     </header>
-                    <pre>Returns T if the symbol is a pure function.</pre>
+                    <pre class="docstring">Returns T if the symbol is a pure function.</pre>
                   </article>
                 </li><li>
                   <a name="STAPLE:SYMBOL-GENERIC-P"/>
                   <article>
-                    <header>
-                      <span>FUNCTION</span>
+                    <header class="function">
+                      <span class="type">function</span>
                       <code>
-                        <h4><a href="#STAPLE:SYMBOL-GENERIC-P">SYMBOL-GENERIC-P</a></h4>
-                        <span></span>
-                        <span>(SYMBOL)</span>
+                        <h4><a href="#STAPLE:SYMBOL-GENERIC-P" class="name">SYMBOL-GENERIC-P</a></h4>
+                        <span class="qualifiers"></span>
+                        <span class="arguments">(SYMBOL)</span>
                       </code>
                     </header>
-                    <pre>Returns T if the symbol is a generic function.</pre>
+                    <pre class="docstring">Returns T if the symbol is a generic function.</pre>
                   </article>
                 </li><li>
                   <a name="STAPLE:SYMBOL-OBJECTS"/>
                   <article>
-                    <header>
-                      <span>FUNCTION</span>
+                    <header class="function">
+                      <span class="type">function</span>
                       <code>
-                        <h4><a href="#STAPLE:SYMBOL-OBJECTS">SYMBOL-OBJECTS</a></h4>
-                        <span></span>
-                        <span>(SYMBOLS)</span>
+                        <h4><a href="#STAPLE:SYMBOL-OBJECTS" class="name">SYMBOL-OBJECTS</a></h4>
+                        <span class="qualifiers"></span>
+                        <span class="arguments">(SYMBOLS)</span>
                       </code>
                     </header>
-                    <pre>Gathers all possible symbol-objects out of the list of passed symbols.</pre>
+                    <pre class="docstring">Gathers all possible symbol-objects out of the list of passed symbols.</pre>
                   </article>
                 </li><li>
                   <a name="STAPLE:SYMBOL-SETF-FUNCTION-P"/>
                   <article>
-                    <header>
-                      <span>FUNCTION</span>
+                    <header class="function">
+                      <span class="type">function</span>
                       <code>
-                        <h4><a href="#STAPLE:SYMBOL-SETF-FUNCTION-P">SYMBOL-SETF-FUNCTION-P</a></h4>
-                        <span></span>
-                        <span>(SYMBOL)</span>
+                        <h4><a href="#STAPLE:SYMBOL-SETF-FUNCTION-P" class="name">SYMBOL-SETF-FUNCTION-P</a></h4>
+                        <span class="qualifiers"></span>
+                        <span class="arguments">(SYMBOL)</span>
                       </code>
                     </header>
-                    <pre>Returns T if the symbol is a setf function.</pre>
+                    <pre class="docstring">Returns T if the symbol is a setf function.</pre>
                   </article>
                 </li><li>
                   <a name="STAPLE:SYMBOL-STRUCTURE-P"/>
                   <article>
-                    <header>
-                      <span>FUNCTION</span>
+                    <header class="function">
+                      <span class="type">function</span>
                       <code>
-                        <h4><a href="#STAPLE:SYMBOL-STRUCTURE-P">SYMBOL-STRUCTURE-P</a></h4>
-                        <span></span>
-                        <span>(SYMBOL)</span>
+                        <h4><a href="#STAPLE:SYMBOL-STRUCTURE-P" class="name">SYMBOL-STRUCTURE-P</a></h4>
+                        <span class="qualifiers"></span>
+                        <span class="arguments">(SYMBOL)</span>
                       </code>
                     </header>
-                    <pre>Returns T if the symbol is a structure.</pre>
+                    <pre class="docstring">Returns T if the symbol is a structure.</pre>
                   </article>
                 </li><li>
                   <a name="STAPLE:SYSTEM-OUT"/>
                   <article>
-                    <header>
-                      <span>FUNCTION</span>
+                    <header class="function">
+                      <span class="type">function</span>
                       <code>
-                        <h4><a href="#STAPLE:SYSTEM-OUT">SYSTEM-OUT</a></h4>
-                        <span></span>
-                        <span>(SYSTEM)</span>
+                        <h4><a href="#STAPLE:SYSTEM-OUT" class="name">SYSTEM-OUT</a></h4>
+                        <span class="qualifiers"></span>
+                        <span class="arguments">(SYSTEM)</span>
                       </code>
                     </header>
-                    <pre>Returns a pathname to 'about.html' within the given system's source-directory.</pre>
+                    <pre class="docstring">Returns a pathname to 'about.html' within the given system's source-directory.</pre>
                   </article>
                 </li><li>
                   <a name="STAPLE:TO-OUT"/>
                   <article>
-                    <header>
-                      <span>FUNCTION</span>
+                    <header class="function">
+                      <span class="type">function</span>
                       <code>
-                        <h4><a href="#STAPLE:TO-OUT">TO-OUT</a></h4>
-                        <span></span>
-                        <span>(PATHNAME)</span>
+                        <h4><a href="#STAPLE:TO-OUT" class="name">TO-OUT</a></h4>
+                        <span class="qualifiers"></span>
+                        <span class="arguments">(PATHNAME)</span>
                       </code>
                     </header>
-                    <pre>Returns a pathname whose file-name (not extension) is postfixed by .out .</pre>
+                    <pre class="docstring">Returns a pathname whose file-name (not extension) is postfixed by .out .</pre>
                   </article>
                 </li><li>
                   <a name="STAPLE:YEAR"/>
                   <article>
-                    <header>
-                      <span>FUNCTION</span>
+                    <header class="function">
+                      <span class="type">function</span>
                       <code>
-                        <h4><a href="#STAPLE:YEAR">YEAR</a></h4>
-                        <span></span>
-                        <span>()</span>
+                        <h4><a href="#STAPLE:YEAR" class="name">YEAR</a></h4>
+                        <span class="qualifiers"></span>
+                        <span class="arguments">()</span>
                       </code>
                     </header>
-                    <pre/>
+                    <pre class="docstring"/>
                   </article>
                 </li><li>
                   <a name="STAPLE:PARSE-DOCUMENTATION-FILE"/>
                   <article>
-                    <header>
-                      <span>GENERIC</span>
+                    <header class="generic">
+                      <span class="type">generic</span>
                       <code>
-                        <h4><a href="#STAPLE:PARSE-DOCUMENTATION-FILE">PARSE-DOCUMENTATION-FILE</a></h4>
-                        <span></span>
-                        <span>(TYPE STREAM)</span>
+                        <h4><a href="#STAPLE:PARSE-DOCUMENTATION-FILE" class="name">PARSE-DOCUMENTATION-FILE</a></h4>
+                        <span class="qualifiers"></span>
+                        <span class="arguments">(TYPE STREAM)</span>
                       </code>
                     </header>
-                    <pre>Used to perform special parsing on certain documentation files (such as Markdown).
+                    <pre class="docstring">Used to perform special parsing on certain documentation files (such as Markdown).
 The type should be an EQL-specializer to a keyword of the file-type/extension.
 
 By default only .md files are specially handled, everything else is simply read as a string.</pre>
@@ -626,182 +713,95 @@ By default only .md files are specially handled, everything else is simply read 
                 </li><li>
                   <a name="STAPLE:SYMB-ARGUMENTS"/>
                   <article>
-                    <header>
-                      <span>GENERIC</span>
+                    <header class="generic">
+                      <span class="type">generic</span>
                       <code>
-                        <h4><a href="#STAPLE:SYMB-ARGUMENTS">SYMB-ARGUMENTS</a></h4>
-                        <span></span>
-                        <span>(SYMB-OBJECT)</span>
+                        <h4><a href="#STAPLE:SYMB-ARGUMENTS" class="name">SYMB-ARGUMENTS</a></h4>
+                        <span class="qualifiers"></span>
+                        <span class="arguments">(SYMB-OBJECT)</span>
                       </code>
                     </header>
-                    <pre>Returns the arguments of the function or NIL.</pre>
+                    <pre class="docstring">Returns the arguments of the function or NIL.</pre>
                   </article>
                 </li><li>
                   <a name="STAPLE:SYMB-DOCUMENTATION"/>
                   <article>
-                    <header>
-                      <span>GENERIC</span>
+                    <header class="generic">
+                      <span class="type">generic</span>
                       <code>
-                        <h4><a href="#STAPLE:SYMB-DOCUMENTATION">SYMB-DOCUMENTATION</a></h4>
-                        <span></span>
-                        <span>(SYMB-OBJECT)</span>
+                        <h4><a href="#STAPLE:SYMB-DOCUMENTATION" class="name">SYMB-DOCUMENTATION</a></h4>
+                        <span class="qualifiers"></span>
+                        <span class="arguments">(SYMB-OBJECT)</span>
                       </code>
                     </header>
-                    <pre>Returns the documentation-string.</pre>
+                    <pre class="docstring">Returns the documentation-string.</pre>
                   </article>
                 </li><li>
                   <a name="STAPLE:SYMB-FUNCTION"/>
                   <article>
-                    <header>
-                      <span>GENERIC</span>
+                    <header class="generic">
+                      <span class="type">generic</span>
                       <code>
-                        <h4><a href="#STAPLE:SYMB-FUNCTION">SYMB-FUNCTION</a></h4>
-                        <span></span>
-                        <span>(SYMB-OBJECT)</span>
+                        <h4><a href="#STAPLE:SYMB-FUNCTION" class="name">SYMB-FUNCTION</a></h4>
+                        <span class="qualifiers"></span>
+                        <span class="arguments">(SYMB-OBJECT)</span>
                       </code>
                     </header>
-                    <pre>Returns the symbol-function of the symbol.</pre>
+                    <pre class="docstring">Returns the symbol-function of the symbol.</pre>
                   </article>
                 </li><li>
                   <a name="STAPLE:SYMB-QUALIFIERS"/>
                   <article>
-                    <header>
-                      <span>GENERIC</span>
+                    <header class="generic">
+                      <span class="type">generic</span>
                       <code>
-                        <h4><a href="#STAPLE:SYMB-QUALIFIERS">SYMB-QUALIFIERS</a></h4>
-                        <span></span>
-                        <span>(SYMB-OBJECT)</span>
+                        <h4><a href="#STAPLE:SYMB-QUALIFIERS" class="name">SYMB-QUALIFIERS</a></h4>
+                        <span class="qualifiers"></span>
+                        <span class="arguments">(SYMB-OBJECT)</span>
                       </code>
                     </header>
-                    <pre>Returns the qualifiers of the method or NIL.</pre>
+                    <pre class="docstring">Returns the qualifiers of the method or NIL.</pre>
                   </article>
                 </li><li>
                   <a name="STAPLE:SYMB-SCOPE"/>
                   <article>
-                    <header>
-                      <span>GENERIC</span>
+                    <header class="generic">
+                      <span class="type">generic</span>
                       <code>
-                        <h4><a href="#STAPLE:SYMB-SCOPE">SYMB-SCOPE</a></h4>
-                        <span></span>
-                        <span>(SYMB-OBJECT)</span>
+                        <h4><a href="#STAPLE:SYMB-SCOPE" class="name">SYMB-SCOPE</a></h4>
+                        <span class="qualifiers"></span>
+                        <span class="arguments">(SYMB-OBJECT)</span>
                       </code>
                     </header>
-                    <pre>Returns whether the symbol is :INHERITED, :EXTERNAL or :INTERNAL.</pre>
+                    <pre class="docstring">Returns whether the symbol is :INHERITED, :EXTERNAL or :INTERNAL.</pre>
                   </article>
                 </li><li>
                   <a name="STAPLE:SYMB-TYPE"/>
                   <article>
-                    <header>
-                      <span>GENERIC</span>
+                    <header class="generic">
+                      <span class="type">generic</span>
                       <code>
-                        <h4><a href="#STAPLE:SYMB-TYPE">SYMB-TYPE</a></h4>
-                        <span></span>
-                        <span>(SYMB-OBJECT)</span>
+                        <h4><a href="#STAPLE:SYMB-TYPE" class="name">SYMB-TYPE</a></h4>
+                        <span class="qualifiers"></span>
+                        <span class="arguments">(SYMB-OBJECT)</span>
                       </code>
                     </header>
-                    <pre>Returns the string-name of the kind of object it represents.</pre>
+                    <pre class="docstring">Returns the string-name of the kind of object it represents.</pre>
                   </article>
                 </li><li>
                   <a name="STAPLE:SYMB&lt;"/>
                   <article>
-                    <header>
-                      <span>GENERIC</span>
+                    <header class="generic">
+                      <span class="type">generic</span>
                       <code>
-                        <h4><a href="#STAPLE:SYMB&lt;">SYMB&lt;</a></h4>
-                        <span></span>
-                        <span>(A B)</span>
+                        <h4><a href="#STAPLE:SYMB&lt;" class="name">SYMB&lt;</a></h4>
+                        <span class="qualifiers"></span>
+                        <span class="arguments">(A B)</span>
                       </code>
                     </header>
-                    <pre>Used to sort symbols alphabetically.
+                    <pre class="docstring">Used to sort symbols alphabetically.
 Special treatment is done so that generic functions should
 always appear before their methods.</pre>
-                  </article>
-                </li><li>
-                  <a name="STAPLE:*DEFAULT-TEMPLATE*"/>
-                  <article>
-                    <header>
-                      <span>SPECIAL</span>
-                      <code>
-                        <h4><a href="#STAPLE:*DEFAULT-TEMPLATE*">*DEFAULT-TEMPLATE*</a></h4>
-                        <span></span>
-                        <span>()</span>
-                      </code>
-                    </header>
-                    <pre>Pathname to the default template to use in GENERATE.</pre>
-                  </article>
-                </li><li>
-                  <a name="STAPLE:*DOCUMENTATION-NAMES*"/>
-                  <article>
-                    <header>
-                      <span>SPECIAL</span>
-                      <code>
-                        <h4><a href="#STAPLE:*DOCUMENTATION-NAMES*">*DOCUMENTATION-NAMES*</a></h4>
-                        <span></span>
-                        <span>()</span>
-                      </code>
-                    </header>
-                    <pre>A list of strings denoting common file names (without extension) for documentation files.
-If you have your own file name, push it onto this list.</pre>
-                  </article>
-                </li><li>
-                  <a name="STAPLE:*DOCUMENTATION-TYPES*"/>
-                  <article>
-                    <header>
-                      <span>SPECIAL</span>
-                      <code>
-                        <h4><a href="#STAPLE:*DOCUMENTATION-TYPES*">*DOCUMENTATION-TYPES*</a></h4>
-                        <span></span>
-                        <span>()</span>
-                      </code>
-                    </header>
-                    <pre>A list of strings denoting common file types/extensions for documentation files.
-If you have your own file type, push it onto this list.</pre>
-                  </article>
-                </li></ul>
-            </li><li class="package">
-              <h3>
-                <a name="STAPLE-SERVER" href="#STAPLE-SERVER">STAPLE-SERVER</a>
-                <span class="nicknames">(ORG.TYMOONNEXT.STAPLE.SERVER)</span>
-              </h3>
-              <ul><li>
-                  <a name="STAPLE-SERVER:RECACHE"/>
-                  <article>
-                    <header>
-                      <span>FUNCTION</span>
-                      <code>
-                        <h4><a href="#STAPLE-SERVER:RECACHE">RECACHE</a></h4>
-                        <span></span>
-                        <span>(&amp;OPTIONAL (SYSTEMS (ALL-SYSTEMS)))</span>
-                      </code>
-                    </header>
-                    <pre>Produce freshly cached documentation pages for the given list of ASDF systems.</pre>
-                  </article>
-                </li><li>
-                  <a name="STAPLE-SERVER:START"/>
-                  <article>
-                    <header>
-                      <span>FUNCTION</span>
-                      <code>
-                        <h4><a href="#STAPLE-SERVER:START">START</a></h4>
-                        <span></span>
-                        <span>()</span>
-                      </code>
-                    </header>
-                    <pre>Start the documentation server if it isn't already running.
-This will launch an HTTP server on port 8080.</pre>
-                  </article>
-                </li><li>
-                  <a name="STAPLE-SERVER:STOP"/>
-                  <article>
-                    <header>
-                      <span>FUNCTION</span>
-                      <code>
-                        <h4><a href="#STAPLE-SERVER:STOP">STOP</a></h4>
-                        <span></span>
-                        <span>()</span>
-                      </code>
-                    </header>
-                    <pre>Stop the documentation server if it is running.</pre>
                   </article>
                 </li></ul>
             </li></ul>
