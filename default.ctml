@@ -54,7 +54,7 @@
                 <a lquery="(text (package-name *)) (attr :name (package-name *) :href (anchor (package-name *)))">PACKAGE</a>
                 <span lquery="(text (package-nicknames *))" class="nicknames">NICKS</span>
               </h3>
-              <c:do-symbols as="ul" package="*" exclude="method internal">
+              <c:do-symbols as="ul" package="*" exclude="method internal inherited">
                 <li>
                   <a lquery="(attr :name full-name)"></a>
                   <article>
