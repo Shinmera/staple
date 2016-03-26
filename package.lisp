@@ -72,6 +72,10 @@
    #:symbol-structure-p
    #:symbol-condition-p
 
+   #:converter
+   #:remove-converter
+   #:define-converter
+   #:define-simple-converter
    #:package-symbols
    #:symbol-objects
    #:package-symbol-objects))

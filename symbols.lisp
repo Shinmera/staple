@@ -240,6 +240,73 @@ always appear before their methods.")
        (not (symbol-condition-p symbol))
        (find-class symbol nil)))
 
+(defvar *converters* (make-hash-table :test 'eql)
+  "Hash table to contain the converter functions.")
+
+(defun converter (name)
+  "Accessor to the converter function associated with the name.
+Each converter function takes two arguments, a symbol and a package,
+and must return a list of symb-object instances."
+  (gethash name *converters*))
+
+(defun (setf converter) (function name)
+  (setf (gethash name *converters*) function))
+
+(defun remove-converter (name)
+  "Remove the named converter.
+
+See CONVERTER"
+  (remhash name *converters*))
+
+(defmacro define-converter (name args &body body)
+  "Shorthand to easily define a converter function.
+
+See CONVERTER"
+  `(progn (setf (converter ',name)
+                (lambda ,args
+                  ,@body))
+          ',name))
+
+(defmacro define-simple-converter (object-class test)
+  "Shorthand for the most common definitions.
+If TEST function passes, a single symbol object constructed from OBJECT-CLASS
+is returned as a list."
+  `(define-converter ,object-class (symbol package)
+     (when (,test symbol)
+       (list (make-instance ',object-class :symbol symbol :package package)))))
+
+(define-converter symb-accessor (symbol package)
+  (when (symbol-accessor-p symbol)
+    (list* (make-instance 'symb-accessor :symbol symbol :package package)
+           (funcall (converter 'symb-method) `(setf ,symbol) package))))
+
+(define-converter symb-method (symbol package)
+  (when (symbol-generic-p symbol)
+    (loop for method in (generic-function-methods (fdefinition symbol))
+          collect (make-instance 'symb-method :symbol symbol
+                                              :package package
+                                              :method method))))
+
+(define-converter symb-setf-function (symbol package)
+  (when (and (symbol-setf-function-p symbol)
+             (not (symbol-accessor-p symbol)))
+    (let ((setfer `(setf ,symbol)))
+      (if (symbol-generic-p setfer)
+          (list* (make-instance 'symb-generic :symbol setfer :package package)
+                 (funcall (converter 'symb-method) setfer package))
+          (list (make-instance 'symb-function :symbol setfer :package package))))))
+
+(define-simple-converter symb-function
+    (lambda (symbol) (and (symbol-function-p symbol) (not (symbol-accessor-p symbol)))))
+(define-simple-converter symb-generic
+    (lambda (symbol) (and (symbol-generic-p symbol) (not (symbol-accessor-p symbol)))))
+(define-simple-converter symb-macro symbol-macro-p)
+(define-simple-converter symb-special symbol-special-p)
+(define-simple-converter symb-constant symbol-constant-p)
+(define-simple-converter symb-structure symbol-structure-p)
+(define-simple-converter symb-condition symbol-condition-p)
+(define-simple-converter symb-class symbol-class-p)
+
 (defun package-symbols (package)
   "Gets all symbols within a package."
   (let ((lst ()))
@@ -250,45 +317,9 @@ always appear before their methods.")
   "Gathers all possible symbol-objects out of the list of passed symbols."
   (let ((objs ()))
     (dolist (symbol symbols objs)
-      (flet ((push-symb (class &optional (symbol symbol))
-               (push (make-instance class :symbol symbol
-                                          :package (or package (symbol-package symbol)))
-                     objs))
-             (push-methods (symbol)
-               (when (symbol-generic-p symbol)
-                 (dolist (method (generic-function-methods (fdefinition symbol)))
-                   (push (make-instance 'symb-method :symbol symbol
-                                                     :package (or package (symbol-package symbol))
-                                                     :method method)
-                         objs)))))
-        (cond ((symbol-accessor-p symbol)
-               (push-symb 'symb-accessor)
-               (push-methods symbol)
-               (push-methods `(setf ,symbol)))
-              (T
-               (when (symbol-macro-p symbol)
-                 (push-symb 'symb-macro))
-               (when (symbol-function-p symbol)
-                 (push-symb 'symb-function))
-               (when (symbol-setf-function-p symbol)
-                 (cond ((symbol-generic-p `(setf ,symbol))
-                        (push-symb 'symb-generic `(setf ,symbol))
-                        (push-methods `(setf ,symbol)))
-                       (T
-                        (push-symb 'symb-function `(setf ,symbol)))))
-               (when (symbol-generic-p symbol)
-                 (push-symb 'symb-generic)
-                 (push-methods symbol))))
-        (when (symbol-special-p symbol)
-          (push-symb 'symb-special))
-        (when (symbol-constant-p symbol)
-          (push-symb 'symb-constant))
-        (when (symbol-structure-p symbol)
-          (push-symb 'symb-structure))
-        (when (symbol-condition-p symbol)
-          (push-symb 'symb-condition))
-        (when (symbol-class-p symbol)
-          (push-symb 'symb-class))))))
+      (loop for converter being the hash-values of *converters*
+            do (dolist (obj (funcall converter symbol (or package (symbol-package symbol))))
+                 (push obj objs))))))
 
 (defun package-symbol-objects (package)
   "Gathers all possible symbol-objects of the given package."
