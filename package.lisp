@@ -40,6 +40,7 @@
   ;; symbols.lisp
   (:export
    #:symb-object
+   #:symb-true-symbol
    #:symb-symbol
    #:symb-type
    #:symb-variable
