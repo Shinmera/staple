@@ -62,6 +62,7 @@
    #:symb-documentation
    #:symb<
    #:symb-type<
+   #:symb-type-order
    
    #:symbol-function-p
    #:symbol-setf-function-p

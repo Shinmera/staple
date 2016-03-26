@@ -168,19 +168,30 @@ always appear before their methods.")
         (listp (symb-symbol b))
         (string< (symb-true-symbol a) (symb-true-symbol b)))))
 
+(defgeneric symb-type-order (symb)
+  (:method (symb) most-positive-fixnum)
+  (:method ((symb symb-object))
+    (symb-type-order (type-of symb)))
+  (:method ((symb (eql 'symb-constant)))  00)
+  (:method ((symb (eql 'symb-special)))   10)
+  (:method ((symb (eql 'symb-variable)))  20)
+  (:method ((symb (eql 'symb-class)))     30)
+  (:method ((symb (eql 'symb-condition))) 40)
+  (:method ((symb (eql 'symb-structure))) 50)
+  (:method ((symb (eql 'symb-type)))      60)
+  (:method ((symb (eql 'symb-accessor)))  70)
+  (:method ((symb (eql 'symb-function)))  80)
+  (:method ((symb (eql 'symb-generic)))   90)
+  (:method ((symb (eql 'symb-method)))    100)
+  (:method ((symb (eql 'symb-method)))    110)
+  (:method ((symb (eql 'symb-macro)))     120)
+  (:method ((symb (eql 'symb-object)))    130))
+
 (defun symb-type< (a b)
   "Used to sort symbols alphabetically, grouped by their type."
   (if (string-equal (symb-type a) (symb-type b))
       (symb< a b)
-      (flet ((type-order (symb)
-               (loop for type in '(constant special variable
-                                   class condition structure type
-                                   accessor function generic method
-                                   macro object)
-                     for i from 0
-                     do (when (string-equal (symb-type symb) type)
-                          (return i)))))
-        (< (type-order a) (type-order b)))))
+      (< (symb-type-order a) (symb-type-order b))))
 
 (defun symbol-function-p (symbol)
   "Returns T if the symbol is a pure function."
