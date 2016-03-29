@@ -322,7 +322,7 @@ is returned as a list."
   "Gets all symbols within a package."
   (let ((lst ()))
     (do-symbols (s package lst)
-      (push s lst))))
+      (pushnew s lst))))
 
 (defun symbol-objects (symbols &optional package)
   "Gathers all possible symbol-objects out of the list of passed symbols."
