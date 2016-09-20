@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <c:asdf system="asdf" as="head">
+    <meta charset="utf-8" />
+    <title lquery="(text (string-capitalize name))">NAME</title>
+    <meta name="viewport" content="width=device-width"/>
+    <meta name="description" lquery="(attr :content description)" />
+    <meta name="author" lquery="(attr :content author)" />
+    <style type="text/css">
+      body{
+          max-width: 1024px;
+          margin: 0 auto 0 auto;
+          font-family: sans-serif;
+          color: #333333;
+          font-size: 14pt;
+          padding: 5px;
+      }
+
+      body>header{
+          display:flex;
+          align-items: center;
+          justify-content: center;
+          flex-direction: column;
+          max-width: 100%;
+      }
+
+      img{
+          max-width: 100%;
+          max-height: 100%;
+      }
+
+      code{
+          font-family: Consolas, Inconsolata, monospace;
+      }
+
+      a{
+          text-decoration: none;
+          color: #0055AA;
+      }
+
+      #documentation{
+          text-align: justify;
+      }
+
+      #documentation pre{
+          margin-left: 20px;
+      }
+
+      #symbol-index>ul{
+          list-style: none;
+          padding: 0;
+      }
+      #symbol-index .package>ul{
+          list-style: none;
+          padding: 0 0 0 10px;
+      }
+      #symbol-index .package .nicknames{
+          font-weight: normal;
+      }
+      #symbol-index .package h4{
+          display: inline-block;
+          margin: 0;
+      }
+      #symbol-index .package article{
+          margin: 0 0 15px 0;
+      }
+      #symbol-index .package article header{
+          font-size: 1.2em;
+          font-weight: normal;
+      }
+      #symbol-index .package .name{
+          margin-right: 5px;
+      }
+      #symbol-index .package .docstring{
+          margin: 0 0 0 15px;
+          white-space: pre-wrap;
+          font-size: 12pt;
+      }
+
+      @media (max-width: 800px){
+          body{font-size: 12pt;}
+      }
+    </style>
+  </c:asdf>
+  <body>
+    <c:asdf system="asdf" as="header">
+      <c:if test="(root 'logo)">
+        <c:then><h1><img lquery="(attr :src (root 'logo) :alt name)" src="staple-logo.png" /></h1></c:then>
+        <c:else><h1 lquery="(text name)">NAME</h1></c:else>
+      </c:if>
+      <span class="version" lquery="(text version)">1.0.0</span>
+      <p class="description" lquery="(text description)">
+        This is some short description that was found in the ASDF field.
+      </p>
+    </c:asdf>
+    <main>
+      <article id="documentation">
+        <c:documentate>
+          <c:noop lquery="(html documentation)" as="div">
+            Now this is a long document that will contain a lot of things such as
+            <h2>Sub headers</h2>
+            <p>paragraphs with <a href=".">links</a> and <code>code</code>.</p>
+            <pre><code>and even code blocks!</code></pre>
+            <p>so it should all be styled nicely.</p>
+          </c:noop>
+        </c:documentate>
+      </article>
+      <c:asdf system="asdf" as="article" id="copyright">
+        <c:when test="(or license licence author homepage)">
+          <h2>Copyright</h2>
+          <c:when test="(or license licence)"><span lquery="(text name)">NAME</span> is licensed under the <span lquery="(html (licenselink (or license licence)))">LICENSE</span> license.</c:when>
+          <c:when test="author">
+            &#169; <span lquery="(text author)">AUTHOR</span>
+            <c:when test="(and author maintainer (string/= author maintainer))">currently maintained by <span lquery="(text maintainer)"></span></c:when>.
+          </c:when>
+          <c:when test="homepage">This library can be obtained on <a lquery="(text homepage) (attr :href homepage)">WEBSITE</a>.</c:when>
+        </c:when>
+      </c:asdf>
+      <c:when test="packages">
+        <article id="symbol-index">
+          <h2>Package Index</h2>
+          <ul iterate="packages">
+            <c:package name="*" as="li" class="package">
+              <h3>
+                <a lquery="(text (package-name *)) (attr :name (package-name *) :href (anchor (package-name *)))">PACKAGE</a>
+                <span lquery="(text (package-nicknames *))" class="nicknames">NICKS</span>
+              </h3>
+              <c:do-symbols as="ul" package="*" exclude="method internal inherited">
+                <li>
+                  <a lquery="(attr :name full-name)">&nbsp;</a>
+                  <article>
+                    <header lquery="(add-class type)">
+                      <span class="type" lquery="(text type)">TYPE</span>
+                      <c:if test="(find type #(function accessor macro generic method) :test #'string-equal))">
+                        <c:then>
+                          <code>(</code><h4 class="name"><code><a lquery="(text (present symbol)) (attr :href (anchor full-name))">NAME</a></code></h4>
+                          <code class="qualifiers" lquery="(text (present-qualifiers qualifiers))">QUALIFIERS</code>
+                          <code class="arguments" lquery="(text (present-arguments arguments NIL))">ARGUMENTS</code><code>)</code>
+                        </c:then>
+                        <c:else>
+                          <h4 class="name"><code><a lquery="(text (present symbol)) (attr :href (anchor full-name))">NAME</a></code></h4>
+                        </c:else>
+                      </c:if>
+                    </header>
+                    <pre lquery="(text documentation)" class="docstring">DOCUMENTATION</pre>
+                  </article>
+                </li>
+              </c:do-symbols>
+            </c:package>
+          </ul>
+        </article>
+      </c:when>
+    </main>
+  </body>
+</html>
