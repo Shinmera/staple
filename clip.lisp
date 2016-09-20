@@ -50,10 +50,13 @@ documentation page when referring to it through RESOLVE-SYMBOL-DOCUMENTATION.")
     (null "")
     (T (present thing))))
 
-(defun present-arguments (thing)
-  (typecase thing
-    (null "()")
-    (T (present thing))))
+(defun present-arguments (thing &optional (lambda-list-parens T))
+  (let ((string (typecase thing
+                  (null "()")
+                  (T (present thing)))))
+    (if lambda-list-parens
+        string
+        (subseq string 1 (1- (length string))))))
 
 (defun string-starts-with (string sub)
   "Returns T if the string starts with sub, NIL otherwise."
