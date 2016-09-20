@@ -38,7 +38,7 @@ from within different clipboard environments.")
            do (compact child))))
   node)
 
-(defun staple (in &key (out (to-out in)) (if-exists :supersede) clip-args)
+(defun staple (in &key (out (to-out in)) (if-exists :supersede) clip-args (compact T))
   "Performs stapling actions/clip processing on the IN document.
 
 IN is parsed by PLUMP:PARSE and the results are written to OUT.
@@ -47,7 +47,8 @@ These will also appear in the *ROOT-CLIPBOARD*."
   (let ((*package* (find-package "STAPLE"))
         (*root-clipboard* (apply #'make-clipboard clip-args))
         (document (plump:parse in)))
-    (let ((document (compact (apply #'clip:process document clip-args))))
+    (let ((document (apply #'clip:process document clip-args)))
+      (when compact (compact document))
       (etypecase out
         ((or string pathname)
          (with-open-file (stream out :direction :output :if-exists if-exists)
@@ -67,6 +68,7 @@ These will also appear in the *ROOT-CLIPBOARD*."
                                documentation logo
                                (out (system-out asdf-system))
                                (template *default-template*)
+                               (compact T)
                                (if-exists :error))
   "Generates documentation for the given asdf-system.
 
@@ -78,6 +80,7 @@ LOGO           --- A string or URL to the logo to use in the template. If not su
                    no logo image is inserted.
 OUT            --- The file to write the resulting documentation to.
 TEMPLATE       --- Pathname to the clip template file to process.
+COMPACT        --- Whether to strip leading and trailing whitespace where sensible.
 IF-EXISTS      --- Argument for WITH-OPEN-FILE."
   (when (typep asdf-system 'asdf:system)
     (setf asdf-system (asdf:component-name asdf-system)))
@@ -93,4 +96,5 @@ IF-EXISTS      --- Argument for WITH-OPEN-FILE."
     (staple
      template
      :out out :if-exists if-exists
-     :clip-args (list 'asdf asdf-system 'name name 'packages packages 'documentation documentation 'logo logo))))
+     :clip-args (list 'asdf asdf-system 'name name 'packages packages 'documentation documentation 'logo logo)
+     :compact compact)))
