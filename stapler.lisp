@@ -24,6 +24,20 @@ from within different clipboard environments.")
   "Returns a pathname to 'about.html' within the given system's source-directory."
   (merge-pathnames "about.html" (asdf:system-source-directory (asdf:find-system system))))
 
+(defun compact (node)
+  (typecase node
+    (plump:text-node
+     (setf (plump:text node) (string-trim '(#\Space #\Newline #\Tab #\Return #\Linefeed #\Page)
+                                          (plump:text node))))
+    (plump:element
+     (unless (string-equal "pre" (plump:tag-name node))
+       (loop for child across (plump:children node)
+             do (compact child))))
+    (plump:nesting-node
+     (loop for child across (plump:children node)
+           do (compact child))))
+  node)
+
 (defun staple (in &key (out (to-out in)) (if-exists :supersede) clip-args)
   "Performs stapling actions/clip processing on the IN document.
 
@@ -33,7 +47,7 @@ These will also appear in the *ROOT-CLIPBOARD*."
   (let ((*package* (find-package "STAPLE"))
         (*root-clipboard* (apply #'make-clipboard clip-args))
         (document (plump:parse in)))
-    (let ((document (apply #'clip:process document clip-args)))
+    (let ((document (compact (apply #'clip:process document clip-args))))
       (etypecase out
         ((or string pathname)
          (with-open-file (stream out :direction :output :if-exists if-exists)
