@@ -31,8 +31,7 @@ from within different clipboard environments.")
 (defun compact (node)
   (typecase node
     (plump:text-node
-     (setf (plump:text node) (string-trim '(#\Space #\Newline #\Tab #\Return #\Linefeed #\Page)
-                                          (plump:text node))))
+     (setf (plump:text node) (cl-ppcre:regex-replace-all "(^\\s+)|(\\s+$)" (plump:text node) " ")))
     (plump:element
      (unless (string-equal "pre" (plump:tag-name node))
        (loop for child across (plump:children node)
