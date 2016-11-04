@@ -21,6 +21,10 @@
           justify-content: center;
           flex-direction: column;
           max-width: 100%;
+          text-align: center;
+      }
+      body>header img{
+          max-width: 50%;
       }
       img{
           max-width: 100%;
