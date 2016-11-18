@@ -111,7 +111,7 @@ the symbol is attempted to be automatically found in either the
    #'(lambda (target start end match-start match-end reg-starts reg-ends)
        (declare (ignore start end reg-starts reg-ends))
        (let* ((name (subseq target (1+ match-start) match-end))
-              (href (resolve-symbol-documentation name)))
+              (href (resolve-symbol-documentation (plump:decode-entities name))))
          (if href
              (format NIL "(<a href=\"~a\">~a</a>" href name)
              (format NIL "(~a"  name))))))
@@ -121,7 +121,7 @@ the symbol is attempted to be automatically found in either the
    "^[^:][^\\s]+$" html
    #'(lambda (target &rest rest)
        (declare (ignore rest))
-       (let* ((href (resolve-symbol-documentation target)))
+       (let* ((href (resolve-symbol-documentation (plump:decode-entities target))))
          (if href
              (format NIL "<a href=\"~a\">~a</a>" href target)
              (format NIL "~a"  target))))))
