@@ -43,6 +43,7 @@
   (:export
    #:symb-object
    #:symb-true-symbol
+   #:symb-name
    #:symb-symbol
    #:symb-type
    #:symb-variable
