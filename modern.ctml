@@ -134,7 +134,8 @@
                   <article>
                     <header lquery="(add-class type)">
                       <span class="type" lquery="(text type)">TYPE</span>
-                      <c:if test="(find type #(function accessor macro generic method) :test #'string-equal))">
+                      <c:if test="(or (find type #(function accessor macro generic method) :test #'string-equal)
+                                      arguments)">
                         <c:then>
                           <code>(</code><h4 class="name"><code><a lquery="(text (present symbol)) (attr :href (anchor full-name))">NAME</a></code></h4>
                           <code class="qualifiers" lquery="(text (present-qualifiers qualifiers))">QUALIFIERS</code>
