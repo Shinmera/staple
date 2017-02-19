@@ -137,12 +137,12 @@
                       <c:if test="(or (find type #(function accessor macro generic method) :test #'string-equal)
                                       arguments)">
                         <c:then>
-                          <code>(</code><h4 class="name"><code><a lquery="(text (present symbol)) (attr :href (anchor full-name))">NAME</a></code></h4>
+                          <code>(</code><h4 class="name"><code><a lquery="(text name) (attr :href (anchor full-name))">NAME</a></code></h4>
                           <code class="qualifiers" lquery="(text (present-qualifiers qualifiers))">QUALIFIERS</code>
                           <code class="arguments" lquery="(text (present-arguments arguments NIL))">ARGUMENTS</code><code>)</code>
                         </c:then>
                         <c:else>
-                          <h4 class="name"><code><a lquery="(text (present symbol)) (attr :href (anchor full-name))">NAME</a></code></h4>
+                          <h4 class="name"><code><a lquery="(text name) (attr :href (anchor full-name))">NAME</a></code></h4>
                         </c:else>
                       </c:if>
                     </header>
