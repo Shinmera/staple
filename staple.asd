@@ -4,11 +4,8 @@
  Author: Nicolas Hafner <shinmera@tymoon.eu>
 |#
 
-(defpackage org.tymoonnext.staple.asdf
-  (:use :cl :asdf))
-(in-package :org.tymoonnext.staple.asdf)
-
-(defsystem staple
+(in-package #:cl-user)
+(asdf:defsystem staple
   :name "Staple Documentation Generator"
   :version "1.0.1"
   :license "Artistic"
@@ -28,4 +25,4 @@
                :trivial-arguments
                :3bmd
                :3bmd-ext-code-blocks
-               #+:sbcl :sb-cltl2))
+               (:feature :sbcl (:require :sb-cltl2))))
