@@ -101,6 +101,8 @@
                                (if-exists :error))
   (when (typep asdf-system 'asdf:system)
     (setf asdf-system (asdf:component-name asdf-system)))
+  (unless (asdf:component-loaded-p (asdf:find-system asdf-system T))
+    (asdf:load-system asdf-system))
   (let* ((asdf (or (asdf:find-system asdf-system)
                    (error "No such ASDF system: ~a" asdf-system)))
          (name (string name))
