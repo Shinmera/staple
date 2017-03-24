@@ -10,6 +10,45 @@
 (defvar *legacy-template* (merge-pathnames "plain.ctml" (asdf:system-source-directory :staple)))
 (defvar *default-template* *modern-template*)
 (defvar *root-clipboard* NIL)
+(defvar *system-packages* (make-hash-table :test 'eql))
+
+(defun efind-package (name)
+  (or (find-package name)
+      (find-package (string-upcase name))
+      (error "No package with name ~s could be found." name)))
+
+(defun system-packages (system)
+  (let ((system (etypecase system
+                  (asdf:system system)
+                  ((or symbol string) (asdf:find-system system T)))))
+    (or (destructuring-bind (&optional packages complete)
+            (gethash system *system-packages*)
+          (when complete packages))
+        ;; Heuristic. Works in most cases.
+        (list (efind-package (asdf:component-name system))))))
+
+(defun (setf system-packages) (packages system &optional (finished T))
+  (let ((system (etypecase system
+                  (asdf:system system)
+                  ((or symbol string) (asdf:find-system system T))))
+        (packages (loop for package in packages
+                        collect (etypecase package
+                                  (package package)
+                                  ((or string symbol) (efind-package package))))))
+    (setf (gethash system *system-packages*)
+          (list packages finished))))
+
+;; Record all packages before system load
+(defmethod asdf:perform :after ((o asdf:prepare-op) (s asdf:system))
+  (setf (system-packages s NIL) (list-all-packages)))
+
+;; Difference recorded list against current list to get all packages defined.
+(defmethod asdf:perform :after ((o asdf:load-op) (s asdf:system))
+  (destructuring-bind (&optional packages complete)
+      (gethash s *system-packages*)
+    (when packages
+      (setf (system-packages s)
+            (set-difference (list-all-packages) packages)))))
 
 (defun root (field)
   (clip *root-clipboard* field))
@@ -53,7 +92,7 @@
          document)))))
 
 (defun generate (asdf-system &key
-                               (packages (list asdf-system))
+                               (packages (system-packages asdf-system))
                                (name asdf-system)
                                documentation logo
                                (out (system-out asdf-system))
@@ -65,7 +104,11 @@
   (let* ((asdf (or (asdf:find-system asdf-system)
                    (error "No such ASDF system: ~a" asdf-system)))
          (name (string name))
-         (packages (mapcar #'string packages))
+         (packages (loop for package in packages
+                         collect (etypecase package
+                                   (symbol (string package))
+                                   (package (package-name package))
+                                   (string package))))
          (documentation (prepare-documentation asdf documentation))
          (logo (if (pathnamep out)
                    (uiop:enough-pathname (or logo (find-logo-file asdf)) (uiop:pathname-directory-pathname out))

@@ -146,6 +146,34 @@ from within different clipboard environments.
 
 See ROOT")
 
+  (variable *system-packages*
+    "Map associating ASDF:SYSTEM objects to recorded packages for the system.
+
+The value for each system is a list of a list of packages plus an indicator
+as to whether that list is actually complete. Thus if the second item in the
+list is not T, you should not use the list of packages.
+
+See SYSTEM-PACKAGES")
+
+  (function efind-package
+    "Attempts to find a package of the given name.
+
+Unlike FIND-PACKAGE, this also tries the name in all uppercase, and if
+both attempts with the regular name and uppercased name fail, it signals
+an error.")
+
+  (function system-packages
+    "Accessor to the list of packages associated to the system.
+
+If the loading process of the system happened before staple was loaded, a
+heuristic is used where a package name is returned that corresponds to the
+system's name. If the system was loaded after staple, this should return
+the precise list of packages that the system defined.
+
+If no corresponding package name could be found, an error is signalled.
+
+See *SYSTEM-PACKAGES*")
+
   (function root
     "Shorthand for (CLIP *ROOT-CLIPBOARD* FIELD)
 

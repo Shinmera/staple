@@ -35,6 +35,7 @@
    #:*modern-template*
    #:*legacy-template*
    #:*default-template*
+   #:system-packages
    #:to-out
    #:system-out
    #:staple
