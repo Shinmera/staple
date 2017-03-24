@@ -6,10 +6,7 @@
 
 (in-package #:org.tymoonnext.staple)
 
-(defvar *current-packages* ()
-  "List of packages being processed by the template.
-This is to used to figure out whether a symbol can be found on the 
-documentation page when referring to it through RESOLVE-SYMBOL-DOCUMENTATION.")
+(defvar *current-packages* ())
 
 (defun year ()
   (nth-value 5 (get-decoded-time)))
@@ -21,7 +18,6 @@ documentation page when referring to it through RESOLVE-SYMBOL-DOCUMENTATION.")
   (nth-value 3 (get-decoded-time)))
 
 (defun licenselink (license)
-  "Returns an A tag linked to a TLDRLegal.com search on the license name."
   (format NIL "<a href=\"https://tldrlegal.com/search?q=~a\">~a</a>" license license))
 
 (defun present-improper-list (list)
@@ -59,17 +55,10 @@ documentation page when referring to it through RESOLVE-SYMBOL-DOCUMENTATION.")
         (subseq string 1 (1- (length string))))))
 
 (defun string-starts-with (string sub)
-  "Returns T if the string starts with sub, NIL otherwise."
   (and (<= (length sub) (length string))
        (string-equal (subseq string 0 (length sub)) sub)))
 
 (defun resolve-symbol-documentation (symbol)
-  "Attempts to resolve the (string) symbol to either an URL or an anchor.
-This works by first testing against the package. If it is known (such as the
-sb-*, mop, cl and *current-packages*) a link/anchor is returned. If nothing
-can be found, NIL is returned instead. If no package designator is given,
-the symbol is attempted to be automatically found in either the
-*current-packages* or in CL."
   (let ((name) (package) (symbol (string-upcase symbol)))
     (let ((colonpos (position #\: symbol)))
       (if colonpos
@@ -98,11 +87,9 @@ the symbol is attempted to be automatically found in either the
          (format NIL "http://l1sp.org/cl/~a" (string-downcase name)))))))
 
 (defun anchor (object)
-  "Returns a href-anchor."
   (format NIL "#~a" object))
 
 (defun stext (node object)
-  "Same as lQuery's TEXT, but calls PRINC-TO-STRING on the object or uses an empty string on NIL."
   (lquery-funcs:text node (princ-to-string (or object ""))))
 
 (defun parse-block-symbols (html)

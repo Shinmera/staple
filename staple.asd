@@ -18,11 +18,13 @@
                (:file "symbols")
                (:file "clip")
                (:file "fulltext")
-               (:file "stapler"))
+               (:file "stapler")
+               (:file "documentation"))
   :depends-on (:clip
                :closer-mop
                :cl-ppcre
                :trivial-arguments
                :3bmd
                :3bmd-ext-code-blocks
+               :documentation-utils
                (:feature :sbcl (:require :sb-cltl2))))
