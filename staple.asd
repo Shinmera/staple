@@ -17,7 +17,7 @@
   :components ((:file "package")
                (:file "symbols")
                (:file "clip")
-               (:file "documentation")
+               (:file "fulltext")
                (:file "stapler"))
   :depends-on (:clip
                :closer-mop
