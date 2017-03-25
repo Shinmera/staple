@@ -146,12 +146,11 @@ from within different clipboard environments.
 
 See ROOT")
 
+  (variable *before-load-packages*
+    "Map associating ASDF:SYSTEM objects to the package list recorded before the first time the system was loaded.")
+
   (variable *system-packages*
     "Map associating ASDF:SYSTEM objects to recorded packages for the system.
-
-The value for each system is a list of a list of packages plus an indicator
-as to whether that list is actually complete. Thus if the second item in the
-list is not T, you should not use the list of packages.
 
 See SYSTEM-PACKAGES")
 

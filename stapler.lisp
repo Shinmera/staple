@@ -10,6 +10,7 @@
 (defvar *legacy-template* (merge-pathnames "plain.ctml" (asdf:system-source-directory :staple)))
 (defvar *default-template* *modern-template*)
 (defvar *root-clipboard* NIL)
+(defvar *before-load-packages* (make-hash-table :test 'eql))
 (defvar *system-packages* (make-hash-table :test 'eql))
 
 (defun efind-package (name)
@@ -21,13 +22,11 @@
   (let ((system (etypecase system
                   (asdf:system system)
                   ((or symbol string) (asdf:find-system system T)))))
-    (or (destructuring-bind (&optional packages complete)
-            (gethash system *system-packages*)
-          (when complete packages))
+    (or (gethash system *system-packages*)
         ;; Heuristic. Works in most cases.
         (list (efind-package (asdf:component-name system))))))
 
-(defun (setf system-packages) (packages system &optional (finished T))
+(defun (setf system-packages) (packages system)
   (let ((system (etypecase system
                   (asdf:system system)
                   ((or symbol string) (asdf:find-system system T))))
@@ -35,20 +34,20 @@
                         collect (etypecase package
                                   (package package)
                                   ((or string symbol) (efind-package package))))))
-    (setf (gethash system *system-packages*)
-          (list packages finished))))
+    (setf (gethash system *system-packages*) packages)))
 
 ;; Record all packages before system load
 (defmethod asdf:perform :after ((o asdf:prepare-op) (s asdf:system))
-  (setf (system-packages s NIL) (list-all-packages)))
+  (setf (gethash s *before-load-packages*) (list-all-packages)))
 
 ;; Difference recorded list against current list to get all packages defined.
 (defmethod asdf:perform :after ((o asdf:load-op) (s asdf:system))
-  (destructuring-bind (&optional packages complete)
-      (gethash s *system-packages*)
-    (when packages
-      (setf (system-packages s)
-            (set-difference (list-all-packages) packages)))))
+  (let* ((old-packages (gethash s *before-load-packages* (list-all-packages)))
+         (new-packages (set-difference (list-all-packages) old-packages)))
+    ;; Combine with previous ones to account for potential package addition
+    ;; after later reloading of the system.
+    (setf (system-packages s)
+          (union (system-packages s) (reverse new-packages)))))
 
 (defun root (field)
   (clip *root-clipboard* field))
