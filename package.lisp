@@ -32,6 +32,7 @@
    #:find-logo-file)
   ;; stapler.lisp
   (:export
+   #:*extension-file*
    #:*modern-template*
    #:*legacy-template*
    #:*default-template*

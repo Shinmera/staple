@@ -131,6 +131,9 @@ See *LOGO-TYPES*"))
 
 ;; stapler.lisp
 (docs:define-docs
+  (variable *extension-file*
+    "Pathname describing the filename for Staple extension files.")
+  
   (variable *modern-template*
     "Pathname to a simple, yet modern preset template.")
 
@@ -197,6 +200,10 @@ These will also appear in the *ROOT-CLIPBOARD*.")
 
   (function generate
     "Generates documentation for the given asdf-system.
+
+If the system is not already loaded, it is loaded.
+If there is an extension file within the system's root
+directory, that file is also loaded. See *EXTENSION-FILE*
 
 ASDF-SYSTEM    --- The name or object of the ASDF system to write documentation for.
 PACKAGES       --- A list of package names to documentate.

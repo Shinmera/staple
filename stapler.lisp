@@ -6,6 +6,7 @@
 
 (in-package #:org.tymoonnext.staple)
 
+(defvar *extension-file* #p"staple.ext.lisp")
 (defvar *modern-template* (merge-pathnames "modern.ctml" (asdf:system-source-directory :staple)))
 (defvar *legacy-template* (merge-pathnames "plain.ctml" (asdf:system-source-directory :staple)))
 (defvar *default-template* *modern-template*)
@@ -102,8 +103,9 @@
     (setf asdf-system (asdf:component-name asdf-system)))
   (unless (asdf:component-loaded-p (asdf:find-system asdf-system T))
     (asdf:load-system asdf-system))
-  (let* ((asdf (or (asdf:find-system asdf-system)
-                   (error "No such ASDF system: ~a" asdf-system)))
+  (when (probe-file (asdf:system-relative-pathname asdf-system *extension-file*))
+    (load (asdf:system-relative-pathname asdf-system *extension-file*)))
+  (let* ((asdf (asdf:find-system asdf-system))
          (name (string name))
          (packages (loop for package in packages
                          collect (etypecase package
