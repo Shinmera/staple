@@ -66,6 +66,18 @@ the symbol is attempted to be automatically found in either the
   (function parse-lone-symbols
     "Attempt to find all symbols that refer to a documented symbol and replace them with links to the corresponding documentation anchor. ")
 
+  (function render-docstring-see-also
+    "Renders the docstring plainly, turning 'See X' lines into links.")
+
+  (function render-docstring-markdown
+    "Renders the docstring as a markdown highlighted string.")
+
+  (function render-docstring
+    "Render the docstring appropriately for the given system.
+
+See RENDER-DOCSTRING-SEE-ALSO
+See RENDER-DOCSTRING-MARKDOWN")
+
   (function %is-excluded
     "Return T if the given symb is included in the list of excluded symbol types.
 

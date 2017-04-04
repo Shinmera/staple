@@ -120,5 +120,9 @@
     (staple
      template
      :out out :if-exists if-exists
-     :clip-args (list 'asdf asdf-system 'name name 'packages packages 'documentation documentation 'logo logo)
+     :clip-args (list :asdf asdf
+                      :name name
+                      :packages packages
+                      :documentation documentation
+                      :logo logo)
      :compact compact)))

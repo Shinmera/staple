@@ -146,7 +146,7 @@
                         </c:else>
                       </c:if>
                     </header>
-                    <pre lquery="(text documentation)" class="docstring">DOCUMENTATION</pre>
+                    <div lquery="(html (render-docstring documentation (**** :asdf)))" class="docstring">DOCUMENTATION</div>
                   </article>
                 </li>
               </c:do-symbols>

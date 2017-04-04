@@ -113,13 +113,39 @@
              (format NIL "<a href=\"~a\">~a</a>" href target)
              (format NIL "~a"  target))))))
 
+(defun render-docstring-see-also (string)
+  (cond (string
+         (flet ((replacer (string start end match-start match-end reg-starts reg-ends)
+                  (declare (ignore start end match-start match-end))
+                  (let ((symbol (plump:decode-entities (subseq string (aref reg-starts 0) (aref reg-ends 0)))))
+                    (format NIL "~%See <a href=~s>~a</a>" (resolve-symbol-documentation symbol) symbol))))
+           (plump:parse (format NIL "<pre>~a</pre>"
+                                (cl-ppcre:regex-replace-all "\\nSee:? ([^\\s]*)" (plump:encode-entities string) #'replacer)))))
+        (T
+         (make-instance 'plump:text-node :parent NIL :text ""))))
+
+(defun render-docstring-markdown (string)
+  (let* ((3bmd-code-blocks:*code-blocks* T)
+         (html (with-output-to-string (stream)
+                 (3bmd:parse-string-and-print-to-stream
+                  string stream)))
+         (document (plump:parse html)))
+    ($ document "code"
+      (combine (node) (html))
+      (map-apply (lambda (node html)
+                   ($ node (html (parse-lone-symbols (parse-block-symbols html)))))))
+    document))
+
+(defmethod render-docstring (docstring (system asdf:system))
+  (render-docstring-see-also docstring))
+
 (define-tag-processor documentate (node)
   (process-attributes node)
   (process-children node)
   ($ node "code"
     (combine (node) (html))
-    (map-apply #'(lambda (node html)
-                   ($ node (html (parse-lone-symbols (parse-block-symbols html)))))))
+    (map-apply (lambda (node html)
+                 ($ node (html (parse-lone-symbols (parse-block-symbols html)))))))
   (process-tag "splice" node))
 
 (defmethod clip ((component asdf:component) field)

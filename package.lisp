@@ -18,6 +18,9 @@
    #:day
    #:licenselink
    #:resolve-symbol-documentation
+   #:render-docstring-see-also
+   #:render-docstring-markdown
+   #:render-docstring
    #:anchor
    #:stext)
   ;; documentation.lisp
