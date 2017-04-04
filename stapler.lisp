@@ -96,7 +96,7 @@
          document)))))
 
 (defun generate (asdf-system &key
-                               (packages (system-packages asdf-system))
+                               packages
                                (name asdf-system)
                                documentation logo
                                (out (system-out asdf-system))
@@ -105,13 +105,14 @@
                                (if-exists :error))
   (when (typep asdf-system 'asdf:system)
     (setf asdf-system (asdf:component-name asdf-system)))
-  (unless (asdf:component-loaded-p (asdf:find-system asdf-system T))
-    (asdf:load-system asdf-system))
-  (when (probe-file (asdf:system-relative-pathname asdf-system *extension-file*))
-    (load (asdf:system-relative-pathname asdf-system *extension-file*)))
+  (let ((*standard-output* (make-broadcast-stream)))
+    (unless (asdf:component-loaded-p (asdf:find-system asdf-system T))
+      (asdf:load-system asdf-system))
+    (when (probe-file (asdf:system-relative-pathname asdf-system *extension-file*))
+      (load (asdf:system-relative-pathname asdf-system *extension-file*))))
   (let* ((asdf (asdf:find-system asdf-system))
          (name (string name))
-         (packages (loop for package in packages
+         (packages (loop for package in (or packages (system-packages asdf))
                          collect (etypecase package
                                    (symbol (string package))
                                    (package (package-name package))
