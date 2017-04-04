@@ -7,7 +7,7 @@
 (in-package #:cl-user)
 (defpackage #:staple
   (:nicknames #:org.tymoonnext.staple)
-  (:use #:cl #:lquery #:closer-mop #:clip)
+  (:use #:cl #:lquery #:closer-mop #:clip #:staple-package-recording)
   (:shadowing-import-from
    #:cl #:defmethod #:defgeneric #:standard-generic-function
         #:standard-method #:standard-class)

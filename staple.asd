@@ -20,7 +20,8 @@
                (:file "fulltext")
                (:file "stapler")
                (:file "documentation"))
-  :depends-on (:clip
+  :depends-on (:staple-package-recording
+               :clip
                :closer-mop
                :cl-ppcre
                :trivial-arguments
