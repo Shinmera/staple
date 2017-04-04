@@ -56,7 +56,9 @@
 
 (defgeneric symb-function (symb-object)
   (:method ((symb symb-object))
-    (fdefinition (symb-symbol symb))))
+    (fdefinition (symb-symbol symb)))
+  (:method ((symb symb-macro))
+    (macro-function (symb-symbol symb))))
 
 (defgeneric symb-type (symb-object)
   (:method ((symb symb-object))
