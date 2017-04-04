@@ -20,12 +20,16 @@
       (error "No package with name ~s could be found." name)))
 
 (defun system-packages (system)
-  (let ((system (etypecase system
-                  (asdf:system system)
-                  ((or symbol string) (asdf:find-system system T)))))
-    (or (gethash system *system-packages*)
-        ;; Heuristic. Works in most cases.
-        (list (efind-package (asdf:component-name system))))))
+  (let* ((system (etypecase system
+                   (asdf:system system)
+                   ((or symbol string) (asdf:find-system system T))))
+         (packages (gethash system *system-packages* :not-recorded)))
+    (cond ((eql :not-recorded packages)
+           ;; Heuristic, ech.
+           (let ((pkg (find-package (asdf:component-name system))))
+             (when pkg (list pkg))))
+          (T
+           packages))))
 
 (defun (setf system-packages) (packages system)
   (let ((system (etypecase system
