@@ -197,8 +197,69 @@ See *ROOT-CLIPBOARD*")
   (function to-out
     "Returns a pathname whose file-name (not extension) is postfixed by .out .")
 
-  (function system-out
-    "Returns a pathname to 'about.html' within the given system's source-directory.")
+  (function system-options
+    "Returns options to use when stapling the given system.
+
+The following options are accepted:
+
+:asdf           --- The ASDF System object to generate. If this differs
+                    from the argument to SYSTEM-OPTIONS, GENERATE is
+                    called anew with the same arguments, but the system
+                    being updated to the one in the options.
+                      Defaults to the input system.
+:compact        --- Whether to compact (remove whitespace) from the
+                    resulting documentation file.
+                      Defaults to T.
+:documentation  --- The pathname to the primary documentation file to
+                    output into the generated file's documentation
+                    section.
+                      Defaults to FIND-DOCUMENTATION-FILE
+:logo           --- The relative path to a logo to include in the
+                    generated file's header.
+                      Defaults to FIND-LOGO-FILE relative to the source
+                      directory of the system.
+:name           --- The name to use for the system.
+                      Defaults to ASDF:COMPONENT-NAME
+:out            --- The pathname for the generated file.
+                      Defaults to \"about.html\" relative to the source
+                      directory of the system.
+:packages       --- The list of packages to output to the symbol index
+                    in the generated file.
+                      Defaults to SYSTEM-PACKAGES
+:template       --- The Clip template file to use to generate the
+                    documentation file with.
+                      Defaults to *DEFAULT-TEMPLATE*
+:if-exists      --- What to do if the generated file already exists on
+                    the file system.
+                      Defaults to :ERROR
+
+These options may be overridden by the arguments that are passed to
+GENERATE.
+
+The methods are combined by APPEND, with the most specific method coming
+first. This means that you can override certain options by creating a
+method for your system and outputting a plist with the option you want
+to override.
+
+For example, the following method would specify an alternate template
+file to use, and a different exists behaviour.
+
+  (defmethod staple:system-options append ((system (eql (asdf:find-system :my-sys))))
+    (list :template (system-relative-pathname system \"my-clip-template.ctml\")
+          :if-exists :supersede))
+
+You may specify additional arguments that are not shown above. They will
+all be passed to Clip's template generation, and may thus be accessed
+from within the template.
+
+See GENERATE
+See FIND-DOCUMENTATION-FILE
+See FIND-LOGO-FILE
+See ASDF:COMPONENT-NAME
+See ASDF:SYSTEM-SOURCE-DIRECTORY
+See SYSTEM-PACKAGES
+See *DEFAULT-TEMPLATE*
+See CL:OPEN")
 
   (function compact
     "Compact the given plump node by stripping away as much potentially useless whitespace in inner text nodes as possible.")
@@ -215,18 +276,21 @@ These will also appear in the *ROOT-CLIPBOARD*.")
 
 If the system is not already loaded, it is loaded.
 If there is an extension file within the system's root
-directory, that file is also loaded. See *EXTENSION-FILE*
+directory, that file is also loaded. The extension files
+of the transitive dependencies of the system are
+loaded as well, before that of your specified system. 
+This ensures that potential symbol classes they may
+provide are also available to your system. For this to
+work however, the transitive systems must use the default
+location for their extension files.
 
-ASDF-SYSTEM    --- The name or object of the ASDF system to write documentation for.
-PACKAGES       --- A list of package names to documentate.
-NAME           --- The name of the project.
-DOCUMENTATION  --- A string or pathname that contains additional documentation info.
-LOGO           --- A string or URL to the logo to use in the template. If not supplied
-                   no logo image is inserted.
-OUT            --- The file to write the resulting documentation to.
-TEMPLATE       --- Pathname to the clip template file to process.
-COMPACT        --- Whether to strip leading and trailing whitespace where sensible.
-IF-EXISTS      --- Argument for WITH-OPEN-FILE."))
+The system may specify default arguments in its options.
+The arguments specified for GENERATE will always override
+those, however. The arguments' effects are explained in
+SYSTEM-OPTIONS.
+
+See SYSTEM-OPTIONS
+See *EXTENSION-FILE*"))
 
 ;; symbols.lisp
 (docs:define-docs

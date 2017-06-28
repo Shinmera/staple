@@ -23,7 +23,7 @@
    #:render-docstring
    #:anchor
    #:stext)
-  ;; documentation.lisp
+  ;; fulltext.lisp
   (:export
    #:*documentation-names*
    #:*documentation-types*
@@ -33,15 +33,17 @@
    #:find-documentation-file
    #:prepare-documentation
    #:find-logo-file)
+  ;; recording.lisp
+  (:export
+   #:system-packages)
   ;; stapler.lisp
   (:export
    #:*extension-file*
    #:*modern-template*
    #:*legacy-template*
    #:*default-template*
-   #:system-packages
    #:to-out
-   #:system-out
+   #:system-options
    #:staple
    #:generate)
   ;; symbols.lisp

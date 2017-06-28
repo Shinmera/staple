@@ -18,9 +18,6 @@
 (defun to-out (pathname)
   (merge-pathnames (format NIL "~a.out.~a" (pathname-name pathname) (pathname-type pathname)) pathname))
 
-(defun system-out (system)
-  (merge-pathnames "about.html" (asdf:system-source-directory (asdf:find-system system))))
-
 (defun compact (node)
   (typecase node
     (plump:text-node
@@ -53,39 +50,71 @@
         (T
          document)))))
 
-(defun generate (asdf-system &key
-                               packages
-                               (name asdf-system)
-                               documentation logo
-                               (out (system-out asdf-system))
-                               (template *default-template*)
-                               (compact T)
-                               (if-exists :error))
-  (when (typep asdf-system 'asdf:system)
-    (setf asdf-system (asdf:component-name asdf-system)))
-  (let ((*standard-output* (make-broadcast-stream)))
-    (unless (asdf:component-loaded-p (asdf:find-system asdf-system T))
-      (asdf:load-system asdf-system))
-    (when (probe-file (asdf:system-relative-pathname asdf-system *extension-file*))
-      (load (asdf:system-relative-pathname asdf-system *extension-file*))))
-  (let* ((asdf (asdf:find-system asdf-system))
-         (name (string name))
-         (packages (loop for package in (or packages (system-packages asdf))
+(defgeneric system-options (system)
+  (:method-combination append :most-specific-first))
+
+(defmethod system-options append ((system asdf:system))
+  (list
+   :asdf system
+   :compact T
+   :documentation (find-documentation-file system)
+   :logo (let ((file (find-logo-file system)))
+           (when file (uiop:enough-pathname file (asdf:system-source-directory system))))
+   :name (asdf:component-name system)
+   :out (merge-pathnames "about.html" (asdf:system-source-directory system))
+   :packages (system-packages system)
+   :template *default-template*
+   :if-exists :error))
+
+(defun merge-plist (override base)
+  (let ((new (copy-list override)))
+    (loop for (key val) on base by #'cddr
+          do (unless (getf new key)
+               (setf (getf new key) val)))
+    new))
+
+(defun ensure-system (system)
+  (etypecase system
+    (asdf:system system)
+    (T (asdf:find-system system T))))
+
+(defun load-extension (system &optional extension)
+  (let ((system (ensure-system system)))
+    (loop for dependency in (asdf:system-depends-on system)
+          for depsys = (asdf/find-component:resolve-dependency-spec system dependency)
+          do (load-extension depsys))
+    (let ((extension (or extension
+                         (asdf:system-relative-pathname system *extension-file*))))
+      (when (probe-file extension)
+        (load extension)))))
+
+(defun generate (asdf-system &rest args &key compact documentation extension logo
+                                             name out packages template if-exists
+                                             &allow-other-keys)
+  (declare (ignore compact documentation logo name out packages template if-exists))
+  (let ((asdf-system (ensure-system asdf-system)))
+    ;; Load system and extension if necessary/possible.
+    (let ((*standard-output* (make-broadcast-stream)))
+      (unless (asdf:component-loaded-p asdf-system)
+        (asdf:load-system asdf-system))
+      (load-extension asdf-system extension))
+    ;; Gather system options and normalise.
+    (let ((options (merge-plist args (system-options asdf-system))))
+      (cond ((eql asdf-system (getf options :asdf))
+             (setf (getf options :packages)
+                   (loop for package in (getf options :packages)
                          collect (etypecase package
                                    (symbol (string package))
                                    (package (package-name package))
                                    (string package))))
-         (documentation (prepare-documentation asdf documentation))
-         (logo (if (pathnamep out)
-                   (uiop:enough-pathname (or logo (find-logo-file asdf)) (uiop:pathname-directory-pathname out))
-                   logo))
-         (*current-packages* packages))
-    (staple
-     template
-     :out out :if-exists if-exists
-     :clip-args (list :asdf asdf
-                      :name name
-                      :packages packages
-                      :documentation documentation
-                      :logo logo)
-     :compact compact)))
+             (setf (getf options :documentation)
+                   (prepare-documentation asdf-system (getf options :documentation)))
+             ;; Staple the system
+             (let ((*current-packages* (getf options :packages)))
+               (staple (getf options :template)
+                       :clip-args options
+                       :compact (getf options :compact)
+                       :out (getf options :out)
+                       :if-exists (getf options :if-exists))))
+            (T ;; ASDF system has changed. retry.
+             (apply #'generate (getf options :asdf) args))))))
