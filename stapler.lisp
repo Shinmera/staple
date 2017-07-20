@@ -82,7 +82,7 @@
   (let ((system (ensure-system system)))
     (loop for dependency in (asdf:system-depends-on system)
           for depsys = (asdf/find-component:resolve-dependency-spec system dependency)
-          do (load-extension depsys))
+          do (when depsys (load-extension depsys)))
     (let ((extension (or extension
                          (asdf:system-relative-pathname system *extension-file*))))
       (when (probe-file extension)
