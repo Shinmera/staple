@@ -4,7 +4,7 @@
  Author: Nicolas Hafner <shinmera@tymoon.eu>
 |#
 
-(in-package #:cl-user)
+
 (asdf:defsystem staple-package-recording
   :name "Staple System Package Recorder"
   :version "1.0.1"
