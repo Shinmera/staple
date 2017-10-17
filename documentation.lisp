@@ -352,6 +352,9 @@ Preferable over SYMB-SYMBOL as it takes SETF-function names into account.")
   (function symb-type
     "Returns the string-name of the kind of object it represents.")
 
+  (function symb-id
+    "Returns a string representing the symbol uniquely.")
+
   (function symb-scope
     "Returns whether the symbol is :INHERITED, :EXTERNAL or :INTERNAL.")
 

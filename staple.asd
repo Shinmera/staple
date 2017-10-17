@@ -28,4 +28,5 @@
                :3bmd
                :3bmd-ext-code-blocks
                :documentation-utils
+               :do-urlencode
                (:feature :sbcl (:require :sb-cltl2))))

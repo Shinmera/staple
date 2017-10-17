@@ -64,6 +64,10 @@
   (:method ((symb symb-object))
     (subseq (string-upcase (class-name (class-of symb))) 5)))
 
+(defgeneric symb-id (symb-object)
+  (:method ((symb symb-object))
+    (format NIL "~a ~a:~a" (symb-type symb) (package-name (symb-package symb)) (symb-name symb))))
+
 (defgeneric symb-scope (symb-object)
   (:method ((symb symb-object))
     (nth-value 1 (find-symbol (symb-name symb)

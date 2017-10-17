@@ -131,18 +131,18 @@
               <c:do-symbols as="ul" package="*" exclude="method internal inherited">
                 <li>
                   <a lquery="(attr :name full-name)">&nbsp;</a>
-                  <article>
+                  <article lquery="(attr :id id)">
                     <header lquery="(add-class type)">
                       <span class="type" lquery="(text type)">TYPE</span>
                       <c:if test="(or (find type #(function accessor macro generic method) :test #'string-equal)
-                                      arguments)">
+                          arguments)">
                         <c:then>
-                          <code>(</code><h4 class="name"><code><a lquery="(text name) (attr :href (anchor full-name))">NAME</a></code></h4>
+                          <code>(</code><h4 class="name"><code><a lquery="(text name) (attr :href (anchor id))">NAME</a></code></h4>
                           <code class="qualifiers" lquery="(text (present-qualifiers qualifiers))">QUALIFIERS</code>
                           <code class="arguments" lquery="(text (present-arguments arguments NIL))">ARGUMENTS</code><code>)</code>
                         </c:then>
                         <c:else>
-                          <h4 class="name"><code><a lquery="(text name) (attr :href (anchor full-name))">NAME</a></code></h4>
+                          <h4 class="name"><code><a lquery="(text name) (attr :href (anchor id))">NAME</a></code></h4>
                         </c:else>
                       </c:if>
                     </header>

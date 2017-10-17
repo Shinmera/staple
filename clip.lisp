@@ -87,7 +87,7 @@
          (format NIL "http://l1sp.org/cl/~a" (string-downcase name)))))))
 
 (defun anchor (object)
-  (format NIL "#~a" object))
+  (format NIL "#~a" (do-urlencode:urlencode (princ-to-string object))))
 
 (defun stext (node object)
   (lquery-funcs:text node (princ-to-string (or object ""))))
@@ -205,6 +205,7 @@
 
 (defmethod clip ((symb symb-object) field)
   (case field
+    (id (symb-id symb))
     (full-name (format NIL "~a:~a"
                        (package-name (symb-package symb)) (symb-true-symbol symb)))
     (symbol (symb-symbol symb))

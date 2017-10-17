@@ -54,6 +54,7 @@
    #:symb-symbol
    #:symb-package
    #:symb-type
+   #:symb-id
    #:symb-variable
    #:symb-function
    #:symb-accessor
