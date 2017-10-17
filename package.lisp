@@ -52,6 +52,7 @@
    #:symb-true-symbol
    #:symb-name
    #:symb-symbol
+   #:symb-package
    #:symb-type
    #:symb-variable
    #:symb-function
