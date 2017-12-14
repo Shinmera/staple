@@ -40,7 +40,7 @@
           <c:when test="(or license licence)"><span lquery="(text name)">NAME</span> is licensed under the <span lquery="(html (licenselink (or license licence)))">LICENSE</span> license.</c:when>
           <c:when test="author">
             &#169; <span lquery="(text author)">AUTHOR</span>
-            <c:when test="(and author maintainer (string/= author maintainer))">currently maintained by <span lquery="(text maintainer)"></span></c:when>.
+            <c:when test="(and author maintainer (not (equalp author maintainer)))">currently maintained by <span lquery="(text maintainer)"></span></c:when>.
           </c:when>
           <c:when test="homepage">This library can be obtained on <a lquery="(text homepage) (attr :href homepage)">WEBSITE</a>.</c:when>
         </c:when>
