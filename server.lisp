@@ -133,11 +133,9 @@ This will launch an HTTP server on port 8080."
         ((and (null (cdr dirs))
               (string= (car dirs) ""))
          (lambda ()
-           (setf (hunchentoot:content-type*) "application/xhtml+xml")
            (show-system-list)))
         ((string= (car (last dirs)) "")
          (lambda ()
-           (setf (hunchentoot:content-type*) "application/xhtml+xml")
            (show-system (format NIL "~{~a~^/~}" (butlast dirs)))))
         (T
          (lambda ()
