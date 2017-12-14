@@ -22,6 +22,7 @@
 This will launch an HTTP server on port 8080."
   (when *acceptor*
     (error "Server already running!"))
+  (recache)
   (let ((acceptor (make-instance 'hunchentoot:easy-acceptor
                                  :port 8080
                                  :message-log-destination NIL
@@ -31,7 +32,6 @@ This will launch an HTTP server on port 8080."
     (setf hunchentoot:*dispatch-table* (list #'handler))
     (setf hunchentoot:*show-lisp-errors-p* T)
     (setf hunchentoot:*show-lisp-backtraces-p* T)
-    (recache)
     (format T "~&Your documentation browser is now running on http://localhost:8080/~%")))
 
 (defun stop ()
@@ -49,13 +49,30 @@ This will launch an HTTP server on port 8080."
 (defun recache (&optional (systems (all-systems)))
   "Produce freshly cached documentation pages for the given list of ASDF systems."
   (setf *cache* (make-hash-table :test 'equalp))
-  (dolist (system systems)
-    (ignore-errors
-     (handler-bind ((error (lambda (err)
-                             (format T "~&Warning: Error during processing of system ~a: ~%~a" system err))))
-       (show-system (etypecase system
-                      ((or string symbol) system)
-                      (asdf:system (asdf:component-name system))))))))
+  (format T "~&Recomputing system cache")
+  (loop with failed = ()
+        for system in systems
+        for i = 0 then (mod (1+ i) 50)
+        do (when (= 0 i) (fresh-line))
+           (format T ".")
+           (let* ((*standard-output* (make-broadcast-stream))
+                  (*error-output* *standard-output*)
+                  (*terminal-io* *standard-output*)
+                  (*query-io* *standard-output*)
+                  (*trace-output* *standard-output*))
+             (handler-case
+                 (handler-bind ((error (lambda (err)
+                                         (pushnew system failed)
+                                         (when (find-restart 'asdf:accept err)
+                                           (invoke-restart 'asdf:accept))
+                                         (when (find-restart 'continue err)
+                                           (invoke-restart 'continue)))))
+                   (show-system (etypecase system
+                                  ((or string symbol) system)
+                                  (asdf:system (asdf:component-name system)))))
+               (condition (c) (declare (ignore c)))))
+        finally (format T "~&~%The following systems could not be processed cleanly:~%~a"
+                        failed)))
 
 (defun split (char string &key (start 0) (end (length string)))
   (loop with result = ()
