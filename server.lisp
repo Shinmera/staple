@@ -28,6 +28,9 @@ This will launch an HTTP server on port 8080."
                                  :access-log-destination NIL)))
     (hunchentoot:start acceptor)
     (setf *acceptor* acceptor)
+    (setf hunchentoot:*dispatch-table* (list #'handler))
+    (setf hunchentoot:*show-lisp-errors-p* T)
+    (setf hunchentoot:*show-lisp-backtraces-p* T)
     (recache)
     (format T "~&Your documentation browser is now running on http://localhost:8080/~%")))
 
@@ -122,27 +125,24 @@ This will launch an HTTP server on port 8080."
               (lquery:$ page "head" (append "<link rel=\"stylesheet\" type=\"text/css\" href=\"/server.css\"/>"))
               (plump:serialize page NIL)))))
 
-(progn
-  (defun handler (request)
-    (let* ((path (hunchentoot:url-decode (hunchentoot:script-name request)))
-           (dirs (split #\/ path :start 1)))
-      (cond
-        ((string= path "/server.css")
+(defun handler (request)
+  (let* ((path (hunchentoot:url-decode (hunchentoot:script-name request)))
+         (dirs (split #\/ path :start 1)))
+    (cond
+      ((string= path "/server.css")
+       (hunchentoot:handle-static-file
+        (asdf:system-relative-pathname :staple-server "server.css")))
+      ((and (null (cdr dirs))
+            (string= (car dirs) ""))
+       (lambda ()
+         (show-system-list)))
+      ((string= (car (last dirs)) "")
+       (lambda ()
+         (show-system (format NIL "~{~a~^/~}" (butlast dirs)))))
+      (T
+       (lambda ()
          (hunchentoot:handle-static-file
-          (asdf:system-relative-pathname :staple-server "server.css")))
-        ((and (null (cdr dirs))
-              (string= (car dirs) ""))
-         (lambda ()
-           (show-system-list)))
-        ((string= (car (last dirs)) "")
-         (lambda ()
-           (show-system (format NIL "~{~a~^/~}" (butlast dirs)))))
-        (T
-         (lambda ()
-           (hunchentoot:handle-static-file
-            (asdf:system-relative-pathname
-             (format NIL "~{~a~^/~}" (butlast dirs))
-             (car (last dirs)))))))))
-  (setf hunchentoot:*dispatch-table* (list #'handler)
-        hunchentoot:*show-lisp-errors-p* T
-        hunchentoot:*show-lisp-backtraces-p* T))
+          (asdf:system-relative-pathname
+           (format NIL "~{~a~^/~}" (butlast dirs))
+           (car (last dirs)))))))))
+
