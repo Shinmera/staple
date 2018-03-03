@@ -61,7 +61,8 @@
    :logo (let ((file (find-logo-file system)))
            (when file (uiop:enough-pathname file (asdf:system-source-directory system))))
    :name (asdf:component-name system)
-   :out (merge-pathnames "about.html" (asdf:system-source-directory system))
+   :out (when (asdf:system-source-directory system)
+          (merge-pathnames "about.html" (asdf:system-source-directory system)))
    :packages (system-packages system)
    :template *default-template*
    :if-exists :error))
