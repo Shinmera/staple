@@ -78,15 +78,20 @@
     (asdf:system system)
     (T (asdf:find-system system T))))
 
+(defvar *loaded-extensions* NIL)
+
 (defun load-extension (system &optional extension)
-  (let ((system (ensure-system system)))
-    (loop for dependency in (asdf:system-depends-on system)
-          for depsys = (asdf/find-component:resolve-dependency-spec system dependency)
-          do (when depsys (load-extension depsys)))
-    (let ((extension (or extension
-                         (asdf:system-relative-pathname system *extension-file*))))
-      (when (probe-file extension)
-        (load extension)))))
+  (let ((*loaded-extensions* (or *loaded-extensions* (make-hash-table :test 'eq)))
+        (system (ensure-system system)))
+    (unless (gethash system *loaded-extensions*)
+      (setf (gethash system *loaded-extensions*) T)
+      (loop for dependency in (asdf:system-depends-on system)
+            for depsys = (asdf/find-component:resolve-dependency-spec system dependency)
+            do (when depsys (load-extension depsys)))
+      (let ((extension (or extension
+                           (asdf:system-relative-pathname system *extension-file*))))
+        (when (probe-file extension)
+          (load extension))))))
 
 (defun generate (asdf-system &rest args &key compact documentation extension logo
                                              name out packages template if-exists
