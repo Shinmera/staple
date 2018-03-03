@@ -71,8 +71,9 @@ This will launch an HTTP server on port 8080."
                                   ((or string symbol) system)
                                   (asdf:system (asdf:component-name system)))))
                (condition (c) (declare (ignore c)))))
-        finally (format T "~&~%The following systems could not be processed cleanly:~%~a"
-                        failed)))
+        finally (when failed
+                  (format T "~&~%The following systems could not be processed cleanly:~%~a"
+                          failed))))
 
 (defun split (char string &key (start 0) (end (length string)))
   (loop with result = ()
