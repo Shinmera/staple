@@ -117,7 +117,7 @@
   (flet ((replacer (string start end match-start match-end reg-starts reg-ends)
            (declare (ignore start end match-start match-end))
            (let ((symbol (plump:decode-entities (subseq string (aref reg-starts 0) (aref reg-ends 0)))))
-             (format NIL "~%See <a href=~s>~a</a>" (resolve-symbol-documentation symbol) symbol))))
+             (format NIL "~%See ~:[~a~;~:*<a href=~s>~a</a>~]" (resolve-symbol-documentation symbol) symbol))))
     (let* ((text (plump:encode-entities string))
            (text (cl-ppcre:regex-replace-all "\\nSee:? ([^\\s]*)" text #'replacer)))
       (plump:parse (format NIL "<pre>~a</pre>" text)))))
