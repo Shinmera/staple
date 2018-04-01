@@ -88,7 +88,9 @@
     ;; Apparently f.e. SBCL reports things from methods too? (???)
     (let ((args (call-next-method)))
       (remove-if #'listp args)))
-  ;; FIXME: arglist for type definitions.
+  (:method ((symb symb-type))
+    #+:sbcl (sb-introspect:deftype-lambda-list (symb-symbol symb))
+    #-(or :sbcl) NIL)
   (:method ((symb symb-method))
     (loop with args = (call-next-method)
           for specializer in (method-specializers (symb-method symb))
