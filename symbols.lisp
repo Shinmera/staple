@@ -88,6 +88,7 @@
     ;; Apparently f.e. SBCL reports things from methods too? (???)
     (let ((args (call-next-method)))
       (remove-if #'listp args)))
+  ;; FIXME: arglist for type definitions.
   (:method ((symb symb-method))
     (loop with args = (call-next-method)
           for specializer in (method-specializers (symb-method symb))
@@ -217,7 +218,32 @@
 (defun symbol-class-p (symbol)
   (and (not (symbol-structure-p symbol))
        (not (symbol-condition-p symbol))
-       (find-class symbol nil)))
+       (find-class symbol NIL)))
+
+(defun symbol-type-p (symbol)
+  #+(or :sbcl :ccl :cmucl)
+  (handler-case
+      #+:sbcl (not (typep (sb-kernel:specifier-type symbol) 'sb-kernel:unknown-type))
+      #+:ccl (not (typep (ccl::specifier-type symbol) 'ccl::unknown-ctype))
+      #+:cmucl (not (typep (kernel:specifier-type symbol) 'kernel:unknown-type))
+      (error () T))
+  #+:ecl (let ((symbol (if (listp symbol) (first symbol) symbol)))
+           (or (si:get-sysprop symbol 'si::type-predicate)
+               (si:get-sysprop symbol 'si::deftype-definition)
+               (find symbol '(eql member not or and satisfies T * NIL bignum standard-char
+                              integer ratio rational float real short-float single-float
+                              double-float long-float complex sequence cons base-string string
+                              bit-vector simple-base-string simple-string simple-bit-vector
+                              simple-vector complex-array simple-array array))
+               (find-class symbol NIL)))
+  #-(or :sbcl :ccl :cmucl :ecl)
+  NIL)
+
+(defun symbol-typedef-p (symbol)
+  (and (symbol-type-p symbol)
+       (not (symbol-structure-p symbol))
+       (not (symbol-condition-p symbol))
+       (not (find-class symbol NIL))))
 
 (defvar *converters* (make-hash-table :test 'eql))
 
@@ -272,6 +298,7 @@
 (define-simple-converter symb-structure symbol-structure-p)
 (define-simple-converter symb-condition symbol-condition-p)
 (define-simple-converter symb-class symbol-class-p)
+(define-simple-converter symb-type symbol-typedef-p)
 
 (defun package-symbols (package)
   (let ((lst ()))
