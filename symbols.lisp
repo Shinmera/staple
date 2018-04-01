@@ -197,12 +197,14 @@
 
 (defun symbol-special-p (symbol)
   (and (not (symbol-constant-p symbol))
-       #+:ccl (ccl:proclaimed-special-p symbol)
-       #+:lispworks (sys:declared-special-p symbol)
        #+:sbcl (eq (sb-cltl2:variable-information symbol) :special)
+       #+:ccl (ccl:proclaimed-special-p symbol)
+       #+:cmucl (eq (ext:variable-information symbol) :special)
+       #+:ecl (si:specialp symbol)
+       #+:lispworks (sys:declared-special-p symbol)
        #+:allegro (eq (sys:variable-information symbol) :special)
        ;; Welp.
-       #-(or :ccl :lispworks :sbcl :allegro) NIL))
+       #-(or :sbcl :ccl :cmucl :ecl :lispworks :allegro) NIL))
 
 (defun symbol-structure-p (symbol)
   (ignore-errors
