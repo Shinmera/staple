@@ -31,7 +31,12 @@ If you want to customise the default arguments to `generate`, or add additional 
       (list :template (system-relative-pathname system \"my-clip-template.ctml\")
             :if-exists :supersede))
 
-See the documentation of `system-options` for the default properties that Staple understands and supplies.
+See the documentation of `system-options` for the default properties that Staple understands and supplies. If you need to customise which symbol objects are emitted into the documentation file for a given package and system, you can add a method to `system-package-symbols` to control this behaviour.
+
+    (defmethod staple:system-package-symbols ((system (eql (asdf:find-system :my-sys))) package)
+      (remove-if ... (staple:package-symbol-objects package)))
+
+Note that symbols will still get filtered out depending on the value of the `exclude` attribute in the `do-symbols` tag in the template which, by default, excludes methods, internal symbols, and inherited symbols.
 
 In general the `staple.ext.lisp` should allow you to lay down all the customisation of your system so that all you'll ever need to do to actually generate the docs is
 

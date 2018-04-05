@@ -44,6 +44,7 @@
    #:*default-template*
    #:to-out
    #:system-options
+   #:system-package-symbols
    #:staple
    #:generate)
   ;; symbols.lisp

@@ -7,6 +7,7 @@
 (in-package #:org.tymoonnext.staple)
 
 (defvar *current-packages* ())
+(defvar *system-under-construction*)
 
 (defun year ()
   (nth-value 5 (get-decoded-time)))
@@ -255,5 +256,5 @@
        node "iterate"
        (sort
         (remove-if #'(lambda (symb) (%is-excluded symb exclude))
-                   (package-symbol-objects package))
+                   (system-package-symbols *system-under-construction* package))
         (resolve-value (read-from-string sort)))))))

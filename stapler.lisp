@@ -67,6 +67,11 @@
    :template *default-template*
    :if-exists :error))
 
+(defgeneric system-package-symbols (system package))
+
+(defmethod system-package-symbols ((system asdf:system) package)
+  (package-symbol-objects package))
+
 (defun merge-plist (override base)
   (let ((new (copy-list override)))
     (loop for (key val) on base by #'cddr
@@ -116,7 +121,8 @@
              (setf (getf options :documentation)
                    (prepare-documentation asdf-system (getf options :documentation)))
              ;; Staple the system
-             (let ((*current-packages* (getf options :packages)))
+             (let ((*current-packages* (getf options :packages))
+                   (*system-under-construction* asdf-system))
                (staple (getf options :template)
                        :clip-args options
                        :compact (getf options :compact)
