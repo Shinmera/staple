@@ -46,10 +46,26 @@
     (null "")
     (T (present thing))))
 
+(defun strip-arglist (arglist)
+  (loop with in-check = NIL
+        for arg in arglist
+        collect (case arg
+                  ((&key &optional)
+                   (setf in-check T)
+                   arg)
+                  (&aux
+                   (loop-finish))
+                  (T
+                   (if in-check
+                       (destructuring-bind (name &optional default predicate) (if (listp arg) arg (list arg))
+                         (declare (ignore predicate))
+                         (if default (list name default) name))
+                       arg)))))
+
 (defun present-arguments (thing &optional (lambda-list-parens T))
-  (let ((string (typecase thing
+  (let ((string (etypecase thing
                   (null "()")
-                  (T (present thing)))))
+                  (list (present (strip-arglist thing))))))
     (if lambda-list-parens
         string
         (subseq string 1 (1- (length string))))))
