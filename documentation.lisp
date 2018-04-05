@@ -261,6 +261,20 @@ See SYSTEM-PACKAGES
 See *DEFAULT-TEMPLATE*
 See CL:OPEN")
 
+  (function system-package-symbols
+    "Returns the applicable set of symb objects for the package under the given system.
+
+This allows customising which symbs should be emitted for a given package
+and system under construction. By default this simply includes all of the
+symb objects for the package, produced by PACKAGE-SYMBOL-OBJECTS.
+
+Note that the emitted symbols in the document may be filtered further still
+by the use of the exclude attribute.
+
+See SYMB-OBJECT
+See PACKAGE-SYMBOL-OBJECTS
+See DO-SYMBOLS")
+
   (function compact
     "Compact the given plump node by stripping away as much potentially useless whitespace in inner text nodes as possible.")
 
@@ -301,87 +315,157 @@ See *EXTENSION-FILE*"))
     "Returns the symbol-package of the symbol.")
 
   (type symb-object
-    "Base class for symbol representation.")
+    "Base class for symbol representation.
+
+See SYMB-SYMBOL
+See SYMB-PACKAGE
+See SYMB-NAME
+See SYMB-TYPE
+See SYMB-ID
+See SYMB-SCOPE
+See SYMB-DOCUMENTATION
+See SYMB-IS
+See SYMB<
+See SYMB-TYPE-ORDER
+See SYMB-TYPE<")
 
   (type symb-type
-    "Object representing a type.")
+    "Object representing a type.
+
+See SYMB-OBJECT")
   
   (type symb-variable
-    "Object representing a variable.")
+    "Object representing a variable.
+
+See SYMB-OBJECT")
   
   (type symb-function
-    "Object representing a function.")
+    "Object representing a function.
+
+See SYMB-FUNCTION
+See SYMB-ARGUMENTS
+See SYMB-OBJECT")
   
   (type symb-accessor
-    "Object representing an accessor.")
+    "Object representing an accessor.
+
+See SYMB-FUNCTION")
 
   (type symb-macro
-    "Object representing a macro.")
+    "Object representing a macro.
+
+See SYMB-FUNCTION")
 
   (type symb-generic
-    "Object representing a generic function.")
+    "Object representing a generic function.
+
+See SYMB-FUNCTION")
 
   (type symb-method
-    "Object representing a generic function method.")
+    "Object representing a generic function method.
+
+See SYMB-FUNCTION")
+
+  (function symb-method
+    "Accesses the method object that this symb-method represents.
+
+See SYMB-QUALIFIERS
+See SYMB-METHOD")
 
   (type symb-condition
-    "Object representing a condition.")
+    "Object representing a condition.
+
+See SYMB-TYPE")
 
   (type symb-class
-    "Object representing a class.")
+    "Object representing a class.
+
+See SYMB-TYPE")
 
   (type symb-structure
-    "Object representing a structure.")
+    "Object representing a structure.
+
+See SYMB-TYPE")
 
   (type symb-special
-    "Object representing a special variable.")
+    "Object representing a special variable.
+
+See SYMB-VARIABLE")
 
   (type symb-constant
-    "Object representing a constant.")
+    "Object representing a constant.
+
+See SYMB-VARIABLE")
 
   (function symb-true-symbol
     "Returns the the true symbol of the symbol.
-Preferable over SYMB-SYMBOL as it takes SETF-function names into account.")
+Preferable over SYMB-SYMBOL as it takes SETF-function names into account.
+
+See SYMB-OBJECT")
 
   (function symb-name
-    "Returns the symbol-name of the symbol.")
+    "Returns the symbol-name of the symbol.
+
+See SYMB-OBJECT")
 
   (function symb-function
-    "Returns the symbol-function of the symbol.")
+    "Returns the symbol-function of the symbol.
+
+See SYMB-FUNCTION")
 
   (function symb-type
-    "Returns the string-name of the kind of object it represents.")
+    "Returns the string-name of the kind of object it represents.
+
+See SYMB-OBJECT")
 
   (function symb-id
-    "Returns a string representing the symbol uniquely.")
+    "Returns a string representing the symbol uniquely.
+
+See SYMB-OBJECT")
 
   (function symb-scope
-    "Returns whether the symbol is :INHERITED, :EXTERNAL or :INTERNAL.")
+    "Returns whether the symbol is :INHERITED, :EXTERNAL or :INTERNAL.
+
+See SYMB-OBJECT")
 
   (function symb-qualifiers
-    "Returns the qualifiers of the method or NIL.")
+    "Returns the qualifiers of the method or NIL.
+
+See SYMB-METHOD")
 
   (function symb-arguments
-    "Returns the arguments of the function or NIL.")
+    "Returns the arguments of the function or NIL.
+
+See SYMB-FUNCTION")
 
   (function symb-documentation
-    "Returns the documentation-string.")
+    "Returns the documentation-string.
+
+See SYMB-OBJECT")
 
   (function symb-is
     "Checks if the symbol matches the mask.
 The mask should be a keyword of either :INHERITED, :INTERNAL, :EXTERNAL
-or one of the symb-object types.")
+or one of the symb-object types.
+
+See SYMB-OBJECT")
 
   (function symb<
     "Used to sort symbols alphabetically.
 Special treatment is done so that generic functions should
-always appear before their methods.")
+always appear before their methods.
+
+See SYMB-OBJECT")
 
   (function symb-type-order
-    "For a given symbol type name, returns an integer representing the priority of the type in an ordering.")
+    "For a given symbol type name, returns an integer representing the priority of the type in an ordering.
+
+See SYMB-OBJECT")
 
   (function symb-type<
-    "Used to sort symbols alphabetically, grouped by their type.")
+    "Used to sort symbols alphabetically, grouped by their type.
+
+See SYMB-OBJECT")
 
   (function symbol-function-p
     "Returns T if the symbol is a pure function.")
@@ -440,7 +524,11 @@ is returned as a list.")
     "Gets all symbols within a package.")
 
   (function symbol-objects
-    "Gathers all possible symbol-objects out of the list of passed symbols.")
+    "Gathers all possible symbol-objects out of the list of passed symbols.
+
+See SYMB-OBJECT")
 
   (function package-symbol-objects
-    "Gathers all possible symbol-objects of the given package."))
+    "Gathers all possible symbol-objects of the given package.
+
+See SYMB-OBJECT"))
