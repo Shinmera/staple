@@ -52,3 +52,10 @@ Staple includes a server so that you can view the documentation and symbol index
     (staple-server:start)
 
 Depending on how many systems you have loaded, starting the server may take a while as it produces a cache of all documentation pages. Once it's done, visit the [url in the message](http://localhost:8080/). If you change the systems and want to view the updated documentation, use `staple-server:recache`.
+
+## Git and Github config
+
+As Staple produces a large html file, tools using [Linguist](https://github.com/github/linguist) such as Github may mark your repository as HTML, and not Lisp. You can ask Linguist to not count about.html in a `.gitattributes`:
+
+    about.html linguist-vendored
+
