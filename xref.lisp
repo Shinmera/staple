@@ -37,16 +37,6 @@
              (find-package "CL"))
     (format NIL "https://l1sp.org/cl/~a" (url-encode (definitions:name definition)))))
 
-(defgeneric definition-importance (definition)
-  (:method ((_ definitions:callable) 30))
-  (:method ((_ definitions:type) 20))
-  (:method ((_ definitions:variable) 10))
-  (:method ((_ definitions:definition) 0))
-  (:method ((_ definitions:method) -10)))
-
-(defun preferred-definition (definitions)
-  (first (stable-sort #'> definitions :key #'definition-importance)))
-
 (defun parse-lisp-token (string)
   (with-output-to-string (out)
     (with-input-from-string (in string)
