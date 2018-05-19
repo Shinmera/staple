@@ -14,8 +14,9 @@
   :serial T
   :components ((:file "package")
                (:file "toolkit")
-               (:file "clip")
+               (:file "xref")
                (:file "transform")
+               (:file "clip")
                (:file "page")
                (:file "project")
                (:file "inference")

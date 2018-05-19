@@ -6,6 +6,8 @@
 
 (in-package #:org.shirakumo.staple)
 
+(defvar *page*)
+
 (defclass page ()
   ((output :initarg :output :accessor output)
    (project :initarg :project :accessor project))
@@ -14,6 +16,10 @@
    :project (error "PROJECT required.")))
 
 (defgeneric generate (page &key if-exists &allow-other-keys))
+
+(defmethod generate :around ((page page) &key)
+  (let ((*page* page))
+    (call-next-method)))
 
 (defmethod generate :before ((page page) &key)
   (with-value-restart (output page)
@@ -64,7 +70,8 @@
 (defclass templated-page (input-page)
   ())
 
-(defgeneric template-data (project page))
+(defgeneric template-data (project page)
+  (:method-combination append :most-specific-first))
 
 (defmethod generate ((page templated-page) &key (if-exists :error) (compact T))
   (with-open-file (out (output page) :if-exists if-exists)
@@ -73,3 +80,9 @@
                        (template-data (project page) page))))
       (when compact (compact node))
       (plump:serialize node out))))
+
+(defclass symbol-index-page (templated-page)
+  ((packages :initarg :packages :accessor packages)))
+
+(defmethod template-data append (project (page symbol-index-page))
+  (list :packages (packages page)))

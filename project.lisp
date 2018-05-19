@@ -6,15 +6,20 @@
 
 (in-package #:org.shirakumo.staple)
 
+(defvar *loaded-extensions*)
+
 (defclass project ()
-  ((pages :initarg :pages :accessor pages))
-  (:default-initargs :pages ()))
+  ())
+
+(defgeneric pages (project))
 
 (defmethod generate ((project project) &key (if-exists :supersede))
   (with-simple-restart (abort "Abort ~a" project)
     (dolist (page (pages project))
       (with-simple-restart (continue "Ignore ~a" page)
         (generate page :if-exists if-exists)))))
+
+(defgeneric extension-file (system))
 
 (defmethod extension-file (system)
   (make-pathname :name "staple.ext" :type "lisp"
@@ -27,10 +32,20 @@
     (when system
       (apply #'find-project system args))))
 
+(defun load-extension (system)
+  (let ((*loaded-extensions* (or *loaded-extensions* (make-hash-table :test 'eq)))
+        (system (ensure-system system)))
+    (unless (gethash system *loaded-extensions*)
+      (setf (gethash system *loaded-extensions*) T)
+      (loop for dependency in (asdf:system-depends-on system)
+            for depsys = (asdf/find-component:resolve-dependency-spec system dependency)
+            do (when depsys (load-extension depsys)))
+      (let ((extension (or extension (extension-file system))))
+        (when (probe-file extension)
+          (load extension))))))
+
 (defmethod find-project ((system asdf:system) &rest args)
-  (let ((ext (extension-file system)))
-    (when (probe-file ext)
-      (load ext :verbose NIL :print NIL)))
+  (load-extension system)
   ;; Now that the extension might have been loaded we can look
   ;; for new methods on this function specific to the system.
   (when (or (find-method #'find-project () `((eql ,system)))

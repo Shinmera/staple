@@ -8,7 +8,7 @@
 
 (defvar *pathname-type-type-map*
   '((:text "txt" "text")
-    (:html "htm" "html")))
+    (:html "htm" "html" "xhtml")))
 
 (defun pathname-type->type (type &optional errorp)
   (loop for (result . types) in *pathname-type-type-map*
