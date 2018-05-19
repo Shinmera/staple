@@ -4,10 +4,8 @@
  Author: Nicolas Hafner <shinmera@tymoon.eu>
 |#
 
-
 (asdf:defsystem staple
-  :name "Staple Documentation Generator"
-  :version "1.1.0"
+  :version "2.0.0"
   :license "Artistic"
   :author "Nicolas Hafner <shinmera@tymoon.eu>"
   :maintainer "Nicolas Hafner <shinmera@tymoon.eu>"
@@ -15,18 +13,15 @@
   :homepage "https://github.com/Shinmera/staple"
   :serial T
   :components ((:file "package")
-               (:file "symbols")
+               (:file "toolkit")
                (:file "clip")
-               (:file "fulltext")
-               (:file "stapler")
+               (:file "transform")
+               (:file "page")
+               (:file "project")
+               (:file "inference")
                (:file "documentation"))
   :depends-on (:staple-package-recording
                :clip
-               :closer-mop
                :cl-ppcre
-               :trivial-arguments
-               :3bmd
-               :3bmd-ext-code-blocks
                :documentation-utils
-               :do-urlencode
-               (:feature :sbcl (:require :sb-cltl2))))
+               :do-urlencode))

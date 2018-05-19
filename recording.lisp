@@ -5,15 +5,12 @@
 |#
 
 (defpackage #:staple-package-recording
-  (:nicknames #:org.tymoonnext.staple.recording)
+  (:nicknames #:org.shirakumo.staple.recording)
   (:use #:cl)
   (:export
-   #:*before-load-packages*
-   #:*system-packages*
-   #:efind-package
    #:system-packages))
 
-(in-package #:org.tymoonnext.staple.recording)
+(in-package #:org.shirakumo.staple.recording)
 
 (defvar *before-load-packages* (make-hash-table :test 'eql))
 (defvar *system-packages* (make-hash-table :test 'eql))

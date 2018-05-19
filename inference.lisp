@@ -4,5 +4,10 @@
  Author: Nicolas Hafner <shinmera@tymoon.eu>
 |#
 
-(in-package #:org.tymoonnext.staple)
+(in-package #:org.shirakumo.staple)
 
+(defclass simple-project (project)
+  ())
+
+(defmethod infer-project ((system asdf:system) &key)
+  )
