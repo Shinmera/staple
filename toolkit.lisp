@@ -30,7 +30,7 @@
   (format *query-io* "~&> Enter a new value: ~%")
   (multiple-value-list (eval (read))))
 
-(defun with-value-restart (place &body body)
+(defmacro with-value-restart (place &body body)
   (let ((value (gensym "VALUE")))
     `(loop (restart-case
                (return
@@ -105,7 +105,7 @@
   (:method ((_ definitions:structure))          130)
   (:method ((_ definitions:type-definition))    120)
   (:method ((_ definitions:type))               110)
-  (:method ((_ definitions:accessor))           100)
+  ;;(:method ((_ definitions:accessor))           100)
   (:method ((_ definitions:function))           90)
   (:method ((_ definitions:generic-function))   80)
   (:method ((_ definitions:method))             70)
@@ -127,11 +127,11 @@
     (stable-sort #'sorter definitions)))
 
 (defgeneric definition-importance (definition)
-  (:method ((_ definitions:callable) 30))
-  (:method ((_ definitions:type) 20))
-  (:method ((_ definitions:variable) 10))
-  (:method ((_ definitions:definition) 0))
-  (:method ((_ definitions:method) -10)))
+  (:method ((_ definitions:callable)) 30)
+  (:method ((_ definitions:type)) 20)
+  (:method ((_ definitions:variable)) 10)
+  (:method ((_ definitions:definition)) 0)
+  (:method ((_ definitions:method)) -10))
 
 (defun preferred-definition (definitions)
   (first (stable-sort #'> definitions :key #'definition-importance)))

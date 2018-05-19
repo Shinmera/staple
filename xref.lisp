@@ -65,6 +65,8 @@
                                       ((and (= 1 i) (char= #\# (aref identifier 0)))
                                        ;; Handling this edge-case is a bother, so we just hope
                                        ;; nobody's crazy enough to define a package like this.
+                                       (when (find-package "")
+                                         (error "What the fuck. Why did someone define a package with an empty name?"))
                                        "")
                                       (T
                                        (subseq identifier 0 i))))))))

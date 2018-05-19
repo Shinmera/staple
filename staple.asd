@@ -22,7 +22,8 @@
                (:file "inference")
                (:file "documentation"))
   :depends-on (:staple-package-recording
+               :babel
                :clip
                :cl-ppcre
-               :documentation-utils
-               :do-urlencode))
+               :definitions
+               :documentation-utils))

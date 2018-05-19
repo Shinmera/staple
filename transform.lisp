@@ -6,9 +6,7 @@
 
 (in-package #:org.shirakumo.staple)
 
-(defvar *pathname-type-type-map*
-  '((:text "txt" "text")
-    (:html "htm" "html" "xhtml")))
+(defvar *pathname-type-type-map* ())
 
 (defun pathname-type->type (type &optional errorp)
   (loop for (result . types) in *pathname-type-type-map*
@@ -42,18 +40,15 @@
              do (write-sequence buffer out))))
    type))
 
-(defmethod compile-source ((source string) (type :html))
-  (plump:parse source))
-
-(defmethod compile-source ((source pathname) (type :html))
-  (plump:parse source))
-
-(defmethod compile-source ((source string) (type :text))
-  source)
-
 (defmacro define-source-compiler ((type &rest pathname-types) (input) &body body)
   (check-type type keyword)
   `(progn
      (setf (pathname-type->type ,type) ',pathname-types)
-     (defmethod compile-source ((,input string) (type ,type))
+     (defmethod compile-source ((,input string) (type (eql ,type)))
        ,@body)))
+
+(define-source-compiler (:html "htm" "html" "xhtml") (input)
+  (plump:parse input))
+
+(define-source-compiler (:text "txt" "text") (input)
+  input)
