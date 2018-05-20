@@ -31,14 +31,10 @@
   (compile-source source (pathname-type->type type)))
 
 (defmethod compile-source ((source pathname) type)
-  (compile-source
-   (with-open-file (in source)
-     (with-output-to-string (out)
-       (loop with buffer = (make-array 4096 :element-type 'character)
-             for read = (read-sequence buffer in)
-             while (< 0 read)
-             do (write-sequence buffer out))))
-   type))
+  (compile-source (read-file source) type))
+
+(defmethod compile-source ((source pathname) (type (eql T)))
+  (compile-source source (pathname-type source)))
 
 (defmacro define-source-compiler ((type &rest pathname-types) (input) &body body)
   (check-type type keyword)

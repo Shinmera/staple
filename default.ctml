@@ -1,10 +1,9 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" lquery="(attr :lang language)">
   <head>
     <meta charset="utf-8" />
     <title lquery="(text title)">Title</title>
-    <link rel="stylesheet" href="default.css"/>
-    <style lquery="(text ())"></style>
+    <style lquery='(text (read-file (asdf:system-relative-pathname :staple "default.css")))'></style>
   </head>
   <body>
     <article class="system">

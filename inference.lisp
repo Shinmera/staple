@@ -7,7 +7,7 @@
 (in-package #:org.shirakumo.staple)
 
 (defvar *document-patterns*
-  '("readme" "documentation" "about"))
+  '("README" "readme" "documentation" "about"))
 
 (defvar *image-patterns*
   '("\\.svg$" "\\.png$" "\\.jpg$" "\\.jpeg$" "\\.gif$" "\\.bmp$"))
@@ -20,9 +20,26 @@
     (let ((found (gethash code *language-code-map*)))
       (when found (return found)))))
 
+(defclass simple-page (system-page)
+  ((document :initarg :document :accessor document))
+  (:default-initargs
+   :document (error "DOCUMENT required.")
+   :input *default-template*))
+
+(defmethod template-data append (project (page simple-page))
+  (list :documentation (compile-source (document page) T)
+        :language (or (extract-language (pathname-name (document page)))
+                      "en")))
+
 (defclass simple-project (project)
-  ((pages :initarg :pages :accessor pages))
-  (:default-initargs :pages ()))
+  ((pages :initarg :pages :accessor pages)
+   (logo :initarg :logo :accessor logo))
+  (:default-initargs
+   :pages ()
+   :logo NIL))
+
+(defmethod template-data append ((project simple-project) page)
+  (list :logo (logo project)))
 
 (defun find-files (directory patterns)
   (let ((docs ()))
@@ -32,41 +49,44 @@
         (push file docs)))))
 
 (defmethod system-documents ((system asdf:system))
-  (find-files (asdf:system-source-directory system)
-              *document-patterns*))
+  (remove-if-not (lambda (path) (pathname-type->type (pathname-type path)))
+                 (find-files (asdf:system-source-directory system)
+                             *document-patterns*)))
 
 (defmethod system-images ((system asdf:system))
   (find-files (asdf:system-source-directory system)
               *image-patterns*))
 
-(defun ensure-system-options-complete (options)
-  (flet ((complete-by-systems (option function)
-           (unless (getf options option)
-             (setf (getf options option)
-                   (loop for system in (getf options :systems)
-                         append (funcall function system))))))
-    (complete-by-systems :documents #'system-documents)
-    (complete-by-systems :images #'system-images)
-    (complete-by-systems :packages #'system-packages)
-    options))
+(defmethod system-subsystems ((system asdf:system))
+  ;; FIXME: Package-inferred-systems and such?
+  ())
 
-(defgeneric system-options (system)
-  (:method-combination append :most-specific-first))
+(defmethod system-output-directory ((system asdf:system))
+  (asdf:system-source-directory system))
 
-(defmethod system-options append ((system asdf:system))
-  (list :systems (list system)
-        :template *default-template*
-        :if-exists :error))
+(defmethod system-output-file ((system asdf:system) document)
+  (let* ((lang (extract-language (pathname-name document)))
+         (lang (unless (find lang '("en" "eng") :test #'string-equal) lang)))
+    (merge-pathnames (make-pathname :name (format NIL "index~@[-~a~]" lang)
+                                    :type "html")
+                     document)))
 
-(defmethod system-options :around ((system asdf:system))
-  (ensure-system-options-complete (call-next-method)))
-
-(defmethod infer-project ((system asdf:system) &rest options)
+;; FIXME: subsystems
+(defmethod infer-project ((system asdf:system) &key output-directory logo)
   (load-extension system)
-  (let ((options (system-options system)))
-    (let ((*standard-output* (make-broadcast-stream)))
-      (handler-bind ((style-warning #'muffle-warning))
-        (mapc #'asdf:load-system (getf options :systems))))
-    (let ((pages ()))
-      
-      (make-instance 'project :pages pages))))
+  (let ((*standard-output* (make-broadcast-stream)))
+    (handler-bind ((style-warning #'muffle-warning))
+      (asdf:load-system system)))
+  (let ((project (make-instance 'simple-project
+                                ;; FIXME: score image files
+                                :logo (or logo (first (system-images system)))))
+        (output-directory (or output-directory (system-output-directory system))))
+    (loop for document in (system-documents system)
+          for output = (system-output-file system (merge-pathnames output-directory document))
+          do (push (make-instance 'simple-page
+                                  :output output
+                                  :system system
+                                  :document document
+                                  :project project)
+                   (pages project)))
+    project))

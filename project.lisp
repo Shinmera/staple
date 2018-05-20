@@ -33,14 +33,16 @@
       (apply #'find-project system args))))
 
 (defun load-extension (system)
-  (let ((*loaded-extensions* (or *loaded-extensions* (make-hash-table :test 'eq)))
+  (let ((*loaded-extensions* (if (boundp '*loaded-extensions*)
+                                 *loaded-extensions*
+                                 (make-hash-table :test 'eq)))
         (system (ensure-system system)))
     (unless (gethash system *loaded-extensions*)
       (setf (gethash system *loaded-extensions*) T)
       (loop for dependency in (asdf:system-depends-on system)
             for depsys = (asdf/find-component:resolve-dependency-spec system dependency)
             do (when depsys (load-extension depsys)))
-      (let ((extension (or extension (extension-file system))))
+      (let ((extension (extension-file system)))
         (when (probe-file extension)
           (load extension))))))
 
@@ -48,8 +50,8 @@
   (load-extension system)
   ;; Now that the extension might have been loaded we can look
   ;; for new methods on this function specific to the system.
-  (when (or (find-method #'find-project () `((eql ,system)))
-            (find-method #'find-project () `((eql ,(system-name system)))))
+  (when (or (find-method #'find-project () `((eql ,system)) NIL)
+            (find-method #'find-project () `((eql ,(system-name system))) NIL))
     (apply #'find-project (system-name system) args)))
 
 (defgeneric infer-project (project &key &allow-other-keys))

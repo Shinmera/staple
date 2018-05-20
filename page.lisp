@@ -62,21 +62,23 @@
 
 (defmethod generate ((page compiled-page) &key (if-exists :error) (compact T))
   (let ((data (compile-source (input page) (pathname-type (input page)))))
-    (etypecase data
-      (plump:node
-       (with-open-file (out (output page) :direction :output
-                                          :if-exists if-exists)
-         (when compact (compact data))
-         (plump:serialize data out)))
-      (string
-       (with-open-file (out (output page) :direction :output
-                                          :if-exists if-exists)
-         (write-string data out)))
-      ((vector (unsigned-byte 8))
-       (with-open-file (out (output page) :direction :output
-                                          :if-exists if-exists
-                                          :element-type '(unsigned-byte 8))
-         (write-sequence data out))))))
+    (handler-bind ((plump:invalid-xml-character #'abort)
+                   (plump:discouraged-xml-character #'continue))
+      (etypecase data
+        (plump:node
+         (with-open-file (out (output page) :direction :output
+                                            :if-exists if-exists)
+           (when compact (compact data))
+           (plump:serialize data out)))
+        (string
+         (with-open-file (out (output page) :direction :output
+                                            :if-exists if-exists)
+           (write-string data out)))
+        ((vector (unsigned-byte 8))
+         (with-open-file (out (output page) :direction :output
+                                            :if-exists if-exists
+                                            :element-type '(unsigned-byte 8))
+           (write-sequence data out)))))))
 
 (defclass templated-page (input-page)
   ())
@@ -84,15 +86,20 @@
 (defgeneric template-data (project page)
   (:method-combination append :most-specific-first))
 
+(defmethod template-data append (project (page templated-page))
+  (list :title (title page)))
+
 (defmethod generate ((page templated-page) &key (if-exists :error) (compact T))
   (with-open-file (out (output page) :direction :output
                                      :if-exists if-exists)
-    (let* ((*package* #.*package*)
-           (node (apply #'clip:process
-                        (plump:parse (input page))
-                        (template-data (project page) page))))
-      (when compact (compact node))
-      (plump:serialize node out))))
+    (handler-bind ((plump:invalid-xml-character #'abort)
+                   (plump:discouraged-xml-character #'continue))
+      (let* ((*package* #.*package*)
+             (node (apply #'clip:process
+                          (plump:parse (input page))
+                          (template-data (project page) page))))
+        (when compact (compact node))
+        (plump:serialize node out)))))
 
 (defclass symbol-index-page (templated-page)
   ((packages :initform NIL :accessor packages)))
@@ -105,3 +112,22 @@
 
 (defmethod template-data append (project (page symbol-index-page))
   (list :packages (packages page)))
+
+(defclass system-page (symbol-index-page)
+  ((system :initarg NIL :accessor system)))
+
+(defmethod shared-initialize :after ((page system-page) slots &key system)
+  (when system (setf (system page) system))
+  (unless (packages page)
+    (setf (packages page) (system-packages (system page))))
+  (unless (title page)
+    (setf (title page) (asdf:component-name (system page)))))
+
+(defmethod (setf system) :around (system (page system-page))
+  (call-next-method (etypecase system
+                      ((or string symbol) (asdf:find-system system T))
+                      (asdf:system system))
+                    page))
+
+(defmethod template-data append (project (page system-page))
+  (list :system (system page)))

@@ -40,6 +40,11 @@
                :interactive read-value
                (setf ,place ,value))))))
 
+(defun ensure-system (system-ish)
+  (typecase system-ish
+    (asdf:system system-ish)
+    (T (asdf:find-system system-ish T))))
+
 (defmethod system-name ((system asdf:system))
   (intern (string-upcase (asdf:component-name system)) "KEYWORD"))
 
@@ -85,6 +90,14 @@
 (defmacro do-directory-tree ((file directory &optional result) &body body)
   `(progn (map-directory-tree (lambda (,file) ,@body) ,directory)
           ,result))
+
+(defun read-file (path)
+  (with-open-file (in path)
+    (with-output-to-string (out)
+      (loop with buffer = (make-array 4096 :element-type 'character)
+            for read = (read-sequence buffer in)
+            while (< 0 read)
+            do (write-sequence buffer out)))))
 
 (defgeneric definition-id (definition))
 
@@ -157,5 +170,5 @@
         collect (etypecase package
                   (string (make-instance 'definitions:package :designator package))
                   (symbol (make-instance 'definitions:package :designator (symbol-name package)))
-                  (package (make-instance 'definitions:package :package package))
+                  (package (make-instance 'definitions:package :designator (package-name package)))
                   (definitions:package package))))
