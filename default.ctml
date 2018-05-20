@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title lquery="(text title)">Title</title>
+    <link rel="stylesheet" href="default.css"/>
+    <style lquery="(text ())"></style>
+  </head>
+  <body>
+    <article class="system">
+      <header>
+        <c:when test="logo">
+          <img class="logo" src="logo.svg" alt="Logo" lquery="(attr :src logo)" />
+        </c:when>
+        <h1 lquery="(text title)">Title</h1>
+        <span class="version" lquery="(text (clip:clip system :version))">1.0</span>
+        <p class="description" lquery="(text (clip:clip system :description))">
+          Some short description of the lib.
+        </p>
+      </header>
+      <section id="documentation" lquery="(html documentation)">
+      </section>
+      <c:using value="system">
+        <section id="system">
+          <h2>System Information</h2>
+          <c:when test="author">
+            <div class="row">
+              <label for="author">Author:</label>
+              <a id="author" href="#" lquery="(attr :href mailto) (text author)">author</a>
+            </div>
+          </c:when>
+          <c:when test="license">
+            <div class="row">
+              <label for="license">License:</label>
+              <a id="license" href="#" lquery="(attr :href license-link) (text license)">license</a>
+            </div>
+          </c:when>
+          <c:when test="homepage">
+            <div class="row">
+              <label for="homepage">Homepage:</label>
+              <a id="homepage" href="#" lquery="(attr :href homepage) (text homepage)">http://example.com</a>
+            </div>
+          </c:when>
+        </section>
+      </c:using>
+      <section id="index">
+        <h2>Definition Index</h2>
+        <ul iterate="packages">
+          <li>
+            <article class="package" lquery="(attr :id id)">
+              <header>
+                <h3>
+                  <a href="#" lquery="(attr :href xref) (text name)">FOO</a>
+                </h3>
+                <ul class="nicknames" iterate="nicknames">
+                  <li lquery="(text *)">CL-FOO</li>
+                </ul>
+              </header>
+              <ul class="definitions" iterate="definitions">
+                <li>
+                  <article class="definition" lquery="(add-class type) (attr :id id)">
+                    <header>
+                      <span class="visibility" lquery="(text visibility)">visibility</span>
+                      <span class="type" lquery="(text type)">type</span>
+                      <h4 class="name">
+                        <a href="#" lquery="(attr :href xref) (text name)">name</a>
+                      </h4>
+                      <ul class="qualifiers" iterate="qualifiers">
+                        <li class="qualifier" lquery="(text *)">qualifier</li>
+                      </ul>
+                      <ul class="arguments" iterate="arguments">
+                        <li class="argument" lquery="(text *)">argument</li>
+                      </ul>
+                      <a class="source-link" href="#" lquery="(attr :href source-link)">Source</a>
+                    </header>
+                    <div class="docstring" lquery="(html formatted-documentation)">
+                      <p>
+                        Does some crap, I don't know.
+                      </p>
+                    </div>
+                  </article>
+                </li>
+              </ul>
+            </article>
+          </li>
+        </ul>
+      </section>
+    </article>
+  </body>
+</html>

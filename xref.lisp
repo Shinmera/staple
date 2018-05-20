@@ -29,7 +29,7 @@
 
 (define-xref-resolver current-page (definition)
   (when (find (definitions:package definition)
-              (packages *page*))
+              (packages *page*) :key #'definitions:package)
     (format NIL "#~a" (url-encode (definition-id definition)))))
 
 (define-xref-resolver common-lisp (definition)
@@ -71,17 +71,24 @@
                                       (T
                                        (subseq identifier 0 i))))))))
     (values (parse-lisp-token name)
-            (parse-lisp-token package))))
+            (when package (parse-lisp-token package)))))
 
 (defun find-definitions-for-identifier (name &optional package)
   (let ((packages (if package
                       (find-package package)
-                      (append (packages *page*) (list (find-package "CL"))))))
+                      (append (packages *page*) (list (make-instance 'definitions:package :designator "CL"))))))
     (loop for package in packages
-          for symbol = (find-symbol name package)
+          for symbol = (find-symbol name (definitions:package package))
           when symbol
           append (definitions:find-definitions symbol package))))
 
-(defun xref (identifier)
+(defgeneric xref (thing))
+
+(defmethod xref ((definition definitions:definition))
+  (resolve-xref definition))
+
+(defmethod xref ((identifier string))
   (multiple-value-bind (name package) (parse-symbol identifier)
-    (resolve-xref (preferred-definition (find-definitions-for-identifier name package)))))
+    (let ((defs (find-definitions-for-identifier name package)))
+      (when defs
+        (resolve-xref (preferred-definition defs))))))

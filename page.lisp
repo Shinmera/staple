@@ -9,10 +9,12 @@
 (defvar *page*)
 
 (defclass page ()
-  ((output :initarg :output :accessor output)
+  ((title :initarg :title :accessor title)
+   (output :initarg :output :accessor output)
    (project :initarg :project :accessor project))
   (:default-initargs
    :output NIL
+   :title NIL
    :project (error "PROJECT required.")))
 
 (defgeneric generate (page &key if-exists &allow-other-keys))
@@ -23,19 +25,21 @@
 
 (defmethod generate :before ((page page) &key)
   (with-value-restart (output page)
-    (unless (typep (output page) 'pathname)
+    (unless (typep (output page) '(or string pathname))
       (error "The output file for ~a is not a pathname."
              page))))
 
-(defclass input-page ()
-  ((input :accessor input)))
+(defclass input-page (page)
+  ((input :initarg :input :accessor input))
+  (:default-initargs
+   :input NIL))
 
 (defmethod generate :before ((page input-page) &key)
   (with-value-restart (input page)
     (unless (typep (input page) 'pathname)
       (error "The input file for ~a is not a pathname."
              page))
-    (unless (uiop:directory-exists-p (input page))
+    (unless (probe-file (input page))
       (error "The input file for ~a does not exist:~%  ~s"
              page (input page)))))
 
@@ -43,8 +47,11 @@
   ())
 
 (defmethod generate ((page static-page) &key (if-exists :error))
-  (with-open-file (out (output page) :if-exists if-exists :element-type '(unsigned-byte 8))
-    (with-open-file (in (input page) :element-type '(unsigned-byte 8))
+  (with-open-file (out (output page) :direction :output
+                                     :if-exists if-exists
+                                     :element-type '(unsigned-byte 8))
+    (with-open-file (in (input page) :direction :input
+                                     :element-type '(unsigned-byte 8))
       (loop with buffer = (make-array 4096 :element-type '(unsigned-byte 8))
             for read = (read-sequence buffer in)
             while (< 0 read)
@@ -57,14 +64,18 @@
   (let ((data (compile-source (input page) (pathname-type (input page)))))
     (etypecase data
       (plump:node
-       (with-open-file (out (output page) :if-exists if-exists)
+       (with-open-file (out (output page) :direction :output
+                                          :if-exists if-exists)
          (when compact (compact data))
          (plump:serialize data out)))
       (string
-       (with-open-file (out (output page) :if-exists if-exists)
+       (with-open-file (out (output page) :direction :output
+                                          :if-exists if-exists)
          (write-string data out)))
       ((vector (unsigned-byte 8))
-       (with-open-file (out (output page) :if-exists if-exists :element-type '(unsigned-byte 8))
+       (with-open-file (out (output page) :direction :output
+                                          :if-exists if-exists
+                                          :element-type '(unsigned-byte 8))
          (write-sequence data out))))))
 
 (defclass templated-page (input-page)
@@ -74,15 +85,23 @@
   (:method-combination append :most-specific-first))
 
 (defmethod generate ((page templated-page) &key (if-exists :error) (compact T))
-  (with-open-file (out (output page) :if-exists if-exists)
-    (let ((node (apply #'clip:process
-                       (plump:parse (input page))
-                       (template-data (project page) page))))
+  (with-open-file (out (output page) :direction :output
+                                     :if-exists if-exists)
+    (let* ((*package* #.*package*)
+           (node (apply #'clip:process
+                        (plump:parse (input page))
+                        (template-data (project page) page))))
       (when compact (compact node))
       (plump:serialize node out))))
 
 (defclass symbol-index-page (templated-page)
-  ((packages :initarg :packages :accessor packages)))
+  ((packages :initform NIL :accessor packages)))
+
+(defmethod shared-initialize :after ((page symbol-index-page) slots &key packages)
+  (when packages (setf (packages page) packages)))
+
+(defmethod (setf packages) :around (packages (page symbol-index-page))
+  (call-next-method (ensure-package-defs packages) page))
 
 (defmethod template-data append (project (page symbol-index-page))
   (list :packages (packages page)))

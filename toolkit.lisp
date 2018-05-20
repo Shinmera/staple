@@ -88,6 +88,11 @@
 
 (defgeneric definition-id (definition))
 
+(defmethod definition-id ((definition definitions:package))
+  (format NIL "~a-~a"
+          (definitions:type definition)
+          (definitions:name definition)))
+
 (defmethod definition-id ((definition definitions:global-definition))
   (format NIL "~a-~a:~a"
           (definitions:type definition)
@@ -124,7 +129,7 @@
                         (definitions:name b))
                (> (definition-order a)
                   (definition-order b)))))
-    (stable-sort #'sorter definitions)))
+    (stable-sort definitions #'sorter)))
 
 (defgeneric definition-importance (definition)
   (:method ((_ definitions:callable)) 30)
@@ -134,7 +139,7 @@
   (:method ((_ definitions:method)) -10))
 
 (defun preferred-definition (definitions)
-  (first (stable-sort #'> definitions :key #'definition-importance)))
+  (first (stable-sort definitions #'> :key #'definition-importance)))
 
 (defun url-encode (thing &optional (external-format :utf-8))
   (with-output-to-string (out)
@@ -146,3 +151,11 @@
                         (find char "-._~" :test #'char=))
                     (write-char char out))
                    (T (format out "%~2,'0x" (char-code char)))))))
+
+(defun ensure-package-defs (packages)
+  (loop for package in packages
+        collect (etypecase package
+                  (string (make-instance 'definitions:package :designator package))
+                  (symbol (make-instance 'definitions:package :designator (symbol-name package)))
+                  (package (make-instance 'definitions:package :package package))
+                  (definitions:package package))))
