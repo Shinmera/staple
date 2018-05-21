@@ -41,9 +41,11 @@
     (source-directory (asdf:system-source-directory system))
     (definition-pathname (asdf:system-source-file system))
     (license-link
-     (or (probe-file (asdf:system-relative-pathname system "LICENCE"))
-         (probe-file (asdf:system-relative-pathname system "LICENSE"))
-         (format NIL "https://tldrlegal.com/search?q=~a" (asdf:system-license system))))
+     (let ((license (first (find-files (uiop:pathname-directory-pathname (output *page*))
+                                       '("LICENCE" "LICENSE") :max-depth 1))))
+       (if license
+           (resolve-source-link (list :file license) *page*)
+           (format NIL "https://tldrlegal.com/search?q=~a" (asdf:system-license system)))))
     (T (call-next-method))))
 
 (defmethod clip:clip ((package package) field)

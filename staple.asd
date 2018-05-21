@@ -26,4 +26,5 @@
                :clip
                :cl-ppcre
                :definitions
+               :pathname-utils
                :documentation-utils))

@@ -140,7 +140,15 @@
 (defgeneric resolve-source-link (source page))
 
 (defmethod resolve-source-link (source (page symbol-index-page))
-  (format NIL "file://~a#~a:~a" (getf source :file) (getf source :row) (getf source :col)))
+  (cond ((pathname-utils:subpath-p (truename (getf source :file))
+                                   (truename (uiop:pathname-directory-pathname (output page))))
+         (format NIL "~a~@[#~a:~a~]"
+                 (enough-namestring (truename (getf source :file))
+                                    (truename (uiop:pathname-directory-pathname (output page))))
+                 (getf source :row) (getf source :col)))
+        (T
+         (format NIL "file://~a~@[#~a:~a~]"
+                 (truename (getf source :file)) (getf source :row) (getf source :col)))))
 
 (defgeneric definition-wanted-p (definition page))
 
@@ -175,10 +183,9 @@
 
 (defmethod resolve-source-link (source (page system-page))
   (cond ((and (search "github.com" (asdf:system-homepage (system page)))
-              (uiop:subpathp (getf source :file)
-                             (asdf:system-source-directory (system page))))
-         ;; This is imperfect to say the least.
-         (format NIL "~a/blob/master/~a#L~a" (asdf:system-homepage (system page))
+              (pathname-utils:subpath-p (truename (getf source :file))
+                                        (truename (asdf:system-source-directory (system page)))))
+         (format NIL "~a/blob/master/~a~@[#L~a~]" (asdf:system-homepage (system page))
                  (enough-namestring (getf source :file)
                                     (asdf:system-source-directory (system page)))
                  (getf source :row)))
