@@ -189,6 +189,19 @@
         (definitions:package (definitions:object package)))
       (error "No such package ~s." package)))
 
+(defun skip-to-source-form (stream)
+  (loop for char = (peek-char T stream)
+        do (case char
+             (#\; (loop for char = (read-char stream NIL)
+                        until (or (not char) (char= char #\Linefeed))))
+             (#\#
+              (read-char stream)
+              (if (char= #\| (peek-char T stream))
+                  (funcall (get-dispatch-macro-character #\# #\|) stream #\| NIL)
+                  (return stream)))
+             (T
+              (return stream)))))
+
 (defun absolute-source-location (source-location)
   (destructuring-bind (&key file form offset) source-location
     (when file
@@ -197,7 +210,7 @@
         (ignore-errors
          (with-open-file (stream file :direction :input)
            (dotimes (i form) (read stream NIL))
-           (peek-char T stream)
+           (skip-to-source-form stream)
            (setf offset (+ (or offset 0) (file-position stream))))))
       ;; Count row + col
       (when offset
