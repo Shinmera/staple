@@ -46,7 +46,7 @@
         <h2>Definition Index</h2>
         <ul iterate="packages">
           <li>
-            <article class="package" lquery="(attr :id id)">
+            <article class="definition package" lquery="(attr :id id)">
               <header>
                 <h3>
                   <a href="#" lquery="(attr :href xref) (text name)">FOO</a>
@@ -54,10 +54,14 @@
                 <ul class="nicknames" iterate="nicknames">
                   <li lquery="(text *)">CL-FOO</li>
                 </ul>
+                <c:when test="source-link">
+                  <a class="source-link" href="#" lquery="(attr :href source-link)">Source</a>
+                </c:when>
               </header>
+              <div class="docstring" lquery="(html formatted-documentation)">Docstring</div>
               <ul class="definitions" iterate="definitions">
                 <li>
-                  <article class="definition" lquery="(add-class type) (attr :id id)">
+                  <article class="definition" lquery="(add-class (string-downcase type)) (attr :id id)">
                     <header>
                       <span class="visibility" lquery="(text visibility)">visibility</span>
                       <span class="type" lquery="(text type)">type</span>
@@ -70,13 +74,11 @@
                       <ul class="arguments" iterate="arguments">
                         <li class="argument" lquery="(text *)">argument</li>
                       </ul>
-                      <a class="source-link" href="#" lquery="(attr :href source-link)">Source</a>
+                      <c:when test="source-link">
+                        <a class="source-link" href="#" lquery="(attr :href source-link)">Source</a>
+                      </c:when>
                     </header>
-                    <div class="docstring" lquery="(html formatted-documentation)">
-                      <p>
-                        Does some crap, I don't know.
-                      </p>
-                    </div>
+                    <div class="docstring" lquery="(html formatted-documentation)">Docstring</div>
                   </article>
                 </li>
               </ul>

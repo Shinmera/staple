@@ -35,7 +35,7 @@
 (define-xref-resolver common-lisp (definition)
   (when (eql (definitions:package definition)
              (find-package "CL"))
-    (format NIL "https://l1sp.org/cl/~a" (url-encode (definitions:name definition)))))
+    (format NIL "https://l1sp.org/cl/~a" (url-encode (string-downcase (definitions:name definition))))))
 
 (defun parse-lisp-token (string)
   (with-output-to-string (out)
@@ -73,14 +73,16 @@
     (values (parse-lisp-token name)
             (when package (parse-lisp-token package)))))
 
-(defun find-definitions-for-identifier (name &optional package)
+(defun find-definitions-for-identifier (name &key package (type T))
   (let ((packages (if package
-                      (find-package package)
-                      (append (packages *page*) (list (make-instance 'definitions:package :designator "CL"))))))
+                      (list package)
+                      (append (packages *page*) (list "CL")))))
     (loop for package in packages
-          for symbol = (find-symbol name (definitions:package package))
-          when symbol
-          append (definitions:find-definitions symbol package))))
+          append (ignore-errors
+                  (let* ((package (ensure-package package))
+                         (symbol (find-symbol name package)))
+                    (when symbol
+                      (definitions:find-definitions symbol :package package :type type)))))))
 
 (defgeneric xref (thing))
 
@@ -89,6 +91,6 @@
 
 (defmethod xref ((identifier string))
   (multiple-value-bind (name package) (parse-symbol identifier)
-    (let ((defs (find-definitions-for-identifier name package)))
+    (let ((defs (find-definitions-for-identifier name :package package)))
       (when defs
         (resolve-xref (preferred-definition defs))))))

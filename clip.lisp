@@ -82,16 +82,19 @@
                        (package-name (definitions:package definition))
                        (definitions:name definition)))
     (package (definitions:package definition))
-    (type (definitions:type definition))
+    (type (type-of definition))
+    (kind (definitions:type definition))
     (visibility (definitions:visibility definition))
     (documentation (definitions:documentation definition))
     (source-location (definitions:source-location definition))
     (arguments ())
     (qualifiers ())
-    (source-link ;; FIXME
-     "")
-    (formatted-documentation ;; FIXME
-     "")
+    (source-link
+     (let ((source (absolute-source-location (definitions:source-location definition))))
+       (when source (resolve-source-link source *page*))))
+    (formatted-documentation
+     (or (format-documentation definition *page*)
+         "<i>No documentation provided.</i>"))
     (T (call-next-method))))
 
 (defmethod clip:clip ((definition definitions:callable) field)
@@ -107,6 +110,6 @@
 (defmethod clip:clip ((definition definitions:package) field)
   (case* string-equal field
     (nicknames (package-nicknames (definitions:object definition)))
-    (definitions ;; FIXME
-     ())
+    (definitions
+     (definitions *page* (definitions:object definition)))
     (T (call-next-method))))

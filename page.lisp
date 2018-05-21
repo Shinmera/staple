@@ -61,7 +61,8 @@
   ())
 
 (defmethod generate ((page compiled-page) &key (if-exists :error) (compact T))
-  (let ((data (compile-source (input page) (pathname-type (input page)))))
+  (let ((data (compile-source (input page) (pathname-type (input page))))
+        (plump:*tag-dispatchers* plump:*html-tags*))
     (handler-bind ((plump:invalid-xml-character #'abort)
                    (plump:discouraged-xml-character #'continue))
       (etypecase data
@@ -95,6 +96,7 @@
     (handler-bind ((plump:invalid-xml-character #'abort)
                    (plump:discouraged-xml-character #'continue))
       (let* ((*package* #.*package*)
+             (plump:*tag-dispatchers* plump:*html-tags*)
              (node (apply #'clip:process
                           (plump:parse (input page))
                           (template-data (project page) page))))
@@ -112,6 +114,45 @@
 
 (defmethod template-data append (project (page symbol-index-page))
   (list :packages (packages page)))
+
+(defgeneric format-documentation (definition page))
+
+(defmethod format-documentation ((definition definitions:definition) (page symbol-index-page))
+  (format-documentation (definitions:documentation definition) page))
+
+(defmethod format-documentation ((null null) (page symbol-index-page))
+  NIL)
+
+(defmethod format-documentation ((docstring string) (page symbol-index-page))
+  (flet ((replace-see (string start end mstart mend rstart rend)
+           (declare (ignore start end))
+           (let* ((match (subseq string (aref rstart 0) (aref rend 0)))
+                  (identifier (plump:decode-entities match))
+                  (xref (xref identifier)))
+             (if xref
+                 (format NIL "See <a href=\"~a\">~a</a>"
+                         (plump:encode-entities xref) match)
+                 (subseq string mstart mend)))))
+    (let* ((docstring (plump:encode-entities docstring))
+           (docstring (cl-ppcre:regex-replace-all "\\b[sS]ee (.*)\\b" docstring #'replace-see)))
+      (format NIL "<pre>~a</pre>" docstring))))
+
+(defgeneric resolve-source-link (source page))
+
+(defmethod resolve-source-link (source (page symbol-index-page))
+  (format NIL "file://~a#~a:~a" (getf source :file) (getf source :row) (getf source :col)))
+
+(defgeneric definition-wanted-p (definition page))
+
+(defmethod definition-wanted-p (definition (page symbol-index-page))
+  T)
+
+(defgeneric definitions (page package))
+
+(defmethod definitions ((page symbol-index-page) package)
+  (sort-definitions
+   (delete-if-not (lambda (def) (definition-wanted-p def page))
+                  (definitions:find-definitions package :package package))))
 
 (defclass system-page (symbol-index-page)
   ((system :initarg NIL :accessor system)))
@@ -131,3 +172,15 @@
 
 (defmethod template-data append (project (page system-page))
   (list :system (system page)))
+
+(defmethod resolve-source-link (source (page system-page))
+  (cond ((and (search "github.com" (asdf:system-homepage (system page)))
+              (uiop:subpathp (getf source :file)
+                             (asdf:system-source-directory (system page))))
+         ;; This is imperfect to say the least.
+         (format NIL "~a/blob/master/~a#L~a" (asdf:system-homepage (system page))
+                 (enough-namestring (getf source :file)
+                                    (asdf:system-source-directory (system page)))
+                 (getf source :row)))
+        (T
+         (call-next-method))))

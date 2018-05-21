@@ -37,11 +37,35 @@
    :display inline-block
    :min-width 5em)))
 
-(article.package
+(article.definition
+ :margin 1em 0 0 0
  (>header
-  (h3
+  ((:or h1 h2 h3 h4 h5 h6)
    :text-indent 0
    :display inline-block)
+  (ul
+   :display inline-block
+   :list-style none
+   :margin 0 :padding 0
+   (li :display inline-block
+       :padding 0 0.2em 0 0))
+  (.visibility
+   :display none)
+  ((:or .visibility .type)
+   :text-transform lowercase)
+  (.source-link
+   :visibility hidden
+   :float right)
+  ((:and .source-link :after)
+   :visibility visible
+   :content "[SRC]"))
+ (.docstring
+  :margin 0 0 0 1em
+  (pre :font-size 0.8em
+       :white-space pre-wrap)))
+
+(.definition.package
+ (>header
   (ul.nicknames
    :display inline-block
    :list-style none
@@ -55,24 +79,7 @@
   :list-style none
   :padding 0 0 0 0.5em))
 
-(article.definition
- (>header
-  (h4
-   :text-indent 0
-   :display inline-block)
-  (ul
-   :display inline-block
-   :list-style none
-   :margin 0 :padding 0
-   (li :display inline-block))
-  (.visibility
-   :display none)
-  (.source-link
-   :float right))
- (.docstring
-  :margin 0 0 0 1em))
-
-(.definition.function
+((:and .definition (:or .function .generic-function .macro .method .type))
  (>header
   ((:and .name :before) :content "(" :font-weight normal)
   ((:and .arguments :after) :content ")")))

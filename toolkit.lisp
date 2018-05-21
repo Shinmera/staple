@@ -91,23 +91,30 @@
   `(progn (map-directory-tree (lambda (,file) ,@body) ,directory)
           ,result))
 
+(defun find-files (directory patterns)
+  (let ((docs ()))
+    (do-directory-tree (file directory docs)
+      (when (loop for pattern in patterns
+                  thereis (cl-ppcre:scan pattern (file-namestring file)))
+        (push file docs)))))
+
 (defun read-file (path)
   (with-open-file (in path)
     (with-output-to-string (out)
       (loop with buffer = (make-array 4096 :element-type 'character)
             for read = (read-sequence buffer in)
             while (< 0 read)
-            do (write-sequence buffer out)))))
+            do (write-sequence buffer out :end read)))))
 
 (defgeneric definition-id (definition))
 
 (defmethod definition-id ((definition definitions:package))
-  (format NIL "~a-~a"
+  (format NIL "~a ~a"
           (definitions:type definition)
           (definitions:name definition)))
 
 (defmethod definition-id ((definition definitions:global-definition))
-  (format NIL "~a-~a:~a"
+  (format NIL "~a ~a:~a"
           (definitions:type definition)
           (package-name (definitions:package definition))
           (definitions:name definition)))
@@ -172,3 +179,36 @@
                   (symbol (make-instance 'definitions:package :designator (symbol-name package)))
                   (package (make-instance 'definitions:package :designator (package-name package)))
                   (definitions:package package))))
+
+(defun ensure-package (package)
+  (or (etypecase package
+        (string (find-package package))
+        (symbol (find-package package))
+        (package package)
+        (definitions:package (definitions:object package)))
+      (error "No such package ~s." package)))
+
+(defun absolute-source-location (source-location)
+  (destructuring-bind (&key file form offset) source-location
+    (when file
+      ;; Translate form to file-position
+      (when form
+        (ignore-errors
+         (with-open-file (stream file :direction :input)
+           (dotimes (i form) (read stream NIL))
+           (peek-char T stream)
+           (setf offset (+ (or offset 0) (file-position stream))))))
+      ;; Count row + col
+      (when offset
+        (ignore-errors
+         (with-open-file (stream file :direction :input)
+           (loop with row = 1 with col = 0
+                 while (< (file-position stream) offset)
+                 for char = (read-char stream)
+                 do (if (char= char #\Linefeed)
+                        (setf row (1+ row) col 0)
+                        (setf col (1+ col)))
+                 finally (return (list :file file
+                                       :offset offset
+                                       :row row
+                                       :col col)))))))))

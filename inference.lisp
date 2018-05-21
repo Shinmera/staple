@@ -23,13 +23,19 @@
 (defclass simple-page (system-page)
   ((document :initarg :document :accessor document))
   (:default-initargs
-   :document (error "DOCUMENT required.")
+   :document NIL
    :input *default-template*))
 
+(defmethod definition-wanted-p (definition (page simple-page))
+  (definition-wanted-p definition (project page)))
+
 (defmethod template-data append (project (page simple-page))
-  (list :documentation (compile-source (document page) T)
-        :language (or (extract-language (pathname-name (document page)))
-                      "en")))
+  (if (document page)
+      (list :documentation (compile-source (document page) T)
+            :language (or (extract-language (pathname-name (document page)))
+                          "en"))
+      (list :documentation NIL
+            :language "en")))
 
 (defclass simple-project (project)
   ((pages :initarg :pages :accessor pages)
@@ -41,12 +47,14 @@
 (defmethod template-data append ((project simple-project) page)
   (list :logo (logo project)))
 
-(defun find-files (directory patterns)
-  (let ((docs ()))
-    (do-directory-tree (file directory docs)
-      (when (loop for pattern in patterns
-                  thereis (cl-ppcre:scan pattern (file-namestring file)))
-        (push file docs)))))
+(defmethod definition-wanted-p ((definition definitions:definition) (project simple-project))
+  (eql :external (definitions:visibility definition)))
+
+(defmethod definition-wanted-p ((definition definitions:method) (project simple-project))
+  NIL)
+
+(defmethod definition-wanted-p ((definition definitions:package) (project simple-project))
+  NIL)
 
 (defmethod system-documents ((system asdf:system))
   (remove-if-not (lambda (path) (pathname-type->type (pathname-type path)))
@@ -80,13 +88,20 @@
   (let ((project (make-instance 'simple-project
                                 ;; FIXME: score image files
                                 :logo (or logo (first (system-images system)))))
-        (output-directory (or output-directory (system-output-directory system))))
-    (loop for document in (system-documents system)
-          for output = (system-output-file system (merge-pathnames output-directory document))
-          do (push (make-instance 'simple-page
-                                  :output output
-                                  :system system
-                                  :document document
-                                  :project project)
-                   (pages project)))
+        (output-directory (or output-directory (system-output-directory system)))
+        (documents (system-documents system)))
+    (if documents
+        (loop for document in documents
+              for output = (system-output-file system (merge-pathnames output-directory document))
+              do (push (make-instance 'simple-page
+                                      :output output
+                                      :system system
+                                      :document document
+                                      :project project)
+                       (pages project)))
+        (push (make-instance 'simple-page
+                             :output (system-output-file system output-directory)
+                             :system system
+                             :project project)
+              (pages project)))
     project))
