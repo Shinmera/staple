@@ -13,6 +13,16 @@
         </c:when>
         <h1 lquery="(text title)">Title</h1>
         <span class="version" lquery="(text (clip:clip system :version))">1.0</span>
+        <nav class="languages" iterate="(pages project)">
+          <c:when test="(string= title (** :title))">
+            <a href="#" lquery="(attr :href (file-namestring output)) (text (first (code->language language)))">LANG</a>
+          </c:when>
+        </nav>
+        <nav class="pages" iterate="(pages project)">
+          <c:when test="(string/= title (** :title))">
+            <a href="#" lquery="(attr :href (file-namestring output)) (text title)">TITLE</a>
+          </c:when>
+        </nav>
         <p class="description" lquery="(text (clip:clip system :description))">
           Some short description of the lib.
         </p>

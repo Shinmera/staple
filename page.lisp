@@ -10,12 +10,18 @@
 
 (defclass page ()
   ((title :initarg :title :accessor title)
+   (language :initarg :language :initform "en" :accessor language)
    (output :initarg :output :accessor output)
    (project :initarg :project :accessor project))
   (:default-initargs
    :output NIL
    :title NIL
    :project (error "PROJECT required.")))
+
+(defmethod initialize-instance :after ((page page) &key output language)
+  (unless language
+    (setf (language page) (or (when output (extract-language (file-namestring output)))
+                              "en"))))
 
 (defgeneric generate (page &key if-exists &allow-other-keys))
 
@@ -88,7 +94,12 @@
   (:method-combination append :most-specific-first))
 
 (defmethod template-data append (project (page templated-page))
-  (list :title (title page)))
+  (list :title (title page)
+        :language (language page)
+        :input (input page)
+        :output (output page)
+        :project project
+        :page page))
 
 (defmethod generate ((page templated-page) &key (if-exists :error) (compact T))
   (with-open-file (out (output page) :direction :output

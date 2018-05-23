@@ -18,7 +18,8 @@
 (defun extract-language (string)
   (cl-ppcre:do-matches-as-strings (code "\\b\\w{2,3}\\b" string)
     (let ((found (gethash code *language-code-map*)))
-      (when found (return found)))))
+      (when found
+        (return (values code found))))))
 
 (defclass simple-page (system-page)
   ((document :initarg :document :accessor document))
@@ -26,16 +27,18 @@
    :document NIL
    :input *default-template*))
 
+(defmethod initialize-instance :after ((page simple-page) &key document output language)
+  (unless language
+    (setf (language page) (or (when document (extract-language (file-namestring document)))
+                              (when output (extract-language (file-namestring output)))
+                              "en"))))
+
 (defmethod definition-wanted-p (definition (page simple-page))
   (definition-wanted-p definition (project page)))
 
 (defmethod template-data append (project (page simple-page))
-  (if (document page)
-      (list :documentation (compile-source (document page) T)
-            :language (or (extract-language (pathname-name (document page)))
-                          "en"))
-      (list :documentation NIL
-            :language "en")))
+  (list :documentation (when (document page)
+                         (compile-source (document page) T))))
 
 (defclass simple-project (project)
   ((pages :initarg :pages :accessor pages)
