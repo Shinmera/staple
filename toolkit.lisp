@@ -6,29 +6,22 @@
 
 (in-package #:org.shirakumo.staple)
 
-(defvar *language-code-map* (make-hash-table :test 'equalp))
-
-(defun load-language-codes (file table)
-  (with-open-file (stream file)
-    (loop for line = (read-line stream NIL)
-          while line
-          do (let* ((tab (position #\Tab line))
-                    (code (subseq line 0 tab)))
-               (when tab
-                 (setf (gethash code table) code))))
-    table))
-
-(load-language-codes
- (asdf:system-relative-pathname :staple "data/iso-639-1.csv")
- *language-code-map*)
-
-(load-language-codes
- (asdf:system-relative-pathname :staple "data/iso-639-3.csv")
- *language-code-map*)
-
 (defun read-value ()
   (format *query-io* "~&> Enter a new value: ~%")
   (multiple-value-list (eval (read))))
+
+(defun split (split string)
+  (let ((items ()) (out (make-string-output-stream)))
+    (flet ((push-item ()
+             (let ((string (get-output-stream-string out)))
+               (when (string/= "" string)
+                 (push string items)))))
+      (loop for char across string
+            do (if (char= char split)
+                   (push-item)
+                   (write-char char out))
+            finally (push-item))
+      (nreverse items))))
 
 (defmacro with-value-restart (place &body body)
   (let ((value (gensym "VALUE")))

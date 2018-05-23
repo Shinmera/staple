@@ -14,6 +14,7 @@
   :serial T
   :components ((:file "package")
                (:file "toolkit")
+               (:file "languages")
                (:file "xref")
                (:file "transform")
                (:file "clip")
