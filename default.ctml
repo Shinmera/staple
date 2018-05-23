@@ -15,7 +15,7 @@
         <span class="version" lquery="(text (clip:clip system :version))">1.0</span>
         <nav class="languages" iterate="(pages project)">
           <c:when test="(string= title (** :title))">
-            <a href="#" lquery="(attr :href (file-namestring output)) (text (first (code->language language)))">LANG</a>
+            <a href="#" lquery="(attr :href (file-namestring output)) (text (first (language-codes:names language)))">LANG</a>
           </c:when>
         </nav>
         <p class="description" lquery="(text (clip:clip system :description))">
