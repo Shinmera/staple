@@ -115,7 +115,9 @@
         (plump:serialize node out)))))
 
 (defclass symbol-index-page (templated-page)
-  ((packages :initform NIL :accessor packages)))
+  ((packages :initform NIL :accessor packages))
+  (:default-initargs
+   :title "Index"))
 
 (defmethod shared-initialize :after ((page symbol-index-page) slots &key packages)
   (when packages (setf (packages page) packages)))
@@ -179,9 +181,7 @@
 (defmethod shared-initialize :after ((page system-page) slots &key system)
   (when system (setf (system page) system))
   (unless (packages page)
-    (setf (packages page) (system-packages (system page))))
-  (unless (title page)
-    (setf (title page) (asdf:component-name (system page)))))
+    (setf (packages page) (system-packages (system page)))))
 
 (defmethod (setf system) :around (system (page system-page))
   (call-next-method (etypecase system

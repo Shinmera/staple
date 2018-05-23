@@ -2,7 +2,7 @@
 <html lang="en" lquery="(attr :lang language)">
   <head>
     <meta charset="utf-8" />
-    <title lquery="(text title)">Title</title>
+    <title lquery='(text (format NIL "~:(~a~) - ~:(~a~)" (clip:clip system :name) title))'>Title</title>
     <style lquery='(text (read-file (asdf:system-relative-pathname :staple "default.css")))'></style>
   </head>
   <body>
@@ -11,21 +11,22 @@
         <c:when test="logo">
           <img class="logo" src="logo.svg" alt="Logo" lquery="(attr :src logo)" />
         </c:when>
-        <h1 lquery="(text title)">Title</h1>
+        <h1 lquery="(text (clip:clip system :name))">Name</h1>
         <span class="version" lquery="(text (clip:clip system :version))">1.0</span>
         <nav class="languages" iterate="(pages project)">
           <c:when test="(string= title (** :title))">
             <a href="#" lquery="(attr :href (file-namestring output)) (text (first (code->language language)))">LANG</a>
           </c:when>
         </nav>
-        <nav class="pages" iterate="(pages project)">
-          <c:when test="(string/= title (** :title))">
-            <a href="#" lquery="(attr :href (file-namestring output)) (text title)">TITLE</a>
-          </c:when>
-        </nav>
         <p class="description" lquery="(text (clip:clip system :description))">
           Some short description of the lib.
         </p>
+        <nav class="pages" iterate="(pages project)">
+          <c:when test="(and (or (string/= title (** :title)) (eq * (** :page)))
+              (string= language (** :language)))">
+            <a href="#" lquery="(attr :href (file-namestring output)) (text title)">TITLE</a>
+          </c:when>
+        </nav>
       </header>
       <section id="documentation" lquery="(html documentation)">
       </section>

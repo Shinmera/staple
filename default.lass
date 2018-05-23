@@ -8,7 +8,9 @@
   (a
    :text-decoration none)
   (a[href]
-   :color (hex 0055AA))))
+   :color (hex 0055AA))
+  ((:and a[href] :hover)
+   :color (hex 0088EE))))
 
 (article.system
  ((:or h1 h2 h3 h4 h5 h6)
@@ -24,8 +26,17 @@
    :font-size 2.5em)
   (.version
    :vertical-align bottom)
+  (.languages
+   :margin-top -0.5em
+   :text-transform capitalize)
   (.description
-   :margin 0))
+   :margin 0)
+  (.pages
+   :margin-top 0.5em
+   :font-size 1.2em
+   :text-transform capitalize
+   (a :display inline-block
+      :padding 0 0.2em)))
  (>section
   :margin 1em 0 1em 0)
  ("#index"
