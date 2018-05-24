@@ -131,7 +131,7 @@
 (defgeneric format-documentation (definition page))
 
 (defmethod format-documentation ((definition definitions:definition) (page symbol-index-page))
-  (format-documentation (definitions:documentation definition) page))
+  (format-documentation (maybe-lang-docstring definition (language page)) page))
 
 (defmethod format-documentation ((null null) (page symbol-index-page))
   NIL)

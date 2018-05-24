@@ -219,3 +219,13 @@
                                        :offset offset
                                        :row row
                                        :col col)))))))))
+
+(defun maybe-lang-docstring (definition language)
+  (flet ((maybe-doc (object type)
+           (if (find-package "ORG.SHIRAKUMO.MULTILANG-DOCUMENTATION")
+               (funcall (find-symbol "DOCUMENTATION" "ORG.SHIRAKUMO.MULTILANG-DOCUMENTATION")
+                        object type :lang language)
+               (documentation object type))))
+    (or (maybe-doc (definitions:designator definition) (definitions:type definition))
+        (maybe-doc (definitions:object definition) T)
+        (definitions:documentation definition))))

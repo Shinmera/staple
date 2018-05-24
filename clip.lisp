@@ -87,7 +87,7 @@
     (type (type-of definition))
     (kind (definitions:type definition))
     (visibility (definitions:visibility definition))
-    (documentation (definitions:documentation definition))
+    (documentation (maybe-lang-docstring definition (language *page*)))
     (source-location (definitions:source-location definition))
     (arguments ())
     (qualifiers ())
