@@ -12,10 +12,7 @@
 (defmethod eclector.reader:evaluate-expression ((client client) expression)
   (eval expression))
 
-(defmethod walk-lambda-list (cst environment)
-  (walk-lambda-list (cst:parse-ordinary-lambda-list T cst) environment))
-
-(defmethod walk-lambda-list ((cst cst:ordinary-lambda-list) environment)
+(defmethod walk ((cst cst:ordinary-lambda-list) environment)
   (flet ((parameter (type)
            (when-let ((group (find-if (of-type type) (cst:children cst))))
              (walk (cst:parameter group) environment)))
@@ -26,6 +23,19 @@
             (parameters 'cst:ordinary-optional-parameter-group)
             (parameter  'cst:ordinary-rest-parameter-group)
             (parameters 'cst:key-parameter-group))))
+
+(defmethod walk ((cst cst:specialized-lambda-list) environment)
+  (flet ((parameter (type)
+           (when-let ((group (find-if (of-type type) (cst:children cst))))
+             (walk (cst:parameter group) environment)))
+         (parameters (type)
+           (when-let ((group (find-if (of-type type) (cst:children cst))))
+             (mapcar (rcurry #'walk environment) (cst:parameters group)))))
+    (values (append (parameters 'cst:specialized-required-parameter-group)
+                    (parameters 'cst:ordinary-optional-parameter-group)
+                    (parameter  'cst:ordinary-rest-parameter-group)
+                    (parameters 'cst:key-parameter-group))
+            )))
 
 (defmethod walk ((cst cst:simple-variable) environment)
   (list (walk (cst:name cst) environment)))
@@ -71,13 +81,13 @@
 
 (defun walk-lambda-like (cst environment)
   (cst:db source (operator-or-name lambda-list . body) cst
-    (declare (ignore source operator-or-name))
-    (let ((variables (walk-lambda-list lambda-list environment)))
+    (declare (ignore operator-or-name))
+    (let ((variables (walk (cst:parse-ordinary-lambda-list T lambda-list) environment)))
       (multiple-value-bind (declarations documentation forms)
           (cst:separate-function-body body :listify-body nil)
         ;; FIXME: parse declarations
         (declare (ignore declarations documentation))
-        `(:lambda ,(cst:source cst)
+        `(:lambda ,source
            ,variables
            ,@(walk-implicit-progn forms environment))))))
 
