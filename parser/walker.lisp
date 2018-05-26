@@ -111,6 +111,17 @@
          (declare (ignorable #'walk #'walk-implicit-progn))
          ,@body))))
 
+(defmacro define-walker-form (form (cst-var &optional (environment-var (gensym "ENVIRONMENT")) (source (gensym "SOURCE"))) &body body)
+  (let ((operator (first form))
+        (thunk (gensym "THUNK")))
+    `(define-walk-compound-form ,operator (,cst-var ,environment-var)
+       (cst:db ,source ,form ,cst-var
+         (declare (ignore ,operator))
+         (flet ((,thunk ()
+                  ,@body))
+           (list* ',operator ,source
+                  (,thunk)))))))
+
 (defmethod read-toplevel ((input string))
   (with-input-from-string (stream input)
     (read-toplevel stream)))
