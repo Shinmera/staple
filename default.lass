@@ -23,6 +23,7 @@
    :margin auto)
   (h1
    :display inline-block
+   :text-indent 0
    :font-size 2.5em)
   (.version
    :vertical-align bottom)

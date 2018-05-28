@@ -229,3 +229,38 @@
     (or (maybe-doc (definitions:designator definition) (definitions:type definition))
         (maybe-doc (definitions:object definition) T)
         (definitions:documentation definition))))
+
+(defun ensure-stream (designator &key (direction :input) (if-exists :error) (element-type 'character))
+  (etypecase designator
+    (stream
+     designator)
+    ((or string pathname)
+     (open designator :direction direction
+                      :if-exists if-exists
+                      :element-type element-type))
+    (null
+     ;; FIXME: support for byte streams
+     (make-string-output-stream :element-type element-type))
+    ((eql T)
+     *standard-output*)))
+
+(defun finish-stream (stream)
+  (etypecase stream
+    (file-stream
+     (close stream)
+     (pathname stream))
+    (string-stream
+     (if (output-stream-p stream)
+         (get-output-stream-string stream)
+         stream))
+    (T stream)))
+
+(defmacro with-stream ((stream designator &rest args) &body body)
+  `(let ((,stream (ensure-stream ,designator ,@args)))
+     (block ,stream
+       (unwind-protect
+            (progn ,@body)
+         (return-from ,stream (finish-stream ,stream))))))
+
+(deftype stream-designator ()
+  '(or null (eql T) stream string pathname))

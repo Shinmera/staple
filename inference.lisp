@@ -7,7 +7,7 @@
 (in-package #:org.shirakumo.staple)
 
 (defvar *document-patterns*
-  '("README" "readme" "documentation" "about"))
+  '("README" "readme" "documentation"))
 
 (defvar *image-patterns*
   '("\\.svg$" "\\.png$" "\\.jpg$" "\\.jpeg$" "\\.gif$" "\\.bmp$"))
@@ -17,7 +17,7 @@
 
 (defun extract-language (string)
   (cl-ppcre:do-matches-as-strings (code "\\b\\w{2,3}\\b" string)
-    (let ((found (gethash code *language-code-map*)))
+    (let ((found (language-codes:names code)))
       (when found
         (return (values code found))))))
 
@@ -57,6 +57,12 @@
   NIL)
 
 (defmethod definition-wanted-p ((definition definitions:package) (project simple-project))
+  NIL)
+
+(defmethod definition-wanted-p ((definition definitions:compiler-macro) (project simple-project))
+  NIL)
+
+(defmethod definition-wanted-p ((definition definitions:declaration) (project simple-project))
   NIL)
 
 (defmethod system-documents ((system asdf:system))

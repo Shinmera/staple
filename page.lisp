@@ -31,8 +31,8 @@
 
 (defmethod generate :before ((page page) &key)
   (with-value-restart (output page)
-    (unless (typep (output page) '(or string pathname))
-      (error "The output file for ~a is not a pathname."
+    (unless (typep (output page) 'stream-designator)
+      (error "The output file for ~a is not a stream designator."
              page))))
 
 (defclass input-page (page)
@@ -42,22 +42,19 @@
 
 (defmethod generate :before ((page input-page) &key)
   (with-value-restart (input page)
-    (unless (typep (input page) 'pathname)
+    (unless (typep (input page) 'stream-designator)
       (error "The input file for ~a is not a pathname."
-             page))
-    (unless (probe-file (input page))
-      (error "The input file for ~a does not exist:~%  ~s"
-             page (input page)))))
+             page))))
 
 (defclass static-page (input-page)
   ())
 
 (defmethod generate ((page static-page) &key (if-exists :error))
-  (with-open-file (out (output page) :direction :output
-                                     :if-exists if-exists
-                                     :element-type '(unsigned-byte 8))
-    (with-open-file (in (input page) :direction :input
-                                     :element-type '(unsigned-byte 8))
+  (with-stream (out (output page) :direction :output
+                                  :if-exists if-exists
+                                  :element-type '(unsigned-byte 8))
+    (with-stream (in (input page) :direction :input
+                                  :element-type '(unsigned-byte 8))
       (loop with buffer = (make-array 4096 :element-type '(unsigned-byte 8))
             for read = (read-sequence buffer in)
             while (< 0 read)
@@ -73,18 +70,18 @@
                    (plump:discouraged-xml-character #'continue))
       (etypecase data
         (plump:node
-         (with-open-file (out (output page) :direction :output
-                                            :if-exists if-exists)
+         (with-stream (out (output page) :direction :output
+                                         :if-exists if-exists)
            (when compact (compact data))
            (plump:serialize data out)))
         (string
-         (with-open-file (out (output page) :direction :output
-                                            :if-exists if-exists)
+         (with-stream (out (output page) :direction :output
+                                         :if-exists if-exists)
            (write-string data out)))
         ((vector (unsigned-byte 8))
-         (with-open-file (out (output page) :direction :output
-                                            :if-exists if-exists
-                                            :element-type '(unsigned-byte 8))
+         (with-stream (out (output page) :direction :output
+                                         :if-exists if-exists
+                                         :element-type '(unsigned-byte 8))
            (write-sequence data out)))))))
 
 (defclass templated-page (input-page)
@@ -102,8 +99,8 @@
         :page page))
 
 (defmethod generate ((page templated-page) &key (if-exists :error) (compact T))
-  (with-open-file (out (output page) :direction :output
-                                     :if-exists if-exists)
+  (with-stream (out (output page) :direction :output
+                                  :if-exists if-exists)
     (handler-bind ((plump:invalid-xml-character #'abort)
                    (plump:discouraged-xml-character #'continue))
       (let* ((*package* #.*package*)

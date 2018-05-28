@@ -13,11 +13,13 @@
 
 (defgeneric pages (project))
 
-(defmethod generate ((project project) &key (if-exists :supersede))
-  (with-simple-restart (abort "Abort ~a" project)
-    (dolist (page (pages project))
-      (with-simple-restart (continue "Ignore ~a" page)
-        (generate page :if-exists if-exists)))))
+(defmethod generate ((project project) &rest args)
+  (let ((results ()))
+    (with-simple-restart (abort "Abort ~a" project)
+      (dolist (page (pages project))
+        (with-simple-restart (continue "Ignore ~a" page)
+          (push (apply #'generate page args) results))))
+    (values project (nreverse results))))
 
 (defgeneric extension-file (system))
 
