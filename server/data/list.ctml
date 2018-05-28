@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>System List</title>
+    <link rel="stylesheet" href="stylesheet.css" />
+  </head>
+  <body>
+    <article class="system-list">
+      <header>
+        <h1>System List</h1>
+      </header>
+      <input class="search" placeholder="Search" autofocus />
+      <ul iterate="systems">
+        <li>
+          <article>
+            <h2><a href="#" lquery="(text (asdf:component-name *)) (attr :href (staple-server::system-link *))">Name</a></h2>
+            <p lquery="(text (or (asdf:system-long-description *) (asdf:system-description *)))">Description</p>
+          </article>
+        </li>
+      </ul>
+    </article>
+    <script src="search.js"></script>
+  </body>
+</html>
