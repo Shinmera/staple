@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Error</title>
+    <link rel="stylesheet" href="/stylesheet.css" />
+  </head>
+  <body>
+    <article class="condition">
+      <header>
+        <h1 lquery="(text (type-of (dissect:environment-condition env)))">Error</h1>
+      </header>
+      <p class="description" lquery="(text (princ-to-string (dissect:environment-condition env)))">
+        Description
+      </p>
+      <ol class="trace" iterate="(dissect:environment-stack env)">
+        <li class="frame"><span class="call" lquery="(text (staple-server::safe-prin1 (dissect:call *)))">call</span>
+          <ol class="arguments" iterate="(dissect:args *)">
+            <li class="argument" lquery='(text (staple-server::safe-prin1 *))'>CALL</li></ol></li>
+      </ol>
+    </article>
+  </body>
+</html>

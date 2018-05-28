@@ -7,6 +7,7 @@
 (in-package #:org.shirakumo.staple.server)
 
 (defvar *acceptor* NIL)
+(defvar *tmpdir* (merge-pathnames "staple-server/" (uiop:temporary-directory)))
 
 (defun all-systems ()
   (sort (asdf/system-registry:registered-systems*) #'string< :key #'asdf:component-name))
@@ -17,6 +18,34 @@
 (defun system-link (system)
   (format NIL "/~a/" (asdf:component-name system)))
 
+(defun system-path (system)
+  (merge-pathnames (make-pathname :directory `(:relative ,(asdf:component-name system)))
+                   *tmpdir*))
+
+(defun prefix-p (prefix string)
+  (and (<= (length prefix) (length string))
+       (string-equal prefix string :end2 (length prefix))))
+
+(defun find-system-in-path (path)
+  (let ((systems ()))
+    (asdf:map-systems
+     (lambda (sys)
+       (when (prefix-p (asdf:component-name sys) path)
+         (push sys systems))))
+    (first (sort systems #'> :key (lambda (s) (length (asdf:component-name s)))))))
+
+(defun safe-prin1 (thing)
+  (or (ignore-errors (prin1-to-string thing))
+      "<error during printing>"))
+
+(defmacro or* (&rest vals)
+  (let ((arg (gensym "ARG")))
+    `(or ,@(loop for val in vals
+                 collect `(let ((,arg ,val))
+                            (if (stringp ,arg)
+                                (unless (string= ,arg "") ,arg)
+                                ,arg))))))
+
 (defclass acceptor (hunchentoot:acceptor)
   ()
   (:default-initargs
@@ -26,19 +55,22 @@
 
 (defmethod hunchentoot:acceptor-dispatch-request ((acceptor acceptor) request)
   (let* ((path (subseq (hunchentoot:url-decode (hunchentoot:script-name request)) 1))
-         (pos (position #\/ path)))
-    (handler-case
-        (cond
-          ((string= path "")
-           (serve-system-list))
-          (pos
-           (let ((sys (subseq path 0 pos))
-                 (path (subseq path (1+ pos))))
-             (serve-system-docs sys path)))
-          (T
-           (hunchentoot:handle-static-file (data-file path))))
-      (error (err)
-        (serve-error err)))))
+         (system (find-system-in-path path)))
+    (restart-case
+        (handler-bind
+            ((error (lambda (e)
+                      (dissect:with-capped-stack ()
+                        (use-value (serve-error e) e)))))
+          (cond
+            ((string= path "")
+             (serve-system-list))
+            (system
+             (serve-system-docs system (subseq path (length (asdf:component-name system)))))
+            (T
+             (hunchentoot:handle-static-file (data-file path)))))
+      (use-value (value &optional error)
+        (declare (ignore error))
+        value))))
 
 (defun start ()
   (when *acceptor*
@@ -61,7 +93,19 @@
                  :systems (all-systems))
    NIL))
 
-(defun serve-system-docs (sys path))
+(defun serve-system-docs (system path)
+  (let ((dir (system-path system))
+        (path (if (string= "" path) "" (subseq path 1))))
+    (when (or* (not (uiop:directory-exists-p dir))
+               (hunchentoot:get-parameter "rebuild")) 
+      (ensure-directories-exist dir)
+      (staple::generate system :if-exists :supersede
+                               :output-directory dir))
+    (hunchentoot:handle-static-file
+     (merge-pathnames dir (if (string= "" path) "index.html" path)))))
 
 (defun serve-error (err)
-  (princ-to-string err))
+  (plump:serialize
+   (clip:process (data-file "error.ctml")
+                 :env (dissect:capture-environment err))
+   NIL))

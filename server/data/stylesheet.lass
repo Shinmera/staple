@@ -3,7 +3,8 @@
  :font-size 14pt
  (body
   :padding 0
-  :margin 0
+  :margin 0 auto 0 auto
+  :max-width 1024px
   :overflow-y scroll
   (a
    :text-decoration none)
@@ -12,12 +13,12 @@
   ((:and a[href] :hover)
    :color (hex 0088EE))))
 
-(.system-list
- :margin 0 auto 0 auto
- :max-width 1024px
+(article
  (header
   (h1 :font-size 2em
-      :text-align center))
+      :text-align center)))
+
+(.system-list
  (.search
   :width 100%
   :box-sizing border-box
@@ -28,3 +29,21 @@
   (h2
    :text-indent 1em
    :margin 0 :padding 0)))
+
+(.condition
+ (header
+  :background (hex FF3333))
+ (.description
+  :font-size 1.5em)
+ (.frame
+  :margin 0.2em
+  :font-family monospace
+  (.arguments
+   :padding 0
+   :display inline
+   :list-style none
+   (li :display inline))
+  ((:and .argument :hover)
+   :background (hex DDDDDD)))
+ ((:and .frame :before) :content "(")
+ ((:and .frame :after) :content ")"))

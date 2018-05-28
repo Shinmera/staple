@@ -17,4 +17,5 @@
                (:file "documentation"))
   :depends-on (:staple-markdown
                :hunchentoot
-               :documentation-utils))
+               :documentation-utils
+               :dissect))
