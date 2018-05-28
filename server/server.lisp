@@ -26,6 +26,10 @@
   (and (<= (length prefix) (length string))
        (string-equal prefix string :end2 (length prefix))))
 
+(defun suffix-p (suffix string)
+  (and (<= (length suffix) (length string))
+       (string-equal suffix string :start2 (- (length string) (length suffix)))))
+
 (defun find-system-in-path (path)
   (let ((systems ()))
     (asdf:map-systems
@@ -64,6 +68,8 @@
           (cond
             ((string= path "")
              (serve-system-list))
+            ((prefix-p "file/" path)
+             (serve-file (subseq path 4)))
             (system
              (serve-system-docs system (subseq path (length (asdf:component-name system)))))
             (T
@@ -94,15 +100,30 @@
    NIL))
 
 (defun serve-system-docs (system path)
-  (let ((dir (system-path system))
-        (path (if (string= "" path) "" (subseq path 1))))
+  (let* ((dir (system-path system))
+         (path (if (string= "" path) "" (subseq path 1)))
+         (path (if (string= "" path) "index.html" path))
+         (path (merge-pathnames dir path)))
     (when (or* (not (uiop:directory-exists-p dir))
                (hunchentoot:get-parameter "rebuild")) 
       (ensure-directories-exist dir)
       (staple::generate system :if-exists :supersede
                                :output-directory dir))
-    (hunchentoot:handle-static-file
-     (merge-pathnames dir (if (string= "" path) "index.html" path)))))
+    (if (string= "html" (pathname-type path))
+        (let ((document (plump:parse path)))
+          (lquery:$ document "[href^=file://]"
+            (each (lambda (el)
+                    (setf (plump:attribute el "href")
+                          (format NIL "/file~a" (subseq (plump:attribute el "href")
+                                                        (length "file://")))))))
+          (lquery:$ document "body" (append (lquery:$ (initialize (data-file "nav.ctml")) "nav")))
+          (plump:serialize document NIL))
+        (hunchentoot:handle-static-file path))))
+
+(defun serve-file (path)
+  (plump:serialize
+   (clip:process (data-file "file.ctml")
+                 :path path)))
 
 (defun serve-error (err)
   (plump:serialize

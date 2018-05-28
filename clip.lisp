@@ -82,7 +82,7 @@
     (name (definitions:name definition))
     (full-name (format NIL "~a:~a"
                        (package-name (definitions:package definition))
-                       (definitions:name definition)))
+                       (definitions:designator definition)))
     (package (definitions:package definition))
     (type (type-of definition))
     (kind (definitions:type definition))

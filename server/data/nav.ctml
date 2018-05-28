@@ -1,0 +1,30 @@
+<nav id="staple-server-nav">
+  <a href="/">System Index</a>
+  <a href="?rebuild=t">Rebuild Page</a>
+  <style>
+    #staple-server-nav{
+        position: fixed;
+        top: 0; left: 0;
+        background: #0055AA;
+        display: flex;
+        align-items: stretch;
+        font-weight: bold;
+        height: 30px;
+        font-size: 14pt;
+    }
+    #staple-server-nav:after{
+        content: "";
+        position: absolute;
+        right: -30px;
+        border-bottom: 30px solid transparent;
+        border-left: 30px solid #0055AA;
+    }
+    #staple-server-nav a{
+        color: white;
+        padding: 0.2em;
+    }
+    #staple-server-nav a:hover{
+        background: #0088EE;
+    }
+  </style>
+</nav>

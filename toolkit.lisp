@@ -86,11 +86,11 @@
           ,result))
 
 (defun find-files (directory patterns &key max-depth)
-  (let ((docs ()))
-    (do-directory-tree (file directory docs max-depth)
+  (let ((files ()))
+    (do-directory-tree (file directory (nreverse files) max-depth)
       (when (loop for pattern in patterns
                   thereis (cl-ppcre:scan pattern (file-namestring file)))
-        (push file docs)))))
+        (push file files)))))
 
 (defun read-file (path)
   (with-open-file (in path)
@@ -111,7 +111,7 @@
   (format NIL "~a ~a:~a"
           (definitions:type definition)
           (package-name (definitions:package definition))
-          (definitions:name definition)))
+          (definitions:designator definition)))
 
 (defgeneric definition-order (definition)
   (:method ((_ definitions:package))            200)
