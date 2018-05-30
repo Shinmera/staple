@@ -133,15 +133,16 @@
 (define-sub-results :call (name &rest arguments)
   (list* name arguments))
 
-(defun parse-result-to-definition-list (result)
+(defun parse-result->definition-list (result)
   (let ((results ()))
     (labels ((traverse (type location &rest args)
                (when location
                  (dolist (def (find-definitions type location args))
                    ;; Only keep results for different locations or different types.
-                   (unless (loop for (pdef ploc) in results
-                                 thereis (and (equal (second def) ploc)
-                                              (eql (type-of (first def)) (type-of pdef))))
+                   (unless (or (null (second def))
+                               (loop for (pdef ploc) in results
+                                     thereis (and (equal (second def) ploc)
+                                                  (eql (type-of (first def)) (type-of pdef)))))
                      (pushnew def results :key #'second :test #'equal))))
                (loop for form in (sub-results type args)
                      do (apply #'traverse form))))
