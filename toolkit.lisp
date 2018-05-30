@@ -221,14 +221,15 @@
                                        :col col)))))))))
 
 (defun maybe-lang-docstring (definition language)
-  (flet ((maybe-doc (object type)
-           (if (find-package "ORG.SHIRAKUMO.MULTILANG-DOCUMENTATION")
-               (funcall (find-symbol "DOCUMENTATION" "ORG.SHIRAKUMO.MULTILANG-DOCUMENTATION")
-                        object type :lang language)
-               (documentation object type))))
-    (or (maybe-doc (definitions:designator definition) (definitions:type definition))
-        (maybe-doc (definitions:object definition) T)
-        (definitions:documentation definition))))
+  (or (when (find-package "ORG.SHIRAKUMO.MULTILANG-DOCUMENTATION")
+        (or
+         (multiple-value-bind (object unknown-p) (definitions:object definition)
+           (unless (eql :unknown unknown-p)
+             (funcall (find-symbol "DOCUMENTATION" "ORG.SHIRAKUMO.MULTILANG-DOCUMENTATION")
+                      object T :lang language)))
+         (funcall (find-symbol "DOCUMENTATION" "ORG.SHIRAKUMO.MULTILANG-DOCUMENTATION")
+                  (definitions:designator definition) (definitions:type definition) :lang language)))
+      (definitions:documentation definition)))
 
 (defun ensure-stream (designator &key (direction :input) (if-exists :error) (element-type 'character))
   (etypecase designator
