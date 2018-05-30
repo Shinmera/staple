@@ -6,6 +6,8 @@
 
 (in-package #:org.shirakumo.staple)
 
+(defvar *load-prohibited-systems*
+  (mapcar #'asdf:find-system '("asdf" "asdf-package-system" "asdf/defsystem" "asdf/driver" "asdf/prelude")))
 (defvar *loaded-extensions*)
 
 (defclass project ()
@@ -34,13 +36,21 @@
     (when system
       (apply #'find-project system args))))
 
+(defun make-extension-load-table ()
+  (let ((table (make-hash-table :test 'eq)))
+    (dolist (sys *load-prohibited-systems* table)
+      (setf (gethash sys table) T))))
+
 (defun load-extension (system)
   (let ((*loaded-extensions* (if (boundp '*loaded-extensions*)
                                  *loaded-extensions*
-                                 (make-hash-table :test 'eq)))
+                                 (make-extension-load-table)))
         (system (ensure-system system)))
     (unless (gethash system *loaded-extensions*)
       (setf (gethash system *loaded-extensions*) T)
+      (let ((*standard-output* (make-broadcast-stream)))
+        (handler-bind ((warning #'muffle-warning))
+          (asdf:load-system system)))
       (loop for dependency in (asdf:system-depends-on system)
             for depsys = (asdf/find-component:resolve-dependency-spec system dependency)
             do (when depsys (load-extension depsys)))
