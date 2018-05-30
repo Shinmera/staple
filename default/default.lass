@@ -20,7 +20,8 @@
   :text-align center
   (img.logo
    :display block
-   :margin auto)
+   :margin auto
+   :max-height 170px)
   (h1
    :display inline-block
    :text-indent 0
@@ -91,7 +92,13 @@
   :list-style none
   :padding 0 0 0 0.5em))
 
-((:and .definition (:or .function .generic-function .macro .method .type))
+((:and .definition (:or .callable .type))
  (>header
   ((:and .name :before) :content "(" :font-weight normal)
   ((:and .arguments :after) :content ")")))
+
+((.definition li>mark)
+ :background none
+ :border-left 0.3em solid (hex 0088EE)
+ :padding-left 0.3em
+ :display block)

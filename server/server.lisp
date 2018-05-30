@@ -61,10 +61,15 @@
   (staple::do-directory-tree (file dir)
     (when (find (pathname-type file) '("html" "htm" "xhtml") :test #'string-equal)
       (let ((document (plump:parse file)))
-        (lquery:$ document "[href^=file://]"
+        (lquery:$ document "a[href^=file://]"
                   (each (lambda (el)
                           (setf (plump:attribute el "href")
-                                (format NIL "/file~a" (subseq (plump:attribute el "href")
+                                (format NIL "/source~a" (subseq (plump:attribute el "href")
+                                                              (length "file://")))))))
+        (lquery:$ document "[src^=file://]"
+                  (each (lambda (el)
+                          (setf (plump:attribute el "src")
+                                (format NIL "/file~a" (subseq (plump:attribute el "src")
                                                               (length "file://")))))))
         (lquery:$ document "body" (append (lquery:$ (initialize (data-file "nav.ctml")) "nav")))
         (lquery:$ document (write-to-file file))))))
@@ -91,7 +96,9 @@
             ((string= path "")
              (serve-system-list))
             ((prefix-p "file/" path)
-             (serve-file (subseq path 4)))
+             (hunchentoot:handle-static-file (subseq path 4)))
+            ((prefix-p "source/" path)
+             (serve-source (subseq path 6)))
             (system
              (serve-system-docs system (subseq path (length (asdf:component-name system)))))
             (T
@@ -131,7 +138,7 @@
       (cache-system system dir))
     (hunchentoot:handle-static-file path)))
 
-(defun serve-file (path)
+(defun serve-source (path)
   (plump:serialize
    (clip:process (data-file "file.ctml")
                  :path path)
@@ -142,3 +149,13 @@
    (clip:process (data-file "error.ctml")
                  :env (dissect:capture-environment err))
    NIL))
+
+(staple:define-xref-resolver server (definition)
+  (let ((sys (loop for sys in (all-systems)
+                   for packages = (staple:system-packages sys)
+                   do (when (find (definitions:package definition) packages)
+                        (return sys)))))
+    (when sys
+      (format NIL "/~a/#~a"
+              (staple::url-encode (asdf:component-name sys))
+              (staple::url-encode (staple::definition-id definition))))))

@@ -10,4 +10,13 @@
   (:use #:cl #:org.shirakumo.staple.recording)
   ;; recording.lisp
   (:export
-   #:system-packages))
+   #:system-packages)
+  ;; inference.lisp
+  (:export
+   #:system-images)
+  ;; toolkit.lisp
+  (:export
+   #:definition-order)
+  ;; xref.lisp
+  (:export
+   #:define-xref-resolver))

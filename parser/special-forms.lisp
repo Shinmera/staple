@@ -103,11 +103,12 @@
   (walk-body body environment))
 
 (define-walker-form (macrolet definitions . body) (cst environment)
+  ;; FIXME: Handle expansions of local macros
   (let* ((definitions (cst:listify definitions))
          (names       (map 'list #'cst:first definitions)))
     (list* (map 'list #'walk names)
            (map 'list (lambda (definition)
-                        (walk-lambda-like definition environment))
+                        (walk-lambda-like definition environment #'cst:parse-macro-lambda-list))
                 definitions)
            (walk-body body environment))))
 

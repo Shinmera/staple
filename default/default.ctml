@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8" />
     <title lquery='(text (format NIL "~:(~a~) - ~:(~a~)" (clip:clip system :name) title))'>Title</title>
-    <style lquery='(text (read-file (asdf:system-relative-pathname :staple "default.css")))'></style>
+    <style lquery='(text (read-file (asdf:system-relative-pathname :staple "default/default.css")))'></style>
   </head>
   <body>
     <article class="system">
@@ -72,7 +72,7 @@
               <div class="docstring" lquery="(html formatted-documentation)">Docstring</div>
               <ul class="definitions" iterate="definitions">
                 <li>
-                  <article class="definition" lquery="(add-class (string-downcase type)) (attr :id id)">
+                  <article class="definition" lquery="(add-class (string-downcase type)) (add-class (when (typep * 'definitions:callable) (string-downcase :callable)))  (attr :id id)">
                     <header>
                       <span class="visibility" lquery="(text visibility)">visibility</span>
                       <span class="type" lquery="(text type)">type</span>
@@ -98,5 +98,6 @@
         </ul>
       </section>
     </article>
+    <script lquery='(text (read-file (asdf:system-relative-pathname :staple "default/default.js")))'></script>
   </body>
 </html>

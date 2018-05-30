@@ -22,6 +22,7 @@
                (:file "inference")
                (:file "documentation"))
   :depends-on (:staple-package-recording
+               :staple-code-parser
                :babel
                :clip
                :cl-ppcre

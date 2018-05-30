@@ -15,7 +15,7 @@
 (defmethod walk ((cst cst:ordinary-lambda-list) environment)
   (flet ((parameter (type)
            (when-let ((group (find-if (of-type type) (cst:children cst))))
-             (walk (cst:parameter group) environment)))
+             (list (walk (cst:parameter group) environment))))
          (parameters (type)
            (when-let ((group (find-if (of-type type) (cst:children cst))))
              (mapcar (rcurry #'walk environment) (cst:parameters group)))))
@@ -24,10 +24,24 @@
             (parameter  'cst:ordinary-rest-parameter-group)
             (parameters 'cst:key-parameter-group))))
 
+(defmethod walk ((cst cst:macro-lambda-list) environment)
+  (flet ((parameter (type)
+           (when-let ((group (find-if (of-type type) (cst:children cst))))
+             (list (walk (cst:parameter group) environment))))
+         (parameters (type)
+           (when-let ((group (find-if (of-type type) (cst:children cst))))
+             (mapcar (rcurry #'walk environment) (cst:parameters group)))))
+    (append (parameter  'cst:whole-parameter-group)
+            (parameters 'cst:destructuring-required-parameter-group)
+            (parameters 'cst:ordinary-optional-parameter-group)
+            (parameter  'cst:destructuring-rest-parameter-group)
+            (parameters 'cst:key-parameter-group)
+            (parameter  'cst:environment-parameter-group))))
+
 (defmethod walk ((cst cst:specialized-lambda-list) environment)
   (flet ((parameter (type)
            (when-let ((group (find-if (of-type type) (cst:children cst))))
-             (walk (cst:parameter group) environment)))
+             (list (walk (cst:parameter group) environment))))
          (parameters (type)
            (when-let ((group (find-if (of-type type) (cst:children cst))))
              (mapcar (rcurry #'walk environment) (cst:parameters group)))))
@@ -79,15 +93,15 @@
     (declare (ignore declarations))
     (walk-implicit-progn forms environment)))
 
-(defun walk-lambda-like (cst environment)
+(defun walk-lambda-like (cst environment &optional (lambda-list-parser #'cst:parse-ordinary-lambda-list))
   (cst:db source (operator-or-name lambda-list . body) cst
     (declare (ignore operator-or-name))
-    (let ((variables (walk (cst:parse-ordinary-lambda-list T lambda-list) environment)))
+    (let ((variables (walk (funcall lambda-list-parser T lambda-list) environment)))
       (multiple-value-bind (declarations documentation forms)
           (cst:separate-function-body body :listify-body nil)
         ;; FIXME: parse declarations
         (declare (ignore declarations documentation))
-        `(:lambda ,source
+        `(lambda ,source
            ,variables
            ,@(walk-implicit-progn forms environment))))))
 

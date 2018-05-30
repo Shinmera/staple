@@ -13,7 +13,7 @@
   '("\\.svg$" "\\.png$" "\\.jpg$" "\\.jpeg$" "\\.gif$" "\\.bmp$"))
 
 (defvar *default-template*
-  (asdf:system-relative-pathname :staple "default.ctml"))
+  (asdf:system-relative-pathname :staple "default/default.ctml"))
 
 (defun extract-language (string)
   (cl-ppcre:do-matches-as-strings (code "\\b\\w{2,3}\\b" string)
@@ -38,7 +38,8 @@
 
 (defmethod template-data append (project (page simple-page))
   (list :documentation (when (document page)
-                         (compile-source (document page) T))))
+                         (markup-code-snippets
+                          (compile-source (document page) T)))))
 
 (defclass simple-project (project)
   ((pages :initarg :pages :accessor pages)
@@ -48,7 +49,8 @@
    :logo NIL))
 
 (defmethod template-data append ((project simple-project) page)
-  (list :logo (logo project)))
+  (when (logo project)
+    (list :logo (resolve-source-link (list :file (logo project)) page))))
 
 (defmethod definition-wanted-p ((definition definitions:definition) (project simple-project))
   (eql :external (definitions:visibility definition)))

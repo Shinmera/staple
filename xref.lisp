@@ -35,7 +35,7 @@
 (define-xref-resolver common-lisp (definition)
   (when (eql (definitions:package definition)
              (find-package "CL"))
-    (format NIL "https://l1sp.org/cl/~a" (url-encode (string-downcase (definitions:name definition))))))
+    (format NIL "http://l1sp.org/cl/~a" (url-encode (string-downcase (definitions:name definition))))))
 
 (defun parse-lisp-token (string)
   (with-output-to-string (out)

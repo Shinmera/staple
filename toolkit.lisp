@@ -139,7 +139,7 @@
 (defun sort-definitions (definitions)
   (flet ((sorter (a b)
            (if (eql (type-of a) (type-of b))
-               (string> (definitions:name a)
+               (string< (definitions:name a)
                         (definitions:name b))
                (> (definition-order a)
                   (definition-order b)))))

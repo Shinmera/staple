@@ -10,4 +10,6 @@
   (:use #:cl #:alexandria)
   (:local-nicknames
    (#:cst #:concrete-syntax-tree))
-  (:export))
+  (:export
+   #:parse
+   #:parse-result->definition-list))
