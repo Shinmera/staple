@@ -66,13 +66,15 @@
   NIL)
 
 (defmethod system-documents ((system asdf:system))
-  (remove-if-not (lambda (path) (pathname-type->type (pathname-type path)))
-                 (find-files (asdf:system-source-directory system)
-                             *document-patterns*)))
+  (let ((source (asdf:system-source-directory system)))
+    (when source
+      (remove-if-not (lambda (path) (pathname-type->type (pathname-type path)))
+                     (find-files source *document-patterns*)))))
 
 (defmethod system-images ((system asdf:system))
-  (find-files (asdf:system-source-directory system)
-              *image-patterns*))
+  (let ((source (asdf:system-source-directory system)))
+    (when source
+      (find-files source *image-patterns*))))
 
 (defmethod system-subsystems ((system asdf:system))
   ;; FIXME: Package-inferred-systems and such?
@@ -88,17 +90,24 @@
                                     :type "html")
                      document)))
 
+(define-condition no-known-output-directory (error)
+  ((system :initarg :system :reader system))
+  (:report (lambda (c s) (format s "Cannot infer output directory for ~a."
+                                 (asdf:component-name (system c))))))
+
 ;; FIXME: subsystems
 (defmethod infer-project ((system asdf:system) &key output-directory logo)
   (load-extension system)
-  (let ((*standard-output* (make-broadcast-stream)))
-    (handler-bind ((style-warning #'muffle-warning))
-      (asdf:load-system system)))
   (let ((project (make-instance 'simple-project
                                 ;; FIXME: score image files
                                 :logo (or logo (first (system-images system)))))
         (output-directory (or output-directory (system-output-directory system)))
         (documents (system-documents system)))
+    (restart-case (unless output-directory
+                    (error 'no-known-output-directory :system system))
+      (use-value (value &optional condition)
+        (declare (ignore condition))
+        (setf output-directory value)))
     (if documents
         (loop for document in documents
               for output = (system-output-file system (merge-pathnames output-directory document))
