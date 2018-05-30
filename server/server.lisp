@@ -50,6 +50,28 @@
                                 (unless (string= ,arg "") ,arg)
                                 ,arg))))))
 
+(defun cache-system (system &optional dir)
+  (unless (typep system 'asdf:system) (setf system (asdf:find-system system T)))
+  (unless dir (setf dir (system-path system)))
+  (format T "~& > Generating cache for ~a." (asdf:component-name system))
+  (ensure-directories-exist dir)
+  (staple::generate system :if-exists :supersede
+                           :output-directory dir)
+  ;; Modify HTML files to work better in the server environment.
+  (staple::do-directory-tree (file dir)
+    (when (find (pathname-type file) '("html" "htm" "xhtml") :test #'string-equal)
+      (let ((document (plump:parse file)))
+        (lquery:$ document "[href^=file://]"
+                  (each (lambda (el)
+                          (setf (plump:attribute el "href")
+                                (format NIL "/file~a" (subseq (plump:attribute el "href")
+                                                              (length "file://")))))))
+        (lquery:$ document "body" (append (lquery:$ (initialize (data-file "nav.ctml")) "nav")))
+        (lquery:$ document (write-to-file file))))))
+
+(defun clear-cache ()
+  (uiop:delete-directory-tree *tmpdir* :validate (lambda (p) (uiop:subpathp p *tmpdir*))))
+
 (defclass acceptor (hunchentoot:acceptor)
   ()
   (:default-initargs
@@ -106,24 +128,14 @@
          (path (merge-pathnames dir path)))
     (when (or* (not (uiop:directory-exists-p dir))
                (hunchentoot:get-parameter "rebuild")) 
-      (ensure-directories-exist dir)
-      (staple::generate system :if-exists :supersede
-                               :output-directory dir))
-    (if (string= "html" (pathname-type path))
-        (let ((document (plump:parse path)))
-          (lquery:$ document "[href^=file://]"
-            (each (lambda (el)
-                    (setf (plump:attribute el "href")
-                          (format NIL "/file~a" (subseq (plump:attribute el "href")
-                                                        (length "file://")))))))
-          (lquery:$ document "body" (append (lquery:$ (initialize (data-file "nav.ctml")) "nav")))
-          (plump:serialize document NIL))
-        (hunchentoot:handle-static-file path))))
+      (cache-system system dir))
+    (hunchentoot:handle-static-file path)))
 
 (defun serve-file (path)
   (plump:serialize
    (clip:process (data-file "file.ctml")
-                 :path path)))
+                 :path path)
+   NIL))
 
 (defun serve-error (err)
   (plump:serialize

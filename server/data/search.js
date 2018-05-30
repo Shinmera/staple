@@ -19,9 +19,7 @@ window.addEventListener("DOMContentLoaded", function(){
 
     var registerAllSearches = function(root){
         root = root || document;
-        [].forEach.call(root.querySelectorAll(".search"), function(search){
-            registerSearch(search);
-        });
+        [].forEach.call(root.querySelectorAll(".search"), registerSearch);
     };
 
     registerAllSearches();

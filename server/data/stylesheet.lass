@@ -47,3 +47,23 @@
    :background (hex DDDDDD)))
  ((:and .frame :before) :content "(")
  ((:and .frame :after) :content ")"))
+
+("#staple-server-nav"
+ :position fixed
+ :top 0 :left 0
+ :background (hex 0055AA)
+ :display flex
+ :align-items stretch
+ :font-weight bold
+ :height 30px
+ :font-size 14pt
+ (a :color white
+    :padding 0.2em)
+ ((:and a :hover)
+  :background (hex 0088EE)))
+("#staple-server-nav:after"
+ :content ""
+ :position absolute
+ :right -30px
+ :border-bottom 30px solid transparent
+ :border-left 30px solid (hex 0055AA))

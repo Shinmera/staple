@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title lquery="(text path)"></title>
+    <link rel="stylesheet" href="/stylesheet.css" />
+    <link rel="stylesheet" href="/github.css" />
+  </head>
+  <body>
+    <article class="file">
+      <header>
+        <h1 lquery="(text (file-namestring path))"></h1>
+      </header>
+      <pre><code class="lisp" lquery="(text (staple::read-file path)))"></code></pre>
+    </article>
+    <nav id="staple-server-nav">
+      <a href="/">System Index</a>
+    </nav>
+    <script src="/highlight-lisp.js"></script>
+    <script src="/Length.min.js"></script>
+    <script src="/view.js"></script>
+  </body>
+</html>
