@@ -16,6 +16,7 @@
                (:file "toolkit")
                (:file "xref")
                (:file "transform")
+               (:file "code-format")
                (:file "clip")
                (:file "page")
                (:file "project")

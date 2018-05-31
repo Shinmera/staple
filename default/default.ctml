@@ -8,8 +8,8 @@
   <body>
     <article class="system">
       <header>
-        <c:when test="logo">
-          <img class="logo" src="logo.svg" alt="Logo" lquery="(attr :src logo)" />
+        <c:when test="images">
+          <img class="logo" src="logo.svg" alt="Logo" lquery="(attr :src (first images))" />
         </c:when>
         <h1 lquery="(text (clip:clip system :name))">Name</h1>
         <span class="version" lquery="(text (clip:clip system :version))">1.0</span>

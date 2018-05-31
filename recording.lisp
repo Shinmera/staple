@@ -8,7 +8,7 @@
   (:nicknames #:org.shirakumo.staple.recording)
   (:use #:cl)
   (:export
-   #:system-packages))
+   #:packages))
 
 (in-package #:org.shirakumo.staple.recording)
 
@@ -20,7 +20,7 @@
       (find-package (string-upcase name))
       (error "No package with name ~s could be found." name)))
 
-(defmethod system-packages ((system asdf:system))
+(defmethod packages ((system asdf:system))
   (let ((packages (gethash system *system-packages* :not-recorded)))
     (cond ((eql :not-recorded packages)
            ;; Heuristic, ech.
@@ -29,18 +29,18 @@
           (T
            packages))))
 
-(defmethod system-packages ((system symbol))
-  (system-packages (asdf:find-system system T)))
+(defmethod packages ((system symbol))
+  (packages (asdf:find-system system T)))
 
-(defun (setf system-packages) (packages system)
-  (let ((system (etypecase system
-                  (asdf:system system)
-                  ((or symbol string) (asdf:find-system system T))))
-        (packages (loop for package in packages
+(defmethod (setf packages) (packages (system asdf:system))
+  (let ((packages (loop for package in packages
                         collect (etypecase package
                                   (package package)
                                   ((or string symbol) (efind-package package))))))
     (setf (gethash system *system-packages*) packages)))
+
+(defmethod (setf packages) (packages system-ish)
+  (setf (packages (asdf:find-system system-ish T)) packages))
 
 ;; Record all packages before system load
 (defmethod asdf:perform :after ((o asdf:prepare-op) (s asdf:system))
@@ -53,5 +53,5 @@
       (let ((new-packages (set-difference (list-all-packages) old-packages)))
         ;; Combine with previous ones to account for potential package addition
         ;; after later reloading of the system.
-        (setf (system-packages s)
-              (union (system-packages s) (reverse new-packages)))))))
+        (setf (packages s)
+              (union (packages s) (reverse new-packages)))))))

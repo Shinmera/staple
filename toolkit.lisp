@@ -24,13 +24,15 @@
       (nreverse items))))
 
 (defmacro with-value-restart (place &body body)
-  (let ((value (gensym "VALUE")))
+  (let ((value (gensym "VALUE"))
+        (condition (gensym "CONDITION")))
     `(loop (restart-case
                (return
                  (progn ,@body))
-             (set-value (,value)
+             (store-value (,value &optional ,condition)
                :report "Set a new value."
                :interactive read-value
+               (declare (ignore ,condition))
                (setf ,place ,value))))))
 
 (defun ensure-system (system-ish)
@@ -125,16 +127,16 @@
   (:method ((_ definitions:type-definition))    120)
   (:method ((_ definitions:type))               110)
   ;;(:method ((_ definitions:accessor))           100)
-  (:method ((_ definitions:function))           90)
-  (:method ((_ definitions:generic-function))   80)
-  (:method ((_ definitions:method))             70)
-  (:method ((_ definitions:compiler-macro))     60)
-  (:method ((_ definitions:macro))              50)
-  (:method ((_ definitions:setf-expander))      40)
-  (:method ((_ definitions:callable))           30)
-  (:method ((_ definitions:method-combination)) 20)
-  (:method ((_ definitions:global-definition))  10)
-  (:method ((_ definitions:definition))         0))
+  (:method ((_ definitions:function))            90)
+  (:method ((_ definitions:generic-function))    80)
+  (:method ((_ definitions:method))              70)
+  (:method ((_ definitions:compiler-macro))      60)
+  (:method ((_ definitions:macro))               50)
+  (:method ((_ definitions:setf-expander))       40)
+  (:method ((_ definitions:callable))            30)
+  (:method ((_ definitions:method-combination))  20)
+  (:method ((_ definitions:global-definition))   10)
+  (:method ((_ definitions:definition))           0))
 
 (defun sort-definitions (definitions)
   (flet ((sorter (a b)
@@ -146,11 +148,11 @@
     (stable-sort definitions #'sorter)))
 
 (defgeneric definition-importance (definition)
-  (:method ((_ definitions:callable)) 30)
-  (:method ((_ definitions:type)) 20)
-  (:method ((_ definitions:variable)) 10)
-  (:method ((_ definitions:definition)) 0)
-  (:method ((_ definitions:method)) -10))
+  (:method ((_ definitions:callable))           30)
+  (:method ((_ definitions:type))               20)
+  (:method ((_ definitions:variable))           10)
+  (:method ((_ definitions:definition))          0)
+  (:method ((_ definitions:method))            -10))
 
 (defun preferred-definition (definitions)
   (first (stable-sort definitions #'> :key #'definition-importance)))

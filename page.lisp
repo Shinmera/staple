@@ -11,12 +11,10 @@
 (defclass page ()
   ((title :initarg :title :accessor title)
    (language :initarg :language :initform "en" :accessor language)
-   (output :initarg :output :accessor output)
-   (project :initarg :project :accessor project))
+   (output :initarg :output :accessor output))
   (:default-initargs
    :output NIL
-   :title NIL
-   :project (error "PROJECT required.")))
+   :title NIL))
 
 (defmethod initialize-instance :after ((page page) &key output language)
   (unless language
@@ -87,15 +85,14 @@
 (defclass templated-page (input-page)
   ())
 
-(defgeneric template-data (project page)
+(defgeneric template-data (page)
   (:method-combination append :most-specific-first))
 
-(defmethod template-data append (project (page templated-page))
+(defmethod template-data append ((page templated-page))
   (list :title (title page)
         :language (language page)
         :input (input page)
         :output (output page)
-        :project project
         :page page))
 
 (defmethod generate ((page templated-page) &key (if-exists :error) (compact T))
@@ -107,7 +104,7 @@
              (plump:*tag-dispatchers* plump:*html-tags*)
              (node (apply #'clip:process
                           (plump:parse (input page))
-                          (template-data (project page) page))))
+                          (template-data page))))
         (when compact (compact node))
         (plump:serialize node out)))))
 
@@ -122,7 +119,7 @@
 (defmethod (setf packages) :around (packages (page symbol-index-page))
   (call-next-method (ensure-package-defs packages) page))
 
-(defmethod template-data append (project (page symbol-index-page))
+(defmethod template-data append ((page symbol-index-page))
   (list :packages (packages page)))
 
 (defgeneric format-documentation (definition page))
@@ -178,7 +175,7 @@
 (defmethod shared-initialize :after ((page system-page) slots &key system)
   (when system (setf (system page) system))
   (unless (packages page)
-    (setf (packages page) (system-packages (system page)))))
+    (setf (packages page) (packages (system page)))))
 
 (defmethod (setf system) :around (system (page system-page))
   (call-next-method (etypecase system
@@ -186,7 +183,7 @@
                       (asdf:system system))
                     page))
 
-(defmethod template-data append (project (page system-page))
+(defmethod template-data append ((page system-page))
   (list :system (system page)))
 
 (defmethod resolve-source-link (source (page system-page))

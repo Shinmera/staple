@@ -23,11 +23,16 @@
           (push (apply #'generate page args) results))))
     (values project (nreverse results))))
 
+(defclass simple-project (project)
+  ((pages :initarg :pages :accessor pages))
+  (:default-initargs
+   :pages ()))
+
 (defgeneric extension-file (system))
 
 (defmethod extension-file (system)
-  (make-pathname :name "staple.ext" :type "lisp"
-                 :defaults (asdf:system-source-directory system)))
+  (let ((source (asdf:system-source-directory system)))
+    (when source (make-pathname :name "staple.ext" :type "lisp" :defaults source))))
 
 (defgeneric find-project (project &key &allow-other-keys))
 
@@ -55,7 +60,7 @@
             for depsys = (asdf/find-component:resolve-dependency-spec system dependency)
             do (when depsys (load-extension depsys)))
       (let ((extension (extension-file system)))
-        (when (probe-file extension)
+        (when (and extension (probe-file extension))
           (load extension))))))
 
 (defmethod find-project ((system asdf:system) &rest args)

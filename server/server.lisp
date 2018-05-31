@@ -152,7 +152,7 @@
 
 (staple:define-xref-resolver server (definition)
   (let ((sys (loop for sys in (all-systems)
-                   for packages = (staple:system-packages sys)
+                   for packages = (staple:packages sys)
                    do (when (find (definitions:package definition) packages)
                         (return sys)))))
     (when sys
