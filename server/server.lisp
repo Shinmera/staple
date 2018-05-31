@@ -26,10 +26,6 @@
   (and (<= (length prefix) (length string))
        (string-equal prefix string :end2 (length prefix))))
 
-(defun suffix-p (suffix string)
-  (and (<= (length suffix) (length string))
-       (string-equal suffix string :start2 (- (length string) (length suffix)))))
-
 (defun find-system-in-path (path)
   (let ((systems ()))
     (asdf:map-systems
@@ -55,8 +51,8 @@
   (unless dir (setf dir (system-path system)))
   (format T "~& > Generating cache for ~a." (asdf:component-name system))
   (ensure-directories-exist dir)
-  (staple::generate system :if-exists :supersede
-                           :output-directory dir)
+  (staple:generate system :if-exists :supersede
+                          :output-directory dir)
   ;; Modify HTML files to work better in the server environment.
   (staple::do-directory-tree (file dir)
     (when (find (pathname-type file) '("html" "htm" "xhtml") :test #'string-equal)
@@ -107,10 +103,10 @@
         (declare (ignore error))
         value))))
 
-(defun start ()
+(defun start (&key (port 5123))
   (when *acceptor*
     (error "Server already running!"))
-  (let ((acceptor (make-instance 'acceptor)))
+  (let ((acceptor (make-instance 'acceptor :port port)))
     (hunchentoot:start acceptor)
     (setf *acceptor* acceptor)
     (format T "~&Your documentation browser is now running on http://localhost:~a/~%"
@@ -157,5 +153,5 @@
                         (return sys)))))
     (when sys
       (format NIL "/~a/#~a"
-              (staple::url-encode (asdf:component-name sys))
-              (staple::url-encode (staple::definition-id definition))))))
+              (staple:url-encode (asdf:component-name sys))
+              (staple:url-encode (staple:definition-id definition))))))
