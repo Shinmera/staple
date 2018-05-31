@@ -7,7 +7,7 @@
 (in-package #:org.shirakumo.staple.code-parser)
 
 (defclass environment ()
-  ((parent :initarg :parent :reader parent)
+  ((parent :initarg :parent :initform NIL :reader parent)
    (namespaces :initform (make-hash-table :test 'eq) :reader namespaces)))
 
 (defun namespace (namespace environment)
