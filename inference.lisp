@@ -15,12 +15,6 @@
 (defvar *default-template*
   (asdf:system-relative-pathname :staple "default/default.ctml"))
 
-(defun extract-language (string)
-  (cl-ppcre:do-matches-as-strings (code "\\b\\w{2,3}\\b" string)
-    (let ((found (language-codes:names code)))
-      (when found
-        (return (values code found))))))
-
 (defclass simple-page (system-page)
   ((document :initarg :document :accessor document)
    (images :initarg :images :accessor images))
@@ -30,10 +24,21 @@
    :input *default-template*))
 
 (defmethod initialize-instance :after ((page simple-page) &key document output language)
+  (unless output
+    (error "OUTPUT required."))
   (unless language
     (setf (language page) (or (when document (extract-language (file-namestring document)))
                               (when output (extract-language (file-namestring output)))
-                              "en"))))
+                              "en")))
+  (unless (or (pathname-name output)
+              (pathname-type output))
+    (setf (output page) (merge-pathnames (filename page) (output page)))))
+
+(defmethod filename ((page simple-page))
+  (let ((lang (unless (find (language page) '("en" "eng") :test #'string-equal)
+                (language page))))
+    (make-pathname :name (format NIL "index~@[-~a~]" lang)
+                   :type "html")))
 
 (defmethod definition-wanted-p ((definition definitions:definition) (project simple-page))
   (eql :external (definitions:visibility definition)))
@@ -50,13 +55,20 @@
 (defmethod definition-wanted-p ((definition definitions:declaration) (project simple-page))
   NIL)
 
+(defmethod compile-source (document (page simple-page))
+  (let ((*package* (first (packages page))))
+    (handler-bind ((error (lambda (e)
+                            (when (find-restart 'skip-tag)
+                              (format T "~&WARN: Error during code markup: ~a" e)
+                              (invoke-restart 'skip-tag)))))
+      (markup-code-snippets
+       (compile-source document T)))))
+
 (defmethod template-data append ((page simple-page))
   (list :documentation (when (document page)
-                         (markup-code-snippets
-                          (compile-source (document page) T)))
+                         (compile-source (document page) page))
         :images (loop for image in (images page)
-                      collect (etypecase image
-                                (pathname (resolve-source-link (list :file image) page))))))
+                      collect (file-namestring image))))
 
 (defmethod documents ((system asdf:system))
   (let ((source (asdf:system-source-directory system)))
@@ -77,14 +89,7 @@
   'simple-page)
 
 (defmethod output-directory ((system asdf:system))
-  (asdf:system-source-directory system))
-
-(defmethod output-file ((system asdf:system) document)
-  (let* ((lang (extract-language (pathname-name document)))
-         (lang (unless (find lang '("en" "eng") :test #'string-equal) lang)))
-    (merge-pathnames (make-pathname :name (format NIL "index~@[-~a~]" lang)
-                                    :type "html")
-                     document)))
+  (merge-pathnames "doc/" (asdf:system-source-directory system)))
 
 (define-condition no-known-output-directory (error)
   ((system :initarg :system :reader system))
@@ -92,27 +97,27 @@
                                  (asdf:component-name (system c))))))
 
 ;; FIXME: subsystems
-(defmethod infer-project ((system asdf:system) &key output-directory images documents page-type)
+(defmethod infer-project ((system asdf:system) &key output-directory images documents page-type template)
   (load-extension system)
   (let* ((output-directory (or output-directory (output-directory system)))
-         (documents (or documents (documents system)))
+         (documents (or documents (documents system) '(NIL)))
          (images (or images (images system)))
-         (page-type (or page-type (page-type system))))
-    (restart-case (unless output-directory
-                    (error 'no-known-output-directory :system system))
-      (use-value (value &optional condition)
-        (declare (ignore condition))
-        (setf output-directory value)))
-    (let ((pages (if documents
-                     (loop for document in documents
-                           for output = (output-file system (merge-pathnames output-directory document))
-                           collect (make-instance page-type
-                                                  :output output
-                                                  :system system
-                                                  :document document
-                                                  :images images))
-                     (list (make-instance page-type
-                                          :output (output-file system output-directory)
-                                          :system system
-                                          :images images)))))
+         (page-type (or page-type (page-type system)))
+         (input (or template *default-template*)))
+    (with-value-restart output-directory
+      (unless (and (pathnamep output-directory)
+                   (pathname-utils:directory-p output-directory))
+        (error 'no-known-output-directory :system system)))
+    (let ((pages (loop for document in documents
+                       collect (make-instance page-type
+                                              :input input
+                                              :output output-directory
+                                              :system system
+                                              :document document
+                                              :images images))))
+      (loop for image in images
+            do (push (make-instance 'static-page
+                                    :input image
+                                    :output (pathname-utils:file-in output-directory image))
+                     pages))
       (make-instance 'simple-project :pages pages))))

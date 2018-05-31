@@ -61,7 +61,8 @@
             do (when depsys (load-extension depsys)))
       (let ((extension (extension-file system)))
         (when (and extension (probe-file extension))
-          (load extension))))))
+          (load extension)))
+      system)))
 
 (defmethod find-project ((system asdf:system) &rest args)
   (load-extension system)

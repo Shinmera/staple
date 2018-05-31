@@ -11,6 +11,7 @@
   ;; code-format.lisp
   (:export
    #:markup-code-snippets
+   #:skip-tag
    #:markup-code-block
    #:markup-code-reference)
   ;; inference.lisp
@@ -21,6 +22,7 @@
    #:extract-language
    #:simple-page
    #:document
+   #:filename
    #:simple-project
    #:logo
    #:documents
@@ -28,7 +30,6 @@
    #:subsystems
    #:page-type
    #:output-directory
-   #:output-file
    #:no-known-output-directory
    #:system)
   ;; page.lisp
@@ -46,7 +47,7 @@
    #:compiled-page
    #:templated-page
    #:template-data
-   #:symbol-index-page
+   #:definitions-index-page
    #:packages
    #:format-documentation
    #:resolve-source-link
@@ -82,12 +83,10 @@
    #:definition-importance
    #:preferred-definition
    #:url-encode
-   #:ensure-package-defs
+   #:ensure-package-definition
    #:ensure-package
    #:absolute-source-location
    #:maybe-lang-docstring
-   #:ensure-stream
-   #:finish-stream
    #:with-stream
    #:stream-designator)
   ;; xref.lisp

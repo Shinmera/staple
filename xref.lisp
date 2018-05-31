@@ -28,13 +28,11 @@
         when xref do (return xref)))
 
 (define-xref-resolver current-page (definition)
-  (when (find (definitions:package definition)
-              (packages *page*) :key #'definitions:package)
+  (when (find (definitions:package definition) (packages *page*))
     (format NIL "#~a" (url-encode (definition-id definition)))))
 
 (define-xref-resolver common-lisp (definition)
-  (when (eql (definitions:package definition)
-             (find-package "CL"))
+  (when (eql (definitions:package definition) (find-package "CL"))
     (format NIL "http://l1sp.org/cl/~a" (url-encode (string-downcase (definitions:name definition))))))
 
 (defun parse-lisp-token (string)
@@ -63,15 +61,14 @@
                   (setf package (cond ((= 0 i)
                                        "KEYWORD")
                                       ((and (= 1 i) (char= #\# (aref identifier 0)))
-                                       ;; Handling this edge-case is a bother, so we just hope
-                                       ;; nobody's crazy enough to define a package like this.
-                                       (when (find-package "")
-                                         (error "What the fuck. Why did someone define a package with an empty name?"))
-                                       "")
+                                       :gensym)
                                       (T
                                        (subseq identifier 0 i))))))))
     (values (parse-lisp-token name)
-            (when package (parse-lisp-token package)))))
+            (etypecase package
+              (string (parse-lisp-token package))
+              ((eql :gensym) :gensym)
+              (null NIL)))))
 
 (defun find-definitions-for-identifier (name &key package (type T))
   (let ((packages (if package
@@ -91,6 +88,8 @@
 
 (defmethod xref ((identifier string))
   (multiple-value-bind (name package) (parse-symbol identifier)
-    (let ((defs (find-definitions-for-identifier name :package package)))
-      (when defs
-        (resolve-xref (preferred-definition defs))))))
+    (unless (eql package :gensym)
+      (let ((defs (find-definitions-for-identifier name :package package)))
+        (loop for def in (preferred-definition defs)
+              for xref = (resolve-xref def)
+              do (when xref (return xref)))))))

@@ -91,9 +91,7 @@
     (source-location (definitions:source-location definition))
     (arguments ())
     (qualifiers ())
-    (source-link
-     (let ((source (absolute-source-location (definitions:source-location definition))))
-       (when source (resolve-source-link source *page*))))
+    (source-link (resolve-source-link definition *page*))
     (formatted-documentation
      (or (format-documentation definition *page*)
          "<i>No documentation provided.</i>"))

@@ -55,7 +55,7 @@
       </c:using>
       <section id="index">
         <h2>Definition Index</h2>
-        <ul iterate="packages">
+        <ul iterate="(mapcar #'staple::ensure-package-definition packages)">
           <li>
             <article class="definition package" lquery="(attr :id id)">
               <header>

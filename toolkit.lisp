@@ -155,7 +155,7 @@
   (:method ((_ definitions:method))            -10))
 
 (defun preferred-definition (definitions)
-  (first (stable-sort definitions #'> :key #'definition-importance)))
+  (stable-sort definitions #'> :key #'definition-importance))
 
 (defun url-encode (thing &optional (external-format :utf-8))
   (with-output-to-string (out)
@@ -168,13 +168,12 @@
                     (write-char char out))
                    (T (format out "%~2,'0x" (char-code char)))))))
 
-(defun ensure-package-defs (packages)
-  (loop for package in packages
-        collect (etypecase package
-                  (string (make-instance 'definitions:package :designator package))
-                  (symbol (make-instance 'definitions:package :designator (symbol-name package)))
-                  (package (make-instance 'definitions:package :designator (package-name package)))
-                  (definitions:package package))))
+(defun ensure-package-definition (package)
+  (etypecase package
+    (string (make-instance 'definitions:package :designator package))
+    (symbol (make-instance 'definitions:package :designator (symbol-name package)))
+    (package (make-instance 'definitions:package :designator (package-name package)))
+    (definitions:package package)))
 
 (defun ensure-package (package)
   (or (etypecase package
@@ -222,6 +221,12 @@
                                        :row row
                                        :col col)))))))))
 
+(defun extract-language (string)
+  (cl-ppcre:do-matches-as-strings (code "\\b\\w{2,3}\\b" string)
+    (let ((found (language-codes:names code)))
+      (when found
+        (return (values code found))))))
+
 (defun maybe-lang-docstring (definition language)
   (or (when (find-package "ORG.SHIRAKUMO.MULTILANG-DOCUMENTATION")
         (or
@@ -247,10 +252,9 @@
     ((eql T)
      *standard-output*)))
 
-(defun finish-stream (stream)
+(defun stream-value (stream)
   (etypecase stream
     (file-stream
-     (close stream)
      (pathname stream))
     (string-stream
      (if (output-stream-p stream)
@@ -262,8 +266,9 @@
   `(let ((,stream (ensure-stream ,designator ,@args)))
      (block ,stream
        (unwind-protect
-            (progn ,@body)
-         (return-from ,stream (finish-stream ,stream))))))
+            (progn ,@body
+                   (stream-value ,stream))
+         (close ,stream)))))
 
 (deftype stream-designator ()
   '(or null (eql T) stream string pathname))

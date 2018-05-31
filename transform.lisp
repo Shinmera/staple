@@ -28,7 +28,7 @@
 (defgeneric compile-source (source type))
 
 (defmethod compile-source (source (type string))
-  (compile-source source (pathname-type->type type)))
+  (compile-source source (pathname-type->type type T)))
 
 (defmethod compile-source ((source pathname) type)
   (compile-source (read-file source) type))
@@ -39,9 +39,10 @@
 (defmacro define-source-compiler ((type &rest pathname-types) (input) &body body)
   (check-type type keyword)
   `(progn
-     (setf (pathname-type->type ,type) ',pathname-types)
+     ,@(when pathname-types `((setf (pathname-type->type ,type) ',pathname-types)))
      (defmethod compile-source ((,input string) (type (eql ,type)))
-       ,@body)))
+       ,@body)
+     ',type))
 
 (define-source-compiler (:html "htm" "html" "xhtml") (input)
   (plump:parse input))

@@ -48,15 +48,16 @@
   ())
 
 (defmethod generate ((page static-page) &key (if-exists :error))
-  (with-stream (out (output page) :direction :output
-                                  :if-exists if-exists
-                                  :element-type '(unsigned-byte 8))
-    (with-stream (in (input page) :direction :input
-                                  :element-type '(unsigned-byte 8))
-      (loop with buffer = (make-array 4096 :element-type '(unsigned-byte 8))
-            for read = (read-sequence buffer in)
-            while (< 0 read)
-            do (write-sequence buffer out :end read)))))
+  (unless (equal (output page) (input page))
+    (with-stream (out (output page) :direction :output
+                                    :if-exists if-exists
+                                    :element-type '(unsigned-byte 8))
+      (with-stream (in (input page) :direction :input
+                                    :element-type '(unsigned-byte 8))
+        (loop with buffer = (make-array 4096 :element-type '(unsigned-byte 8))
+              for read = (read-sequence buffer in)
+              while (< 0 read)
+              do (write-sequence buffer out :end read))))))
 
 (defclass compiled-page (input-page)
   ())
@@ -108,29 +109,29 @@
         (when compact (compact node))
         (plump:serialize node out)))))
 
-(defclass symbol-index-page (templated-page)
+(defclass definitions-index-page (templated-page)
   ((packages :initform NIL :accessor packages))
   (:default-initargs
    :title "Index"))
 
-(defmethod shared-initialize :after ((page symbol-index-page) slots &key packages)
+(defmethod shared-initialize :after ((page definitions-index-page) slots &key packages)
   (when packages (setf (packages page) packages)))
 
-(defmethod (setf packages) :around (packages (page symbol-index-page))
-  (call-next-method (ensure-package-defs packages) page))
+(defmethod (setf packages) :around (packages (page definitions-index-page))
+  (call-next-method (mapcar #'ensure-package packages) page))
 
-(defmethod template-data append ((page symbol-index-page))
+(defmethod template-data append ((page definitions-index-page))
   (list :packages (packages page)))
 
 (defgeneric format-documentation (definition page))
 
-(defmethod format-documentation ((definition definitions:definition) (page symbol-index-page))
+(defmethod format-documentation ((definition definitions:definition) (page definitions-index-page))
   (format-documentation (maybe-lang-docstring definition (language page)) page))
 
-(defmethod format-documentation ((null null) (page symbol-index-page))
+(defmethod format-documentation ((null null) (page definitions-index-page))
   NIL)
 
-(defmethod format-documentation ((docstring string) (page symbol-index-page))
+(defmethod format-documentation ((docstring string) (page definitions-index-page))
   (flet ((replace-see (string start end mstart mend rstart rend)
            (declare (ignore start end))
            (let* ((match (subseq string (aref rstart 0) (aref rend 0)))
@@ -146,7 +147,11 @@
 
 (defgeneric resolve-source-link (source page))
 
-(defmethod resolve-source-link (source (page symbol-index-page))
+(defmethod resolve-source-link ((definition definitions:definition) (page definitions-index-page))
+  (let ((source (absolute-source-location (definitions:source-location definition))))
+    (when source (resolve-source-link source page))))
+
+(defmethod resolve-source-link (source (page definitions-index-page))
   (cond ((pathname-utils:subpath-p (truename (getf source :file))
                                    (truename (uiop:pathname-directory-pathname (output page))))
          (format NIL "~a~@[#~a:~a~]"
@@ -159,17 +164,19 @@
 
 (defgeneric definition-wanted-p (definition page))
 
-(defmethod definition-wanted-p (definition (page symbol-index-page))
+(defmethod definition-wanted-p ((definition definitions:definition) (page definitions-index-page))
   T)
 
 (defgeneric definitions (page package))
 
-(defmethod definitions ((page symbol-index-page) package)
-  (sort-definitions
-   (delete-if-not (lambda (def) (definition-wanted-p def page))
-                  (definitions:find-definitions package :package package))))
+(defmethod definitions ((page definitions-index-page) package)
+  (delete-if-not (lambda (def) (definition-wanted-p def page))
+                 (definitions:find-definitions package :package package)))
 
-(defclass system-page (symbol-index-page)
+(defmethod definitions :around (page package)
+  (sort-definitions (call-next-method)))
+
+(defclass system-page (definitions-index-page)
   ((system :initarg NIL :accessor system)))
 
 (defmethod shared-initialize :after ((page system-page) slots &key system)
