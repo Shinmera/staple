@@ -21,6 +21,10 @@
     (setf (language page) (or (when output (extract-language (file-namestring output)))
                               "en"))))
 
+(defmethod print-object ((page page) stream)
+  (print-unreadable-object (page stream :type T)
+    (format stream "~s (~a)" (title page) (language page))))
+
 (defgeneric generate (page &key if-exists &allow-other-keys))
 
 (defmethod generate :around ((page page) &key)
@@ -193,11 +197,16 @@
 (defmethod template-data append ((page system-page))
   (list :system (system page)))
 
+(defun github-project-root (github-url)
+  (cl-ppcre:register-groups-bind (user-1 user-2 repo) ("(?:https?://|//)?(?:github.com/([\\w-]+)|([\\w-]+).github.io)/([\\w-]+)" github-url)
+    (format NIL "https://github.com/~a/~a" (or user-1 user-2) repo)))
+
 (defmethod resolve-source-link (source (page system-page))
-  (cond ((and (search "github.com" (asdf:system-homepage (system page)))
+  (cond ((and (search "github" (asdf:system-homepage (system page)))
               (pathname-utils:subpath-p (truename (getf source :file))
                                         (truename (asdf:system-source-directory (system page)))))
-         (format NIL "~a/blob/master/~a~@[#L~a~]" (asdf:system-homepage (system page))
+         (format NIL "~a/blob/master/~a~@[#L~a~]"
+                 (github-project-root (asdf:system-homepage (system page)))
                  (enough-namestring (getf source :file)
                                     (asdf:system-source-directory (system page)))
                  (getf source :row)))

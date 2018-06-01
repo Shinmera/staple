@@ -272,3 +272,10 @@
 
 (deftype stream-designator ()
   '(or null (eql T) stream string pathname))
+
+(defun merge-plists (plist default)
+  (let ((result (copy-list plist)))
+    (loop for (key val) on default by #'cddr
+          do (when (eq #1='#.(gensym "no-value") (getf result key #1#))
+               (setf (getf result key) val)))
+    result))

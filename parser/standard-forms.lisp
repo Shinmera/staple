@@ -39,6 +39,8 @@
 ;;             ,(walk form)
 ;;             )))
 
+;; Try handling defmethod directly to avoid lengthy macroexpansion and to
+;; handle inference of class types.
 (define-walk-compound-form defmethod (cst environment)
   (cst:db source (operator name . args) cst
     (let ((qualifiers (loop until (cst:consp args)
@@ -58,6 +60,7 @@
                      ,variables
                      ,@(walk-implicit-progn forms environment))))))))
 
+;; Try handling the distinction between setf functions and setf-expanders.
 (define-walk-compound-form setf (cst environment)
   (cst:db source (operator . pairs) cst
     (flet ((handle-place (place value)
@@ -83,3 +86,20 @@
         `(progn ,source
                 ,@(loop for (place value) on pairs by #'cddr
                         collect (handle-place place value)))))))
+
+;; Transform literals in funcalls' function arguments to functions.
+(flet ((walk-funcallish (cst environment)
+         (cst:db source (operator function . arguments) cst
+           (let ((function (walk function environment)))
+             `(:call ,source
+                     ,(walk operator environment)
+                     ,(if (eql :literal (first function))
+                          `(function ,@(rest function))
+                          function)
+                     ,@(loop for argument in (cst:listify arguments)
+                             collect (walk argument environment)))))))
+  (define-walk-compound-form funcall (cst environment)
+    (walk-funcallish cst environment))
+
+  (define-walk-compound-form apply (cst environment)
+    (walk-funcallish cst environment)))

@@ -1,15 +1,20 @@
 #|
- This file is a part of Staple
- (c) 2014 Shirakumo http://tymoon.eu (shinmera@tymoon.eu)
- Author: Nicolas Hafner <shinmera@tymoon.eu>
+This file is a part of Staple
+(c) 2014 Shirakumo http://tymoon.eu (shinmera@tymoon.eu)
+Author: Nicolas Hafner <shinmera@tymoon.eu>
 |#
 
 (in-package #:org.shirakumo.staple)
 
 ;; code-format.lisp
 (docs:define-docs
- (function markup-code-snippets
-   "Attempts to mark up the code snippets in the given HTML text.
+  (function markup-code-snippets-ignoring-errors
+    "Marks up the code snippets ignoring parts that fail during markup.
+
+See MARKUP-CODE-SNIPPETS")
+  
+  (function markup-code-snippets
+    "Attempts to mark up the code snippets in the given HTML text.
 
 This looks for <code> tags within the given HTML and will try to
 automatically insert xref links. It performs transformations as
@@ -30,8 +35,8 @@ STRING or a PATHNAME.
 See MARKUP-CODE-BLOCK
 See MARKUP-CODE-REFERENCE")
 
- (function markup-code-block
-   "Transforms the node's content treating it as a code block.
+  (function markup-code-block
+    "Transforms the node's content treating it as a code block.
 
 Only the textual contents of the node are inspected, any other kinds
 of tag that may be a child to the block will be removed by this.
@@ -50,8 +55,8 @@ See XREF
 See STAPLE-CODE-PARSER:PARSE
 See STAPLE-CODE-PARSER:PARSE-RESULT->DEFINITION-LIST")
 
- (function markup-code-reference
-   "Transforms the node's content treating it as a definition reference.
+  (function markup-code-reference
+    "Transforms the node's content treating it as a definition reference.
 
 Only the textual contents of the node are inspected, any other kinds
 of tag that may be a child to the block will be removed by this.
@@ -64,25 +69,25 @@ See XREF"))
 
 ;; inference.lisp
 (docs:define-docs
- (variable *document-patterns*
-   "A list of regular expression patterns that recognise document files.
+  (variable *document-patterns*
+    "A list of regular expression patterns that recognise document files.
 
 An expression in this list should match the filename of a file that
 denotes a documentation body file.")
 
- (variable *image-patterns*
-   "A list of regular expression patterns that recognise image files.
+  (variable *image-patterns*
+    "A list of regular expression patterns that recognise image files.
 
 An expression in this list should match the filename of a file that
 denotes an image file.")
 
- (variable *default-template*
-   "Pathname to the default Clip template used for simple pages.
+  (variable *default-template*
+    "Pathname to the default Clip template used for simple pages.
 
 See SIMPLE-PAGE")
 
- (type simple-page
-   "A simple page to base documentation on.
+  (type simple-page
+    "A simple page to base documentation on.
 
 Simple-pages are the preferred pages to use for inferred systems.
 They provide a convenient all-in-one package for a definitions index
@@ -104,8 +109,8 @@ See FILENAME
 See SYSTEM-PAGE
 See COMPILE-SOURCE")
 
- (function document
-   "Accessor for the document the simple-page will include in its body.
+  (function document
+    "Accessor for the document the simple-page will include in its body.
 
 This should be a pathname to a file that can be parsed by
 COMPILE-SOURCE.
@@ -113,8 +118,8 @@ COMPILE-SOURCE.
 See SIMPLE-PAGE
 See COMPILE-SOURCE")
 
- (function filename
-   "Returns a suitable pathname making up the filename of the page.
+  (function filename
+    "Returns a suitable pathname making up the filename of the page.
 
 By default for simple-pages this is the name \"index\" followed by
 the language code of the page if the language is not \"en\" or \"eng\"
@@ -122,8 +127,8 @@ and the type \"html\".
 
 See SIMPLE-PAGE")
 
- (function documents
-   "Returns a list of pathnames to documents relevant for the given system.
+  (function documents
+    "Returns a list of pathnames to documents relevant for the given system.
 
 By default this will attempt a heuristic by searching for files that
 can be parsed by PATHNAME-TYPE->TYPE, and match one of the
@@ -136,8 +141,8 @@ See PATHNAME-TYPE->TYPE
 See *DOCUMENT-PATTERNS*
 See INFER-PROJECT")
 
- (function images
-   "Returns a list of pathnames to images relevant for the given system.
+  (function images
+    "Returns a list of pathnames to images relevant for the given system.
 
 By default this will attempt a heuristic by searching for files that
 match one of the *IMAGE-PATTERNS* within the system's source directory.
@@ -148,16 +153,24 @@ which images are used for an inferred project.
 See *IMAGE-PATTERNS*
 See INFER-PROJECT")
 
- (function subsystems
-   "Returns a list of systems that are related to the given system.
+  (function subsystems
+    "Returns a list of systems that are related to the given system.
 
 You may add a method specialising on a particular system to change
 which subsystems are used for an inferred project.
 
 See INFER-PROJECT")
 
- (function page-type
-   "Returns the type of the page that should be used for the given system's inferred project.
+  (function template
+    "Returns the pathname to a Clip template suitable for the given system.
+
+You may add a method specialising on a particular system to change
+which template is used for an inferred project.
+
+See INFER-PROJECT")
+
+  (function page-type
+    "Returns the type of the page that should be used for the given system's inferred project.
 
 By default this returns 'SIMPLE-PAGE
 
@@ -167,8 +180,8 @@ which page-type is used for an inferred project.
 See SIMPLE-PAGE
 See INFER-PROJECT")
 
- (function output-directory
-   "Returns the output directory to which documentation for the given system should be output.
+  (function output-directory
+    "Returns the output directory to which documentation for the given system should be output.
 
 By default this returns the \"doc/\" subdirectory within the system's
 source directory.
@@ -179,28 +192,28 @@ where the resulting content is stored for an inferred project.
 See ASDF:SYSTEM-SOURCE-DIRECTORY
 See INFER-PROJECT")
 
- (type no-known-output-directory
-   "Error signalled when no known output directory is available for a system.
+  (type no-known-output-directory
+    "Error signalled when no known output directory is available for a system.
 
 See SYSTEM
 See INFER-PROJECT")
 
- (function system
-   "Accessor to the system the object is associated with.
+  (function system
+    "Accessor to the system the object is associated with.
 
 See SYSTEM-PAGE
 See NO-KNOWN-OUTPUT-DIRECTORY"))
 
 ;; page.lisp
 (docs:define-docs
- (variable *page*
-   "Variable bound to the current page during generation.
+  (variable *page*
+    "Variable bound to the current page during generation.
 
 See PAGE
 See GENERATE")
 
- (type page
-   "Base class for all pages that can be generated as part of a project.
+  (type page
+    "Base class for all pages that can be generated as part of a project.
 
 A page represents a single, well, page within the documentation for a
 particular project. It should only produce a single output, which
@@ -216,8 +229,8 @@ See TITLE
 See LANGUAGE
 See OUTPTU")
 
- (function title
-   "Accessor to the title of a page.
+  (function title
+    "Accessor to the title of a page.
 
 The title should be a very short, unique identifier for the page
 within the project. Pages that represent the same content but in
@@ -226,8 +239,8 @@ may be used as the name for a link to that page.
 
 See PAGE")
 
- (function language
-   "Accessor to the language of a page.
+  (function language
+    "Accessor to the language of a page.
 
 The language should be a two or three-letter short-code that uniquely
 identifies the language. See the ISO-639 language codes for all
@@ -235,8 +248,8 @@ available options.
 
 See PAGE")
 
- (function output
-   "Accessor to the output of a page.
+  (function output
+    "Accessor to the output of a page.
 
 The output should be a STREAM-DESIGNATOR, meaning that it can be
 resolved to a stream via ENSURE-STREAM. Typically it will be a
@@ -245,8 +258,8 @@ stored.
 
 See PAGE")
 
- (function generate
-   "Generate the outputs of the given object.
+  (function generate
+    "Generate the outputs of the given object.
 
 The value returned by this function should be some kind of identifier
 of the outputs that were generated by the call to this function.
@@ -267,14 +280,14 @@ See *PAGE*
 See FIND-PROJECT
 See INFER-PROJECT")
 
- (type input-page
-   "Superclass for pages that are generated using some kind of input.
+  (type input-page
+    "Superclass for pages that are generated using some kind of input.
 
 See PAGE
 See INPUT")
 
- (function input
-   "Accessor to the input of the page.
+  (function input
+    "Accessor to the input of the page.
 
 The input should be a STREAM-DESIGNATOR, meaning that it can be
 resolved to a stream via ENSURE-STREAM. Typically it will be a
@@ -283,15 +296,15 @@ ready.
 
 See INPUT-PAGE")
 
- (type static-page
-   "A static page that simply copies its input to its output.
+  (type static-page
+    "A static page that simply copies its input to its output.
 
 This is useful for static files such as images and other resources.
 
 See INPUT-PAGE")
 
- (type compiled-page
-   "A compiled page that is created by translating some input file.
+  (type compiled-page
+    "A compiled page that is created by translating some input file.
 
 In order to handle the translation, COMPILE-SOURCE is used.
 The output of COMPILE-SOURCE may be a PLUMP:NODE, a STRING, or an
@@ -302,8 +315,8 @@ is non-NIL (default).
 See INPUT-PAGE
 See COMPILE-SOURCE")
 
- (type templated-page
-   "Superclass for pages that are templated using Clip.
+  (type templated-page
+    "Superclass for pages that are templated using Clip.
 
 The template that Clip is run on is the INPUT of the page. The
 template arguments are computed using the TEMPLATE-DATA generic
@@ -315,8 +328,8 @@ argument to GENERATE is non-NIL (default).
 See INPUT-PAGE
 See TEMPLATE-DATA")
 
- (function template-data
-   "Returns the arguments to CLIP:PROCESS that should be used for the page.
+  (function template-data
+    "Returns the arguments to CLIP:PROCESS that should be used for the page.
 
 This should be a plistt containing the necessary data to compile the
 template. Note that this generic function uses the APPEND method-
@@ -327,8 +340,8 @@ a method to override keys that less-specific methods may have set.
 
 See TEMPLATED-PAGE")
 
- (function definitions-index-page
-   "Superclass for pages that include a definitions index.
+  (function definitions-index-page
+    "Superclass for pages that include a definitions index.
 
 See PACKAGES
 See FORMAT-DOCUMENTATION
@@ -336,8 +349,8 @@ See RESOLVE-SOURCE-LINK
 See DEFINITION-WANTED_P
 See DEFINITIONS")
 
- (function packages
-   "Accessor to the list of packages associated with the instance.
+  (function packages
+    "Accessor to the list of packages associated with the instance.
 
 This will always return a list of PACKAGE instances, not package
 designators. If passed an ASDF:SYSTEM instance, it will return the
@@ -351,8 +364,8 @@ ASDF:FIND-SYSTEM.
 See ASDF:SYSTEM
 See DEFINITIONS-INDEX-PAGE")
 
- (function format-documentation
-   "Formats the definition according to the page's preferences.
+  (function format-documentation
+    "Formats the definition according to the page's preferences.
 
 This function should be called to retrieve fully formatted HTML to
 use as the documentation for a given definition on a page.
@@ -375,8 +388,8 @@ See DEFINITIONS-INDEX-PAGE
 See MAYBE-LANG-DOCSTRING
 See XREF")
 
- (function resolve-source-link
-   "Resolve the link to a source file to a URI.
+  (function resolve-source-link
+    "Resolve the link to a source file to a URI.
 
 The source should be either a definition or a source spec. In case of
 a definition, the function is called again with the source spec as
@@ -394,13 +407,13 @@ Otherwise it will fall back to a \"file://\" link.
 See DEFINITIONS:SOURCE-LOCATION
 See ABSOLUTE-SOURCE-LOCATION")
 
- (function definition-wanted-p
-   "This function should return T if the definition should be included in the page's definitions index.
+  (function definition-wanted-p
+    "This function should return T if the definition should be included in the page's definitions index.
 
 See DEFINITIONS-INDEX-PAGE")
 
- (function definitions
-   "This function should return a list of applicable definitions for the given page and package.
+  (function definitions
+    "This function should return a list of applicable definitions for the given page and package.
 
 By default this will simply compute /all/ definitions in the package
 and only keeping wanted ones by DEFINITION-WANTED-P.
@@ -411,8 +424,8 @@ as described by SORT-DEFINITIONS.
 See DEFINITION-WANTED-P
 See SORT-DEFINITIONS")
 
- (type system-page
-   "Superclass for pages that represent and ASDF system.
+  (type system-page
+    "Superclass for pages that represent and ASDF system.
 
 This system will compute several properties automatically by using the
 ASDF metadata: if the :PACKAGES are not given, they are computed from
@@ -425,16 +438,16 @@ See DEFINITIONS-INDEX-PAGE"))
 
 ;; project.lisp
 (docs:define-docs
- (variable *load-prohibited-systems*
-   "A list of ASDF:SYSTEM instances that should not be loaded for extensions.
+  (variable *load-prohibited-systems*
+    "A list of ASDF:SYSTEM instances that should not be loaded for extensions.
 
 This is a curated list of special systems that cause problems when
 being loaded as part of the LOAD-EXTENSION mechanism.
 
 See LOAD-EXTENSION")
 
- (type project
-   "Superclass for a documentation project.
+  (type project
+    "Superclass for a documentation project.
 
 A project encapsulates all documentation for a library or program.
 Typically this is expressed by a number of PAGEs that will create the
@@ -444,14 +457,14 @@ See PAGE
 See PAGES
 See GENERATE")
 
- (function pages
-   "Returns the list of pages that the project generates.
+  (function pages
+    "Returns the list of pages that the project generates.
 
 See PAGE
 See PROJECT")
 
- (type simple-project
-   "A simple project.
+  (type simple-project
+    "A simple project.
 
 This class simply stores a list of page instances and generates them
 when GENERATE is called on the project instance.
@@ -459,8 +472,8 @@ when GENERATE is called on the project instance.
 See PROJECT
 See PAGES")
 
- (function extension-file
-   "Returns the Staple extension source file for the ASDF:SYSTEM.
+  (function extension-file
+    "Returns the Staple extension source file for the ASDF:SYSTEM.
 
 By default this is a file called \"staple.ext.lisp\" within the
 system's source directory.
@@ -470,8 +483,8 @@ extension file.
 
 See ASDF:SYSTEM-SOURCE-DIRECTORY")
 
- (function find-project
-   "Find and return the project for the given ASDF:SYSTEM.
+  (function find-project
+    "Find and return the project for the given ASDF:SYSTEM.
 
 If you want to define a custom project for your system, you should
 add a method specialising on your system instance to this function
@@ -484,8 +497,8 @@ it simply returns NIL.
 
 See LOAD-EXTENSION")
 
- (function load-extension
-   "Loads the extension file of the system.
+  (function load-extension
+    "Loads the extension file of the system.
 
 This ensures that all Staple extensions and customisations that the
 system might need are present and loaded when the documentation is
@@ -505,8 +518,8 @@ It proceeds as follows:
 See ASDF:LOAD-SYSTEM
 See CL:LOAD")
 
- (function infer-project
-   "Attempts to infer a project suitable for the given ASDF:SYSTEM.
+  (function infer-project
+    "Attempts to infer a project suitable for the given ASDF:SYSTEM.
 
 By default this consults a variety of functions and attempts to build
 a suitable SIMPLE-PROJECT instance that should document the system.
@@ -519,27 +532,30 @@ INFER-PROJECT proceeds as follows:
 2. If no :DOCUMENTS are given, they are found via DOCUMENTS.
 3. If no :IMAGES are given, they are found via IMAGES.
 4. If no :PAGE-TYPE is given, it is found via PAGE-TYPE.
-5. If no :TEMPLATE is given, *DEFAULT-TEMPLATE* is used.
-6. If no output directory is known, a recoverable error of type
+5. If no :TEMPLATE is given, it is found via TEMPLATE.
+6. If no :PACKAGES are given, they are found via PACKAGES.
+7. If no output directory is known, a recoverable error of type
    NO-KNOWN-OUTPUT-DIRECTORY is signalled. You may use the USE-VALUE
    restart to provide a new output directory.
-7. For each pathname in the documents list a page of page-type is
+8. For each pathname in the documents list a page of page-type is
    constructed, passing the template as :INPUT, the output directory
    as :OUTPUT, the system as :SYSTEM, the document's pathname as
    :DOCUMENT, and the list of images as :IMAGES.
-8. If the documents list is empty, a single page of page-type is
+9. If the documents list is empty, a single page of page-type is
    constructed with the same arguments as before, except the :DOCUMENT
    being NIL.
-9. For each pathname in the images list a page of type STATIC-PAGE is
-   constructed that will copy the image file into the OUTPUT-DIRECTORY
-   while preserving pathname name and type.
-10. A SIMPLE-PROJECT instance is constructed and returned with those
+10. For each pathname in the images list a page of type STATIC-PAGE is
+    constructed that will copy the image file into the OUTPUT-DIRECTORY
+    while preserving pathname name and type.
+11. A SIMPLE-PROJECT instance is constructed and returned with those
     pages as the :PAGES argument.
 
 See OUTPUT-DIRECTORY
 See DOCUMENTS
 See IMAGES
+See PACKAGES
 See PAGE-TYPE
+See TEMPLATE
 See *DEFAULT-TEMPLATE*
 See NO-KNOWN-OUTPUT-DIRECTORY
 See CL:USE-VALUE
@@ -548,8 +564,8 @@ See SIMPLE-PROJECT"))
 
 ;; transform.lisp
 (docs:define-docs
- (function pathname-type->type
-   "Returns a keyword for the given pathname-type, if it is known.
+  (function pathname-type->type
+    "Returns a keyword for the given pathname-type, if it is known.
 
 If ERRORP is non-NIL and no type can be found, an error is signalled.
 
@@ -561,8 +577,8 @@ are removed.
 See COMPILE-SOURCE
 See DEFINE-SOURCE-COMPILER")
 
- (function compile-source
-   "Compiles the source to a usable format, interpreting it as the given type.
+  (function compile-source
+    "Compiles the source to a usable format, interpreting it as the given type.
 
 The following argument combinations have specifically defined
 behaviour:
@@ -584,8 +600,8 @@ source type to handle the translation appropriately.
 See PATHNAME-TYPE->TYPE
 See DEFINE-SOURCE-COMPILER")
 
- (function define-source-compiler
-   "Defines a new source compiler variant.
+  (function define-source-compiler
+    "Defines a new source compiler variant.
 
 This is a shorthand that sets the PATHNAME-TYPE->TYPE association and
 defines a new method on COMPILE-SOURCE to handle the conversion.
@@ -666,8 +682,8 @@ Evaluates RESULT last and returns its value.
 
 See MAP-DIRECTORY-TREE")
   
- (function find-files
-   "Find all files in the directory tree that match one of the patterns.
+  (function find-files
+    "Find all files in the directory tree that match one of the patterns.
 
 The patterns should be regular expressions suitable for CL-PPCRE. They
 are matched against the file-namestrings of the files in the directory
@@ -675,17 +691,17 @@ tree.
 
 See DO-DIRECTORY-TREE")
 
- (function read-file
-   "Reads the given file to a string and returns it.")
+  (function read-file
+    "Reads the given file to a string and returns it.")
 
- (function definition-id
-   "Returns a string representing a unique ID for the given definition.
+  (function definition-id
+    "Returns a string representing a unique ID for the given definition.
 
 This is useful for creating links and anchors for definitions in a
 document.")
 
- (function definition-order
-   "Returns a number for the given definition, used for sorting.
+  (function definition-order
+    "Returns a number for the given definition, used for sorting.
 
 The higher the number, the earlier the definition should appear in the
 sorting.
@@ -716,8 +732,8 @@ By default, the following sorting is applied:
 
 See SORT-DEFINITIONS")
 
- (function sort-definitions
-   "Sorts the list of definitions into a natural order.
+  (function sort-definitions
+    "Sorts the list of definitions into a natural order.
 
 Definitions of different type are sorted by DEFINITION-ORDER.
 Definitions of the same type are sorted by STRING< using
@@ -727,8 +743,8 @@ The sort is performed stably.
 
 See DEFINITION-ORDER")
 
- (function definition-importance
-   "Returns a number for the given definition, used to determine if one definition should receive precedence over another.
+  (function definition-importance
+    "Returns a number for the given definition, used to determine if one definition should receive precedence over another.
 
 By default, the following sorting is applied:
 
@@ -740,31 +756,31 @@ By default, the following sorting is applied:
 
 See PREFERRED-DEFINITION")
 
- (function preferred-definition
-   "Returns the list sorted such that the most important, or preferred definitions, come first.
+  (function preferred-definition
+    "Returns the list sorted such that the most important, or preferred definitions, come first.
 
 See DEFINITION-IMPORTANCE")
 
- (function url-encode
-   "Performs percent, or url-encoding of the string.")
+  (function url-encode
+    "Performs percent, or url-encoding of the string.")
 
- (function ensure-package-definition
-   "Turns the given thing into a DEFINITIONS:PACKAGE.
-
-If the thing cannot be coerced, an error is signalled.")
-
- (function ensure-package
-   "Turns the given thing into a CL:PACKAGE.
+  (function ensure-package-definition
+    "Turns the given thing into a DEFINITIONS:PACKAGE.
 
 If the thing cannot be coerced, an error is signalled.")
 
- (function skip-to-source-form
-   "Continues reading from the stream until a valid lisp source form is encountered.
+  (function ensure-package
+    "Turns the given thing into a CL:PACKAGE.
+
+If the thing cannot be coerced, an error is signalled.")
+
+  (function skip-to-source-form
+    "Continues reading from the stream until a valid lisp source form is encountered.
 
 This skips both whitespace and comments.")
 
- (function absolute-source-location
-   "Translates the given Definitions source-location into an absolute one.
+  (function absolute-source-location
+    "Translates the given Definitions source-location into an absolute one.
 
 This will read the source file to determine the absolute row/line and
 col/char pointed at by the source-location. It returns another plist
@@ -780,16 +796,16 @@ or the file cannot be parsed.
 
 See SKIP-TO-SOURCE-FORM")
 
- (function extract-language
-   "Attempts to find a valid two or three-letter language code in the string.
+  (function extract-language
+    "Attempts to find a valid two or three-letter language code in the string.
 
 If a code can be found, two values are returned: the code itself and
 the list of names for the language the code points to.
 
 See LANGUAGE-CODES:NAMES")
 
- (function maybe-lang-docstring
-   "Attempts to find a docstring for the given definition in the given language.
+  (function maybe-lang-docstring
+    "Attempts to find a docstring for the given definition in the given language.
 
 If the multilang-documentation system is loaded, then this consults
 MULTILANG-DOCUMENTATION:DOCUMENTATION using the DEFINITIONS:OBJECT and T as arguments, and alternatively the DEFINITIONS:DESIGNATOR and
@@ -800,8 +816,8 @@ DEFINITIONS:DOCUMENTATION.
 See MULTILANG-DOCUMENTATION:DOCUMENTATION
 See DEFINITIONS:DOCUMENTATION")
 
- (function ensure-stream
-   "Attempts to coerce the given designator to a stream object.
+  (function ensure-stream
+    "Attempts to coerce the given designator to a stream object.
 
 The following are handled:
 
@@ -814,8 +830,8 @@ The following are handled:
 See WITH-STREAM
 See STREAM-DESIGNATOR")
 
- (function finish-stream
-   "Returns the stream's \"value\"
+  (function finish-stream
+    "Returns the stream's \"value\"
 
 The following is returned:
 
@@ -827,8 +843,8 @@ The following is returned:
 See WITH-STREAM
 See STREAM-DESIGNATOR")
 
- (function with-stream
-   "Handles stream opening and closing, returning a useful value.
+  (function with-stream
+    "Handles stream opening and closing, returning a useful value.
 
 Essentially this calls ENSURE-STREAM on the designator and the args.
 Upon unwinding, CLOSE is called on the stream. On successful exit of
@@ -837,15 +853,15 @@ the body, STREAM-VALUE is returned.
 See ENSURE-STREAM
 See STREAM-VALUE")
 
- (type stream-designator
-   "A type representing all possible values to be used with ENSURE-STREAM.
+  (type stream-designator
+    "A type representing all possible values to be used with ENSURE-STREAM.
 
 See ENSURE-STREAM"))
 
 ;; xref.lisp
 (docs:define-docs
- (function xref-resolver
-   "Accessor to the cross-reference resolver of the given name.
+  (function xref-resolver
+    "Accessor to the cross-reference resolver of the given name.
 
 The resolver should be a function of one argument, a definition
 instance. It should return either NIL, or a URL string.
@@ -860,13 +876,13 @@ See REMOVE-XREF-RESOLVER
 See DEFINE-XREF-RESOLVER
 See RESOLVE-XREF")
 
- (function remove-xref-resolver
-   "Removes the cross-reference resolver of the given name.
+  (function remove-xref-resolver
+    "Removes the cross-reference resolver of the given name.
 
 See XREF-RESOLVER")
 
- (function define-xref-resolver
-   "Defines a new cross-reference resolver function.
+  (function define-xref-resolver
+    "Defines a new cross-reference resolver function.
 
 The lambda-list should accept one required argument, the definition
 instance to find a cross-reference for.
@@ -875,26 +891,26 @@ See XREF-RESOLVER
 See REMOVE-XREF-RESOLVER
 See RESOLVE-XREF")
 
- (function resolve-xref
-   "Calls each cross-reference resolver with the definition until one returns a valid reference.
+  (function resolve-xref
+    "Calls each cross-reference resolver with the definition until one returns a valid reference.
 
 See XREF-RESOLVER
 See DEFINE-XREF-RESOLVER")
 
- (function parse-lisp-token
-   "Parses a lisp symbol token, meaning it will read from string by properly interpreting backslashes and vertical bar escapes.")
+  (function parse-lisp-token
+    "Parses a lisp symbol token, meaning it will read from string by properly interpreting backslashes and vertical bar escapes.")
 
- (function parse-symbol
-   "Parses a symbol from the given string identifier.
+  (function parse-symbol
+    "Parses a symbol from the given string identifier.
 
 Explicit packages, keywords, and package-less symbols are handled.
 
 Returns two values, the symbol's name and its package as strings. 
 If the symbol is a gensym, the returned package name is :GENSYM, 
 rather than an actual package name string.")
- 
- (function find-definitions-for-identifier
-   "Attempts to find all definitions for the given symbol identifier.
+  
+  (function find-definitions-for-identifier
+    "Attempts to find all definitions for the given symbol identifier.
 
 The symbol is given in two parts -- as its name, and package.
 The list of returned definitions may optionally be filtered by the
@@ -907,8 +923,8 @@ See *PAGE*
 See PACKAGES
 See DEFINITIONS:FIND-DEFINITIONS")
 
- (function xref
-   "Attempts to find a cross-reference URL for the given thing.
+  (function xref
+    "Attempts to find a cross-reference URL for the given thing.
 
 The following default cases are handled:
 

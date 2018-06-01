@@ -10,6 +10,7 @@
   (:use #:cl #:org.shirakumo.staple.recording)
   ;; code-format.lisp
   (:export
+   #:markup-code-snippets-ignoring-errors
    #:markup-code-snippets
    #:skip-tag
    #:markup-code-block
@@ -29,6 +30,7 @@
    #:images
    #:subsystems
    #:page-type
+   #:template
    #:output-directory
    #:no-known-output-directory
    #:system)

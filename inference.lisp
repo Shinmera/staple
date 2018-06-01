@@ -57,12 +57,8 @@
 
 (defmethod compile-source (document (page simple-page))
   (let ((*package* (first (packages page))))
-    (handler-bind ((error (lambda (e)
-                            (when (find-restart 'skip-tag)
-                              (format T "~&WARN: Error during code markup: ~a" e)
-                              (invoke-restart 'skip-tag)))))
-      (markup-code-snippets
-       (compile-source document T)))))
+    (markup-code-snippets-ignoring-errors
+     (compile-source document T))))
 
 (defmethod template-data append ((page simple-page))
   (list :documentation (when (document page)
@@ -88,6 +84,9 @@
 (defmethod page-type ((system asdf:system))
   'simple-page)
 
+(defmethod template ((system asdf:system))
+  *default-template*)
+
 (defmethod output-directory ((system asdf:system))
   (merge-pathnames "doc/" (asdf:system-source-directory system)))
 
@@ -96,28 +95,31 @@
   (:report (lambda (c s) (format s "Cannot infer output directory for ~a."
                                  (asdf:component-name (system c))))))
 
-;; FIXME: subsystems
-(defmethod infer-project ((system asdf:system) &key output-directory images documents page-type template)
+(defmethod infer-project ((system asdf:system) &key output-directory images documents page-type template packages subsystems)
   (load-extension system)
   (let* ((output-directory (or output-directory (output-directory system)))
          (documents (or documents (documents system) '(NIL)))
          (images (or images (images system)))
          (page-type (or page-type (page-type system)))
-         (input (or template *default-template*)))
+         (input (or template (template system)))
+         (packages (or packages (packages system)))
+         (subsystems (or subsystems (subsystems system))))
     (with-value-restart output-directory
       (unless (and (pathnamep output-directory)
                    (pathname-utils:directory-p output-directory))
         (error 'no-known-output-directory :system system)))
-    (let ((pages (loop for document in documents
-                       collect (make-instance page-type
-                                              :input input
-                                              :output output-directory
-                                              :system system
-                                              :document document
-                                              :images images))))
-      (loop for image in images
-            do (push (make-instance 'static-page
-                                    :input image
-                                    :output (pathname-utils:file-in output-directory image))
-                     pages))
+    (let ((pages ()))
+      (flet ((p (page) (push page pages)))
+        (dolist (document documents)
+          (p (make-instance page-type
+                            :input input
+                            :output output-directory
+                            :system system
+                            :document document
+                            :images images
+                            :packages packages)))
+        (dolist (image images)
+          (p (make-instance 'static-page
+                            :input image
+                            :output (pathname-utils:file-in output-directory image)))))
       (make-instance 'simple-project :pages pages))))

@@ -6,6 +6,13 @@
 
 (in-package #:org.shirakumo.staple)
 
+(defun markup-code-snippets-ignoring-errors (html)
+  (handler-bind ((error (lambda (e)
+                          (when (find-restart 'skip-tag)
+                            (format *debug-io* "~&WARN: Error during code markup: ~a" e)
+                            (invoke-restart 'skip-tag)))))
+    (markup-code-snippets html)))
+
 (defun markup-code-snippets (html)
   (let ((root (etypecase html
                 (plump:node html)
