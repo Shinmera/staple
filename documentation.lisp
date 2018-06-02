@@ -861,7 +861,8 @@ See LANGUAGE-CODES:NAMES")
     "Attempts to find a docstring for the given definition in the given language.
 
 If the multilang-documentation system is loaded, then this consults
-MULTILANG-DOCUMENTATION:DOCUMENTATION using the DEFINITIONS:OBJECT and T as arguments, and alternatively the DEFINITIONS:DESIGNATOR and
+MULTILANG-DOCUMENTATION:DOCUMENTATION using the DEFINITIONS:OBJECT
+and T as arguments, and alternatively the DEFINITIONS:DESIGNATOR and
 DEFINITIONS:TYPE. If either the system is not loaded, or it fails to
 return anything for both queries, it falls back to just returning the
 DEFINITIONS:DOCUMENTATION.
@@ -922,6 +923,8 @@ See ENSURE-STREAM")
 
 By default the following cases are handled:
 
+  To:      From:         Explanation:
+  --------------------------------------------------------------------
   PATHNAME PATHNAME  --- Computes the relative pathname.
       PAGE        T  --- Delegates using OUTPUT.
          T     PAGE  --- Delegates using OUTPUT.

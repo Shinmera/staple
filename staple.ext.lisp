@@ -5,6 +5,9 @@
 (defmethod staple:packages ((system (eql (asdf:find-system :staple-markdown))))
   (list))
 
+(defmethod staple:packages ((system (eql (asdf:find-system :staple-package-recording))))
+  (list (find-package :staple-package-recording)))
+
 (defmethod staple:packages ((system (eql (asdf:find-system :staple-server))))
   (list (find-package :staple-server)))
 

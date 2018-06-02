@@ -135,7 +135,7 @@ This will parse the docstring as Markdown and cross-reference all code snippets.
 #### Changing Document Formatting
 
     (defmethod staple:compile-source ((document pathname) (page my-page))
-      (compile-source document :text))
+      (staple:compile-source document :text))
 
 This will force the document to be parsed as raw text.
 
