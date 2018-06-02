@@ -66,8 +66,12 @@
         (lquery:$ document "body" (append (lquery:$ (initialize (data-file "nav.ctml")) "nav")))
         (lquery:$ document (write-to-file file))))))
 
-(defun clear-cache ()
-  (uiop:delete-directory-tree *tmpdir* :validate (lambda (p) (uiop:subpathp p *tmpdir*))))
+(defun clear-cache (&optional system)
+  (uiop:delete-directory-tree
+   (if system
+       (system-path system)
+       *tmpdir*)
+   :validate (lambda (p) (uiop:subpathp p *tmpdir*))))
 
 (defclass acceptor (hunchentoot:acceptor)
   ()
@@ -120,14 +124,23 @@
                  :systems (all-systems))
    NIL))
 
+(defmacro with-error-unwind (form &body body)
+  (let ((completed (gensym "COMPLETED")))
+    `(let ((,completed NIL))
+       (unwind-protect (multiple-value-prog1 ,form
+                         (setf ,completed T))
+         (unless ,completed
+           ,@body)))))
+
 (defun serve-system-docs (system path)
   (let* ((dir (system-path system))
          (path (if (string= "" path) "" (subseq path 1)))
          (path (if (string= "" path) "index.html" path))
          (path (merge-pathnames dir path)))
     (when (or* (not (uiop:directory-exists-p dir))
-               (hunchentoot:get-parameter "rebuild")) 
-      (cache-system system dir))
+               (hunchentoot:get-parameter "rebuild"))
+      (with-error-unwind (cache-system system dir)
+        (clear-cache system)))
     (hunchentoot:handle-static-file path)))
 
 (defun serve-source (path)
