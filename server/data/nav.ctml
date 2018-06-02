@@ -4,7 +4,7 @@
   <style>
     #staple-server-nav{
         position: fixed;
-        top: 0; left: 0;
+        bottom: 0; left: 0;
         background: #0055AA;
         display: flex;
         align-items: stretch;
@@ -16,7 +16,7 @@
         content: "";
         position: absolute;
         right: -30px;
-        border-bottom: 30px solid transparent;
+        border-top: 30px solid transparent;
         border-left: 30px solid #0055AA;
     }
     #staple-server-nav a{
