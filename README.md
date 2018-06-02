@@ -161,3 +161,6 @@ Due to the `append` method-combination and the way `getf` works, this will overr
       (format *debug-io* "~& Generated ~a.~%" page))
 
 This adds a method that is called once the generation has completed, and simply prints a status message saying as much. You can use all the usual tricks of the standard method combination to customise things to your heart's content.
+
+### Custom Templates
+Writing a custom template is mostly a question of writing an HTML document that you want, and then filling in the necessary Clip attributes to add the data in the right spots. Figuring this out should be pretty trivial if you have a look at the existing [default template](https://github.com/Shinmera/staple/tree/master/default/default.ctml) and the [Clip documentation](https://shinmera.github.io/clip)
