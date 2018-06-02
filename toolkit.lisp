@@ -211,7 +211,7 @@
         (ignore-errors
          (with-open-file (stream file :direction :input)
            (loop with row = 1 with col = 0
-                 while (< (file-position stream) offset)
+                 repeat offset
                  for char = (read-char stream)
                  do (if (char= char #\Linefeed)
                         (setf row (1+ row) col 0)
@@ -290,3 +290,17 @@
           do (case char
                (#\- (write-char #\Space out))
                (T (write-char char out))))))
+
+(defun extract-author-name (author)
+  (or (cl-ppcre:register-groups-bind (name) ("([^<]+)" author)
+        (string-trim " " name))
+      author))
+
+(defun extract-author-email (author)
+  (cl-ppcre:register-groups-bind (email) ("(?:[^<]+)<(.*)>" author)
+    email))
+
+(defgeneric relative-path (to from))
+
+(defmethod relative-path ((to pathname) (from pathname))
+  (pathname-utils:relative-pathname from to))

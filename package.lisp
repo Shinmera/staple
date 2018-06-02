@@ -59,6 +59,7 @@
    #:system)
   ;; project.lisp
   (:export
+   #:*project*
    #:*load-prohibited-systems*
    #:project
    #:pages
@@ -90,7 +91,8 @@
    #:absolute-source-location
    #:maybe-lang-docstring
    #:with-stream
-   #:stream-designator)
+   #:stream-designator
+   #:relative-path)
   ;; xref.lisp
   (:export
    #:xref-resolver

@@ -11,10 +11,12 @@
 (defclass page ()
   ((title :initarg :title :accessor title)
    (language :initarg :language :initform "en" :accessor language)
-   (output :initarg :output :accessor output))
+   (output :initarg :output :accessor output)
+   (project :initarg :project :accessor project))
   (:default-initargs
    :output NIL
-   :title NIL))
+   :title NIL
+   :project (error "PROJECT required.")))
 
 (defmethod initialize-instance :after ((page page) &key output language)
   (unless language
@@ -35,7 +37,18 @@
   (with-value-restart (output page)
     (unless (typep (output page) 'stream-designator)
       (error "The output file for ~a is not a stream designator."
-             page))))
+             page))
+    (when (typep (output page) 'pathname)
+      (ensure-directories-exist (output page)))))
+
+(defmethod relative-path ((to page) (project (eql T)))
+  (relative-path to (project to)))
+
+(defmethod relative-path ((to page) from)
+  (relative-path (output to) from))
+
+(defmethod relative-path (to (from page))
+  (relative-path to (output from)))
 
 (defclass input-page (page)
   ((input :initarg :input :accessor input))
@@ -98,6 +111,7 @@
         :language (language page)
         :input (input page)
         :output (output page)
+        :project (project page)
         :page page))
 
 (defmethod generate ((page templated-page) &key (if-exists :error) (compact T))
@@ -114,9 +128,7 @@
         (plump:serialize node out)))))
 
 (defclass definitions-index-page (templated-page)
-  ((packages :initform NIL :accessor packages))
-  (:default-initargs
-   :title "Index"))
+  ((packages :initform NIL :accessor packages)))
 
 (defmethod shared-initialize :after ((page definitions-index-page) slots &key packages)
   (when packages (setf (packages page) packages)))
@@ -156,11 +168,13 @@
     (when source (resolve-source-link source page))))
 
 (defmethod resolve-source-link (source (page definitions-index-page))
-  (cond ((pathname-utils:subpath-p (truename (getf source :file))
-                                   (truename (uiop:pathname-directory-pathname (output page))))
+  (cond ((pathname-utils:subpath-p
+          (truename (getf source :file))
+          (truename (output (project page))))
          (format NIL "~a~@[#~a:~a~]"
-                 (enough-namestring (truename (getf source :file))
-                                    (truename (uiop:pathname-directory-pathname (output page))))
+                 (pathname-utils:relative-pathname
+                  (truename (getf source :file))
+                  (truename (uiop:pathname-directory-pathname (output page))))
                  (getf source :row) (getf source :col)))
         (T
          (format NIL "file://~a~@[#~a:~a~]"

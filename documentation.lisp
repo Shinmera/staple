@@ -228,9 +228,11 @@ If the output is a pathname, the behaviour on existing output may be
 specified through the :IF-EXISTS argument to GENERATE, by default set
 to :ERROR.
 
+See PROJECT
 See TITLE
 See LANGUAGE
-See OUTPTU")
+See OUTPUT
+See GENERATE")
 
   (function title
     "Accessor to the title of a page.
@@ -258,6 +260,11 @@ The output should be a STREAM-DESIGNATOR, meaning that it can be
 resolved to a stream via ENSURE-STREAM. Typically it will be a
 pathname pointing to the file into which the page's contents should be
 stored.
+
+See PAGE")
+
+  (function project
+    "Accessor to the page's project.
 
 See PAGE")
 
@@ -441,6 +448,12 @@ See DEFINITIONS-INDEX-PAGE"))
 
 ;; project.lisp
 (docs:define-docs
+  (variable *project*
+    "Bound to the active project instance while a project is being generated.
+
+See GENERATE
+See PROJECT")
+  
   (variable *load-prohibited-systems*
     "A list of ASDF:SYSTEM instances that should not be loaded for extensions.
 
@@ -456,6 +469,11 @@ A project encapsulates all documentation for a library or program.
 Typically this is expressed by a number of PAGEs that will create the
 expected documentation files when the project is GENERATEd.
 
+The OUTPUT of a project represents the root directory of all output
+data. It is used to figure out relative paths between pages and
+resources.
+
+See OUTPUT
 See PAGE
 See PAGES
 See GENERATE")
@@ -544,7 +562,8 @@ INFER-PROJECT proceeds as follows:
 9. Each entry in the subsystems list may either be an ASDF system, or a
    list of an ASDF system and the same keyword arguments as above. The
    properties are inferred as follows:
-9.1 If no :OUTPUT-DIRECTORY is given, it is found via OUTPUT-DIRECTORY.
+9.1 If no :OUTPUT-DIRECTORY is given, a subdirectory by the name of the
+    subsystem within the primary system's output directory is used.
 9.2 If no :DOCUMENTS are given, they are found via DOCUMENTS.
 9.3 If no :IMAGES are given, they are found via IMAGES, or the primary
     system's images are used.
@@ -553,23 +572,20 @@ INFER-PROJECT proceeds as follows:
 9.5 If no :TEMPLATE is given, it is found via TEMPLATE, or the primary
     system's template is used.
 9.6 If no :PACKAGES are given, they are found via PACKAGES.
-9.7 If the output directory is the same as the primary system's, or is
-    NIL, a subdirectory of the same name as the subsystem within the
-    primary system's output directory is used.
-9.8 If the subsystem's source directory is the same as the primary
+9.7 If the subsystem's source directory is the same as the primary
     system's, and the list of documents are the same, the subsystem's
     document list is emptied to avoid the subsystem using documents
     intended for the primary system.
-9.9 All documents for the subsystem are removed from the documents list
+9.8 All documents for the subsystem are removed from the documents list
     for the primary system.
-9.10 For each document for the subsystem, a page of page-type is
-     constructed, passing the template as :INPUT, the output directory
-     as :OUTPUT, the system as :SYSTEM, the document as :DOCUMENT, the
-     list of images as :IMAGES, and the list of packages as :PACKAGES.
-9.11. If the documents list is empty, a single page of page-type is
+9.9 For each document for the subsystem, a page of page-type is
+    constructed, passing the template as :INPUT, the output directory
+    as :OUTPUT, the system as :SYSTEM, the document as :DOCUMENT, the
+    list of images as :IMAGES, and the list of packages as :PACKAGES.
+9.10. If the documents list is empty, a single page of page-type is
       constructed with the same arguments as before, except the
       :DOCUMENT being NIL.
-9.12. For each pathname in the images list a page of type STATIC-PAGE is
+9.11. For each pathname in the images list a page of type STATIC-PAGE is
       constructed that will copy the image file into the
       OUTPUT-DIRECTORY while preserving pathname name and type.
 10. For each pathname in the documents list a page of page-type is
@@ -899,7 +915,24 @@ See ENSURE-STREAM")
     "Returns T if PREFIX is a whole prefix of STRING.")
 
   (function titleize
-    "Attempts to turn the given string into one more suitable as a title."))
+    "Attempts to turn the given string into one more suitable as a title.")
+
+  (function relative-path
+    "Return the relative path from the second argument to the first.
+
+By default the following cases are handled:
+
+  PATHNAME PATHNAME  --- Computes the relative pathname.
+      PAGE        T  --- Delegates using OUTPUT.
+         T     PAGE  --- Delegates using OUTPUT.
+   PROJECT        T  --- Delegates using OUTPUT.
+         T  PROJECT  --- Delegates using OUTPUT.
+      PAGE  (EQL T)  --- Delegates using PROJECT.
+
+See PATHNAME-UTILS:RELATIVE-PATH
+See OUTPUT
+See PROJECT
+See PAGE"))
 
 ;; xref.lisp
 (docs:define-docs

@@ -55,8 +55,9 @@
 (defmethod definition-wanted-p ((definition definitions:declaration) (project simple-page))
   NIL)
 
-(defmethod compile-source (document (page simple-page))
-  (let ((*package* (first (packages page))))
+(defmethod compile-source ((document pathname) (page simple-page))
+  (let ((*package* (or (first (packages page))
+                       (find-package "CL-USER"))))
     (markup-code-snippets-ignoring-errors
      (compile-source document T))))
 
@@ -114,34 +115,30 @@
       (unless (and (pathnamep output-directory)
                    (pathname-utils:directory-p output-directory))
         (error 'no-known-output-directory :system system)))
-    (let ((pages ()))
-      (flet ((p (page) (push page pages)))
+    (let ((project (make-instance 'simple-project :output output-directory)))
+      (flet ((p (page) (push page (pages project))))
         ;; Do subsystems first to filter documents list.
         (dolist (spec subsystems)
           (destructuring-bind (subsystem . args) (if (listp spec) spec (list spec))
-            (let ((sub-directory (or (getf args :output-directory) (output-directory system)))
+            (let ((sub-directory (or (getf args :output-directory)
+                                     (pathname-utils:subdirectory output-directory (asdf:component-name subsystem))))
                   (subdocuments (or (getf args :documents) (documents subsystem) '(NIL)))
                   (images (or (getf args :images) (images subsystem) images))
                   (page-type (or (getf args :page-type) (page-type subsystem) page-type))
                   (template (or (getf args :template) (template subsystem) template))
                   (packages (or (getf args :packages) (packages subsystem))))
-              ;; Standardise output-directory
-              (when (or (null sub-directory)
-                        (equal sub-directory output-directory))
-                (setf sub-directory (pathname-utils:subdirectory output-directory (asdf:component-name subsystem))))
               ;; If we have the same source directory, and the documents are
               ;; automatically discovered, we'll set them to NIL here to avoid
               ;; documents intended for the primary system from being used for
               ;; a subsystem.
-              (when (and (equal (asdf:system-source-directory system)
-                                (asdf:system-source-directory subsystem))
-                         (equal documents subdocuments))
+              (when (subsetp documents subdocuments)
                 (setf subdocuments '(NIL)))
               ;; Otherwise, remove all documents from the primary system.
               (setf documents (set-difference documents subdocuments :test #'equal))
               ;; And add pages for the subsystem.
               (dolist (document subdocuments)
                 (p (make-instance page-type
+                                  :project project
                                   :input template
                                   :output sub-directory
                                   :system subsystem
@@ -151,11 +148,13 @@
               ;; Images!
               (dolist (image images)
                 (p (make-instance 'static-page
+                                  :project project
                                   :input image
                                   :output (pathname-utils:file-in sub-directory image)))))))
         ;; Pages for the primary documents.
         (dolist (document (or documents '(NIL)))
           (p (make-instance page-type
+                            :project project
                             :input template
                             :output output-directory
                             :system system
@@ -165,6 +164,7 @@
         ;; Images and stuff.
         (dolist (image images)
           (p (make-instance 'static-page
+                            :project project
                             :input image
                             :output (pathname-utils:file-in output-directory image)))))
-      (make-instance 'simple-project :pages pages))))
+      project)))

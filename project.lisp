@@ -11,7 +11,7 @@
 (defvar *loaded-extensions*)
 
 (defclass project ()
-  ())
+  ((output :initarg :output :accessor output)))
 
 (defgeneric pages (project))
 
@@ -22,6 +22,12 @@
         (with-simple-restart (continue "Ignore ~a" page)
           (push (apply #'generate page args) results))))
     (values project (nreverse results))))
+
+(defmethod relative-path ((to project) from)
+  (relative-path (output to) from))
+
+(defmethod relative-path (to (from project))
+  (relative-path (output from) to))
 
 (defclass simple-project (project)
   ((pages :initarg :pages :accessor pages))

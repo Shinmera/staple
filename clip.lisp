@@ -40,12 +40,21 @@
     (long-description (asdf:system-long-description system))
     (source-directory (asdf:system-source-directory system))
     (definition-pathname (asdf:system-source-file system))
+    (defsystem-depends-on (asdf:system-defsystem-depends-on system))
+    (depends-on (asdf:system-depends-on system))
+    (weakly-depends-on (asdf:system-weakly-depends-on system))
+    (dependencies (append (asdf:system-defsystem-depends-on system)
+                          (asdf:system-depends-on system)
+                          (asdf:system-weakly-depends-on system)))
     (license-link
-     (let ((license (first (find-files (uiop:pathname-directory-pathname (output *page*))
-                                       '("LICENCE" "LICENSE") :max-depth 1))))
-       (if license
-           (resolve-source-link (list :file license) *page*)
-           (format NIL "https://tldrlegal.com/search?q=~a" (asdf:system-license system)))))
+     (let ((in-output (find-files (output (project *page*)) '("LICENCE" "LICENSE") :max-depth 1))
+           (in-project (find-files (asdf:system-source-directory system) '("LICENCE" "LICENSE"))))
+       (cond (in-output
+              (relative-path (first in-output) *page*))
+             (in-project
+              (resolve-source-link (list :file (first in-project)) *page*))
+             (T
+              (format NIL "https://tldrlegal.com/search?q=~a" (asdf:system-license system))))))
     (T (call-next-method))))
 
 (defmethod clip:clip ((package package) field)

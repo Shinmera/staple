@@ -8,7 +8,6 @@ The most trivial manner in which to use staple is to simply run it and let its i
 
 For best results you should *not* load your system before you load Staple, so that Staple can record the packages the system defines as it is being loaded. The documentation should land in a subdirectory called `doc` within the system's source directory. For ad-hoc usage you can change some of the behaviour through keyword arguments:
 
-FIXME: subsystems
 * `:output-directory` The base directory in which documentation files are stored.
 * `:images` A list of paths to image files that might be used in the documentation. The first image is used as the project's logo.
 * `:documents` A list of documents for which to generate documentation pages. This usually refers to things like `README.md` and such. Typically you would only have multiple of these if you have translated the documentation into different languages. In that case, Staple will create an index page for each language individually.
@@ -101,9 +100,9 @@ Following are a few examples for things one might frequently want to change abou
 
 #### Changing Which Definitions are Shown
 
-    (defmethod staple:definition-wanted-p ((_ definitions:method) (_ my-page)) T)
-    (defmethod staple:definition-wanted-p ((_ definitions:compiler-macro) (_ my-page)) T)
-    (defmethod staple:definition-wanted-p ((_ definitions:macro) (_ my-page)) NIL)
+    (defmethod staple:definition-wanted-p ((_ definitions:method) (__ my-page)) T)
+    (defmethod staple:definition-wanted-p ((_ definitions:compiler-macro) (__ my-page)) T)
+    (defmethod staple:definition-wanted-p ((_ definitions:macro) (__ my-page)) NIL)
 
 This will show methods and compiler-macros, but hide macros. By default all definitions for external symbols are shown except for methods, packages, compiler-macros, and declarations.
 
@@ -135,7 +134,7 @@ This will parse the docstring as Markdown and cross-reference all code snippets.
 
 #### Changing Document Formatting
 
-    (defmethod staple:compile-source (document (page my-page))
+    (defmethod staple:compile-source ((document pathname) (page my-page))
       (compile-source document :text))
 
 This will force the document to be parsed as raw text.
