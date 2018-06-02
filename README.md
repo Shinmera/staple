@@ -167,4 +167,4 @@ Writing a custom template is mostly a question of writing an HTML document that 
 ## Fixing GitHub
 By default Staple outputs the documentation into the source tree of your project. This will cause GitHub to index the HTML file and, depending on circumstances, think that your project is now primarily an HTML project. To fix this issue, you should mark the documentation as ignored for GitHub's indexer. You can do this by putting the following into a `.gitattributes` file at the repository root:
 
-   doc/ linguist-vendored
+    doc/ linguist-vendored
