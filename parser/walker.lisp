@@ -49,7 +49,10 @@
                     (parameters 'cst:ordinary-optional-parameter-group)
                     (parameter  'cst:ordinary-rest-parameter-group)
                     (parameters 'cst:key-parameter-group))
-            )))
+            (when-let ((group (find-if (of-type 'cst:specialized-required-parameter-group) (cst:children cst))))
+              (loop for parameter in (cst:parameters group)
+                    for specializer = (cst::specializer parameter)
+                    collect `(:type ,(cst:source specializer) ,(cst:raw specializer)))))))
 
 (defmethod walk ((cst cst:simple-variable) environment)
   (list (walk (cst:name cst) environment)))

@@ -43,8 +43,8 @@
 ;; handle inference of class types.
 (define-walk-compound-form defmethod (cst environment)
   (cst:db source (operator name . args) cst
-    (let ((qualifiers (loop while (and item (cst:atom item))
-                            for item = (cst:first args)
+    (let ((qualifiers (loop for item = (cst:first args)
+                            while (and (cst:atom item) (not (cst:null item)))
                             collect item
                             do (setf args (cst:rest args))))
           (lambda-list (cst:first args))
@@ -60,6 +60,7 @@
                    (lambda ,source
                      ,variables
                      (function ,(cst:source name) ,(cst:raw name))
+                     ,@types
                      ,@(walk-implicit-progn forms environment))))))))
 
 ;; Try handling the distinction between setf functions and setf-expanders.
