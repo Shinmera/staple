@@ -7,6 +7,12 @@
 (in-package #:org.shirakumo.staple.server)
 
 (docs:define-docs
+  (varaible *server-build*
+    "Set to T around a generation that the server performs.
+
+Used to make sure that the xref resolver of the server doesn't
+interfere with generations that aren't for the server.")
+  
   (variable *acceptor*
     "Holds the acceptor instance while the server is started.
 

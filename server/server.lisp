@@ -6,6 +6,7 @@
 
 (in-package #:org.shirakumo.staple.server)
 
+(defvar *server-build* NIL)
 (defvar *acceptor* NIL)
 (defvar *tmpdir* (merge-pathnames "staple-server/" (uiop:temporary-directory)))
 
@@ -47,24 +48,25 @@
   (unless dir (setf dir (system-path system)))
   (format T "~& > Generating cache for ~a." (asdf:component-name system))
   (ensure-directories-exist dir)
-  (staple:generate system :if-exists :supersede
-                          :output-directory dir)
-  ;; Modify HTML files to work better in the server environment.
-  (staple::do-directory-tree (file dir)
-    (when (find (pathname-type file) '("html" "htm" "xhtml") :test #'string-equal)
-      (let ((document (plump:parse file)))
-        (lquery:$ document "a[href^=file://]"
-                  (each (lambda (el)
-                          (setf (plump:attribute el "href")
-                                (format NIL "/source~a" (subseq (plump:attribute el "href")
-                                                              (length "file://")))))))
-        (lquery:$ document "[src^=file://]"
-                  (each (lambda (el)
-                          (setf (plump:attribute el "src")
-                                (format NIL "/file~a" (subseq (plump:attribute el "src")
-                                                              (length "file://")))))))
-        (lquery:$ document "body" (append (lquery:$ (initialize (data-file "nav.ctml")) "nav")))
-        (lquery:$ document (write-to-file file))))))
+  (let ((*server-build* T))
+    (staple:generate system :if-exists :supersede
+                            :output-directory dir)
+    ;; Modify HTML files to work better in the server environment.
+    (staple::do-directory-tree (file dir)
+      (when (find (pathname-type file) '("html" "htm" "xhtml") :test #'string-equal)
+        (let ((document (plump:parse file)))
+          (lquery:$ document "a[href^=file://]"
+            (each (lambda (el)
+                    (setf (plump:attribute el "href")
+                          (format NIL "/source~a" (subseq (plump:attribute el "href")
+                                                          (length "file://")))))))
+          (lquery:$ document "[src^=file://]"
+            (each (lambda (el)
+                    (setf (plump:attribute el "src")
+                          (format NIL "/file~a" (subseq (plump:attribute el "src")
+                                                        (length "file://")))))))
+          (lquery:$ document "body" (append (lquery:$ (initialize (data-file "nav.ctml")) "nav")))
+          (lquery:$ document (write-to-file file)))))))
 
 (defun clear-cache (&optional system)
   (uiop:delete-directory-tree
@@ -156,11 +158,12 @@
    NIL))
 
 (staple:define-xref-resolver server (definition)
-  (let ((sys (loop for sys in (all-systems)
-                   for packages = (staple:packages sys)
-                   do (when (find (definitions:package definition) packages)
-                        (return sys)))))
-    (when sys
-      (format NIL "/~a/#~a"
-              (staple:url-encode (asdf:component-name sys))
-              (staple:url-encode (staple:definition-id definition))))))
+  (when *server-build*
+    (let ((sys (loop for sys in (all-systems)
+                     for packages = (staple:packages sys)
+                     do (when (find (definitions:package definition) packages)
+                          (return sys)))))
+      (when sys
+        (format NIL "/~a/#~a"
+                (staple:url-encode (asdf:component-name sys))
+                (staple:url-encode (staple:definition-id definition)))))))
