@@ -42,7 +42,7 @@
           <c:when test="dependencies">
             <div class="row">
               <label for="dependencies">Dependencies:</label>
-              <ul id="dependencies" iterate="dependencies"><li lquery="(text *)"></li></ul>
+              <ul id="dependencies" iterate="dependencies"><li><a class="external" lquery="(text (asdf:component-name *)) (attr :href (asdf:system-homepage *))"></a></li></ul>
             </div>
           </c:when>
           <c:when test="author">
