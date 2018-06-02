@@ -8,7 +8,6 @@
 
 (defun markup-code-snippets-ignoring-errors (html)
   (handler-bind ((error (lambda (e)
-                          (invoke-debugger e)
                           (when (find-restart 'skip-tag)
                             (format *debug-io* "~&WARN: Error during code markup: ~a" e)
                             (invoke-restart 'skip-tag)))))
