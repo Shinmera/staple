@@ -130,7 +130,7 @@ Note that by default, if you set the `:homepage` property in your ASDF system de
         (staple:markup-code-snippets-ignoring-errors
          (staple:compile-source docstring :markdown))))
 
-This will parse the docstring as Markdown and cross-reference all code snippets.
+This will parse the docstring as Markdown and cross-reference all code snippets. Make sure to also load the `staple-markdown` system in your extension file.
 
 #### Changing Document Formatting
 
@@ -163,3 +163,8 @@ This adds a method that is called once the generation has completed, and simply 
 
 ### Custom Templates
 Writing a custom template is mostly a question of writing an HTML document that you want, and then filling in the necessary Clip attributes to add the data in the right spots. Figuring this out should be pretty trivial if you have a look at the existing [default template](https://github.com/Shinmera/staple/tree/master/default/default.ctml) and the [Clip documentation](https://shinmera.github.io/clip)
+
+## Fixing GitHub
+By default Staple outputs the documentation into the source tree of your project. This will cause GitHub to index the HTML file and, depending on circumstances, think that your project is now primarily an HTML project. To fix this issue, you should mark the documentation as ignored for GitHub's indexer. You can do this by putting the following into a `.gitattributes` file at the repository root:
+
+   doc/ linguist-vendored

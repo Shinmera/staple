@@ -76,7 +76,7 @@
 (defmethod images ((system asdf:system))
   (let ((source (asdf:system-source-directory system)))
     (when source
-      (find-files source *image-patterns*))))
+      (find-files source *image-patterns* :max-depth 1))))
 
 (defmethod subsystems ((system asdf:system))
   (let ((subsystems ()))

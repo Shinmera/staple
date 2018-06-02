@@ -92,7 +92,8 @@
    #:maybe-lang-docstring
    #:with-stream
    #:stream-designator
-   #:relative-path)
+   #:relative-path
+   #:load-system-quietly)
   ;; xref.lisp
   (:export
    #:xref-resolver

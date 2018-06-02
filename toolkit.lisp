@@ -304,3 +304,8 @@
 
 (defmethod relative-path ((to pathname) (from pathname))
   (pathname-utils:relative-pathname from to))
+
+(defun load-system-quietly (system)
+  (let ((*standard-output* (make-broadcast-stream)))
+    (handler-bind ((warning #'muffle-warning))
+      (asdf:load-system system))))

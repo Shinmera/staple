@@ -1,3 +1,4 @@
+(staple:load-system-quietly :staple-server)
 
 (defmethod staple:packages ((system (eql (asdf:find-system :staple))))
   (list (find-package :staple)))

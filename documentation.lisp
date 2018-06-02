@@ -350,7 +350,7 @@ a method to override keys that less-specific methods may have set.
 
 See TEMPLATED-PAGE")
 
-  (function definitions-index-page
+  (type definitions-index-page
     "Superclass for pages that include a definitions index.
 
 See PACKAGES
@@ -935,7 +935,14 @@ By default the following cases are handled:
 See PATHNAME-UTILS:RELATIVE-PATH
 See OUTPUT
 See PROJECT
-See PAGE"))
+See PAGE")
+
+  (function load-system-quietly
+    "Loads the given ASDF:SYSTEM quietly.
+
+This muffles warnings and suppresses *standard-output*.
+
+See ASDF:LOAD-SYSTEM"))
 
 ;; xref.lisp
 (docs:define-docs
