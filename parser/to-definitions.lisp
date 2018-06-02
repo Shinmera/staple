@@ -31,11 +31,11 @@
   (tie-to-source source
                  (definitions:find-definitions name :type 'definitions:variable)))
 
-(define-definition-resolver :type (source name)
+(define-definition-resolver type (source name)
   (tie-to-source source
                  (definitions:find-definitions name :type 'definitions:type)))
 
-(define-definition-resolver :function (source name)
+(define-definition-resolver function (source name)
   (tie-to-source source
                  (definitions:find-definitions name :type 'definitions:function)))
 

@@ -58,7 +58,8 @@
       (error "~@<Unknown tag: ~S.~@:>" tag/raw))))
 
 (define-walker-form (if test then . else) (cst)
-  (unless (cst:null (cst:rest else))
+  (unless (or (cst:null else)
+              (cst:null (cst:rest else)))
     (error "~@<IF only accepts one otherwise-form, but ~s was given in addition.~@:>"
            (cst:raw (cst:rest else))))
   (list* (walk test)

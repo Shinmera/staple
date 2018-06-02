@@ -43,8 +43,9 @@
 ;; handle inference of class types.
 (define-walk-compound-form defmethod (cst environment)
   (cst:db source (operator name . args) cst
-    (let ((qualifiers (loop until (cst:consp args)
-                            collect (cst:first args)
+    (let ((qualifiers (loop while (and item (cst:atom item))
+                            for item = (cst:first args)
+                            collect item
                             do (setf args (cst:rest args))))
           (lambda-list (cst:first args))
           (body (cst:rest args)))
@@ -56,8 +57,9 @@
           ;; FIXME: extract specializers and turn into declarations
           `(:macro ,source
                    ,(walk operator)
-                   (:lambda ,source
+                   (lambda ,source
                      ,variables
+                     (function ,(cst:source name) ,(cst:raw name))
                      ,@(walk-implicit-progn forms environment))))))))
 
 ;; Try handling the distinction between setf functions and setf-expanders.

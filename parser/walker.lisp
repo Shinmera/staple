@@ -64,6 +64,9 @@
          (when-let ((supplied-p (cst:supplied-p cst)))
            (list (walk supplied-p environment)))))
 
+(defmethod walk ((cst cst:specialized-required-parameter) environment)
+  (list (walk (cst:name cst) environment)))
+
 (defun walk-bindings (bindings environment)
   (loop until (cst:null bindings)
         for binding = (cst:first bindings)
