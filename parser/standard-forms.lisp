@@ -50,18 +50,15 @@
           (lambda-list (cst:first args))
           (body (cst:rest args)))
       (declare (ignore qualifiers))
-      (multiple-value-bind (variables types)
-          (walk (cst:parse-specialized-lambda-list T lambda-list) environment)
-        (multiple-value-bind (declarations documentation forms)
-            (cst:separate-function-body body :listify-body NIL)
-          ;; FIXME: extract specializers and turn into declarations
-          `(:macro ,source
-                   ,(walk operator)
-                   (lambda ,source
-                     ,variables
-                     (function ,(cst:source name) ,(cst:raw name))
-                     ,@types
-                     ,@(walk-implicit-progn forms environment))))))))
+      (multiple-value-bind (declarations documentation forms)
+          (cst:separate-function-body body :listify-body NIL)
+        (declare (ignore declarations documentation))
+        `(:macro ,source
+                 ,(walk operator)
+                 (lambda ,source
+                   ,(walk (cst:parse-specialized-lambda-list T lambda-list) environment)
+                   (function ,(cst:source name) ,(cst:raw name))
+                   ,@(walk-implicit-progn forms environment)))))))
 
 ;; Try handling the distinction between setf functions and setf-expanders.
 (define-walk-compound-form setf (cst environment)
