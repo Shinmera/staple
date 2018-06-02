@@ -22,15 +22,11 @@
   (merge-pathnames (make-pathname :directory `(:relative ,(asdf:component-name system)))
                    *tmpdir*))
 
-(defun prefix-p (prefix string)
-  (and (<= (length prefix) (length string))
-       (string-equal prefix string :end2 (length prefix))))
-
 (defun find-system-in-path (path)
   (let ((systems ()))
     (asdf:map-systems
      (lambda (sys)
-       (when (prefix-p (asdf:component-name sys) path)
+       (when (staple::prefix-p (asdf:component-name sys) path)
          (push sys systems))))
     (first (sort systems #'> :key (lambda (s) (length (asdf:component-name s)))))))
 
@@ -91,9 +87,9 @@
           (cond
             ((string= path "")
              (serve-system-list))
-            ((prefix-p "file/" path)
+            ((staple::prefix-p "file/" path)
              (hunchentoot:handle-static-file (subseq path 4)))
-            ((prefix-p "source/" path)
+            ((staple::prefix-p "source/" path)
              (serve-source (subseq path 6)))
             (system
              (serve-system-docs system (subseq path (length (asdf:component-name system)))))

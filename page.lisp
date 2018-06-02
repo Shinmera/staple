@@ -183,10 +183,12 @@
 (defclass system-page (definitions-index-page)
   ((system :initarg NIL :accessor system)))
 
-(defmethod shared-initialize :after ((page system-page) slots &key system)
+(defmethod shared-initialize :after ((page system-page) slots &key system title)
   (when system (setf (system page) system))
   (unless (packages page)
-    (setf (packages page) (packages (system page)))))
+    (setf (packages page) (packages (system page))))
+  (unless title
+    (setf (title page) (titleize (asdf:component-name system)))))
 
 (defmethod (setf system) :around (system (page system-page))
   (call-next-method (etypecase system

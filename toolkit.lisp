@@ -279,3 +279,14 @@
           do (when (eq #1='#.(gensym "no-value") (getf result key #1#))
                (setf (getf result key) val)))
     result))
+
+(defun prefix-p (prefix string)
+  (and (<= (length prefix) (length string))
+       (string-equal prefix string :end2 (length prefix))))
+
+(defun titleize (thing)
+  (with-output-to-string (out)
+    (loop for char across (string thing)
+          do (case char
+               (#\- (write-char #\Space out))
+               (T (write-char char out))))))

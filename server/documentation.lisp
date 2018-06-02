@@ -36,9 +36,6 @@ See SYSTEM-PATH")
 
 See *TMPDIR*")
 
-  (function prefix-p
-    "Returns T if PREFIX is a whole prefix of STRING.")
-
   (function find-system-in-path
     "Finds the matching ASDF:SYSTEM for the given URL path.
 

@@ -17,6 +17,7 @@ FIXME: subsystems
 * `:if-exists` What to do if the output file already exists.
 * `:compact` Whether to compact the HTML files by trimming extraneous whitespace. Activated by default.
 * `:packages` The packages that should be included in the definitions index.
+* `:subsystems` A list of subsystems that are related to this primary system and should be included in the generation.
 
 However, if you change any of these options, you will likely want to persist them somehow. The best way to do this is to use Staple's extension mechanism. See the sections below for that.
 
@@ -76,13 +77,13 @@ You should still read the following sections, as they will show examples on how 
 ### Custom Inference
 As mentioned in the How To section above, you can persist the different options you can pass to generate by changing the project inference. The following functions are called to determine the default values for the respective keyword arguments:
 
-FIXME: subsystems
 * `output-directory`
 * `documents`
 * `images`
 * `page-type`
 * `template`
 * `packages`
+* `subsystems`
 
 In order to override these, just write a method specialising on your system:
 

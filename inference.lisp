@@ -78,8 +78,14 @@
       (find-files source *image-patterns*))))
 
 (defmethod subsystems ((system asdf:system))
-  ;; FIXME: Package-inferred-systems and such?
-  ())
+  (let ((subsystems ()))
+    (asdf:map-systems
+     (lambda (subsystem)
+       (when (and (not (eql subsystem system))
+                  (prefix-p (asdf:component-name system)
+                            (asdf:component-name subsystem)))
+         (push subsystem subsystems))))
+    subsystems))
 
 (defmethod page-type ((system asdf:system))
   'simple-page)
@@ -98,10 +104,10 @@
 (defmethod infer-project ((system asdf:system) &key output-directory images documents page-type template packages subsystems)
   (load-extension system)
   (let* ((output-directory (or output-directory (output-directory system)))
-         (documents (or documents (documents system) '(NIL)))
+         (documents (or documents (documents system)))
          (images (or images (images system)))
          (page-type (or page-type (page-type system)))
-         (input (or template (template system)))
+         (template (or template (template system)))
          (packages (or packages (packages system)))
          (subsystems (or subsystems (subsystems system))))
     (with-value-restart output-directory
@@ -110,14 +116,53 @@
         (error 'no-known-output-directory :system system)))
     (let ((pages ()))
       (flet ((p (page) (push page pages)))
-        (dolist (document documents)
+        ;; Do subsystems first to filter documents list.
+        (dolist (spec subsystems)
+          (destructuring-bind (subsystem . args) (if (listp spec) spec (list spec))
+            (let ((sub-directory (or (getf args :output-directory) (output-directory system)))
+                  (subdocuments (or (getf args :documents) (documents subsystem) '(NIL)))
+                  (images (or (getf args :images) (images subsystem) images))
+                  (page-type (or (getf args :page-type) (page-type subsystem) page-type))
+                  (template (or (getf args :template) (template subsystem) template))
+                  (packages (or (getf args :packages) (packages subsystem))))
+              ;; Standardise output-directory
+              (when (or (null sub-directory)
+                        (equal sub-directory output-directory))
+                (setf sub-directory (pathname-utils:subdirectory output-directory (asdf:component-name subsystem))))
+              ;; If we have the same source directory, and the documents are
+              ;; automatically discovered, we'll set them to NIL here to avoid
+              ;; documents intended for the primary system from being used for
+              ;; a subsystem.
+              (when (and (equal (asdf:system-source-directory system)
+                                (asdf:system-source-directory subsystem))
+                         (equal documents subdocuments))
+                (setf subdocuments '(NIL)))
+              ;; Otherwise, remove all documents from the primary system.
+              (setf documents (set-difference documents subdocuments :test #'equal))
+              ;; And add pages for the subsystem.
+              (dolist (document subdocuments)
+                (p (make-instance page-type
+                                  :input template
+                                  :output sub-directory
+                                  :system subsystem
+                                  :document document
+                                  :images images
+                                  :packages packages)))
+              ;; Images!
+              (dolist (image images)
+                (p (make-instance 'static-page
+                                  :input image
+                                  :output (pathname-utils:file-in sub-directory image)))))))
+        ;; Pages for the primary documents.
+        (dolist (document (or documents '(NIL)))
           (p (make-instance page-type
-                            :input input
+                            :input template
                             :output output-directory
                             :system system
                             :document document
                             :images images
                             :packages packages)))
+        ;; Images and stuff.
         (dolist (image images)
           (p (make-instance 'static-page
                             :input image
