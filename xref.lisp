@@ -31,6 +31,12 @@
   (when (find (definitions:package definition) (packages *page*))
     (format NIL "#~a" (url-encode (definition-id definition)))))
 
+(define-xref-resolver other-pages (definition)
+  (dolist (page (pages (project *page*)))
+    (when (and (typep page 'definitions-index-page)
+               (find (definitions:package definition) (packages page)))
+      (return (format NIL "~a#~a" (relative-path page *page*) (url-encode (definition-id definition)))))))
+
 (define-xref-resolver common-lisp (definition)
   (when (eql (definitions:package definition) (find-package "CL"))
     (format NIL "http://l1sp.org/cl/~a" (url-encode (string-downcase (definitions:name definition))))))
