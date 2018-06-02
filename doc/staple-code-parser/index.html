@@ -1,0 +1,177 @@
+<!DOCTYPE html> <html lang="en"> <head> <meta charset="utf-8"> <title>Staple Code Parser</title> <style>html body{margin:0 auto 0 auto;padding:20px;max-width:1024px;font-family:sans-serif;font-size:14pt;overflow-y:scroll;}html body a{text-decoration:none;}html body a[href]{color:#0055AA;}html body a[href]:hover{color:#0088EE;}html body pre>code a[href]{color:#223388;}article.system h1,article.system h2,article.system h3,article.system h4,article.system h5,article.system h6{margin:0.2em 0 0.1em 0;text-indent:1em;}article.system >header{text-align:center;}article.system >header img.logo{display:block;margin:auto;max-height:170px;}article.system >header h1{display:inline-block;text-indent:0;font-size:2.5em;}article.system >header .version{vertical-align:bottom;}article.system >header .languages{margin-top:-0.5em;text-transform:capitalize;}article.system >header .description{margin:0;}article.system >header .pages{margin-top:0.5em;font-size:1.2em;text-transform:capitalize;}article.system >header .pages a{display:inline-block;padding:0 0.2em;}article.system >section{margin:1em 0 1em 0;}article.system #index >ul{list-style:none;margin:0;padding:0;}article.system .row label{display:inline-block;min-width:6em;}article.system #system .row{display:flex;}article.system #system #dependencies{display:inline;margin:0;padding:0;}article.system #system #dependencies li{display:inline;padding:0 0.2em;}article.definition{margin:1em 0 0 0;}article.definition >header h1,article.definition >header h2,article.definition >header h3,article.definition >header h4,article.definition >header h5,article.definition >header h6{text-indent:0;display:inline-block;}article.definition >header ul{display:inline-block;list-style:none;margin:0;padding:0;}article.definition >header ul li{display:inline-block;padding:0 0.2em 0 0;}article.definition >header .visibility{display:none;}article.definition >header .visibility,article.definition >header .type{text-transform:lowercase;}article.definition >header .source-link{visibility:hidden;float:right;}article.definition >header .source-link:after{visibility:visible;content:"[SRC]";}article.definition .docstring{margin:0 0 0 1em;}article.definition .docstring pre{font-size:0.8em;white-space:pre-wrap;}.definition.package >header ul.nicknames{display:inline-block;list-style:none;margin:0;padding:0 0 0 1em;}.definition.package >header ul.nicknames li{display:inline;}.definition.package >header ul.nicknames:before{content:"(";}.definition.package >header ul.nicknames:after{content:")";}.definition.package ul.definitions{margin:0;list-style:none;padding:0 0 0 0.5em;}.definition.callable >header .name:before,.definition.type >header .name:before{content:"(";font-weight:normal;}.definition.callable >header .arguments:after,.definition.type >header .arguments:after{content:")";}.definition li>mark{background:none;border-left:0.3em solid #0088EE;padding-left:0.3em;display:block;}</style> </head> <body> <article class="system"> <header>  <img class="logo" src="logo.svg" alt="Logo">  <h1>staple-code-parser</h1> <span class="version">1.0.0</span> <nav class="languages">                  <a href="index.html">English</a>              </nav> <p class="description">A code parser tool for documentation markup</p> <nav class="pages">  <a href="../logo.svg"/>    <a href="../logo.svg"/>    <a href="../index.html">staple</a>    <a href="../staple-package-recording/logo.svg"/>    <a href="../staple-package-recording/logo.svg"/>    <a href="../staple-package-recording/index.html">staple package recording</a>    <a href="logo.svg"/>    <a href="logo.svg"/>    <a href="index.html">staple code parser</a>    <a href="../staple-server/logo.svg"/>    <a href="../staple-server/logo.svg"/>    <a href="../staple-server/index.html">staple server</a>    <a href="../staple-markdown/logo.svg"/>    <a href="../staple-markdown/logo.svg"/>    <a href="../staple-markdown/index.html">staple markdown</a>  </nav> </header> <section id="documentation"><h2>About Staple-Parser</h2> <p>This system implements a Lisp code parser to implement marking up definition references within code snippets.</p> <h2>How To</h2> <p>You can parse a lisp source snippets using <code><a href="#GENERIC-FUNCTION%20STAPLE-CODE-PARSER%3APARSE" class="xref">parse</a></code>:</p> <pre><code>(<a href="#GENERIC-FUNCTION%20STAPLE-CODE-PARSER%3APARSE" class="xref">staple-code-parser:parse</a> &quot;(defun foo (a) (+ 1 a))&quot;)
+</code></pre> <p>This will return a list of &quot;parse results&quot;. Parse results represent all information about the toplevel source form that was parsed. Typically you will want to pass this to <code><a href="#FUNCTION%20STAPLE-CODE-PARSER%3APARSE-RESULT-%3EDEFINITION-LIST" class="xref">parse-result-&gt;definition-list</a></code>, which will return a list of definitions and their source locations that were found within the parse results.</p> <pre><code>(<a href="#FUNCTION%20STAPLE-CODE-PARSER%3APARSE-RESULT-%3EDEFINITION-LIST" class="xref">staple-code-parser:parse-result-&gt;definition-list</a> <a href="http://l1sp.org/cl/%2A" class="xref">*</a>)
+; =&gt; ((#&lt;DEFINITIONS:FUNCTION +&gt; (16 . 17)) (#&lt;DEFINITIONS:MACRO DEFUN&gt; (1 . 6)))
+</code></pre> <p>The definitions objects are from the <a href="https://shinmera.github.io/definitions">Definitions</a> library. Please see its documentation on how to handle these kinds of objects. This definition list is used in Staple to mark up the respective source parts with HTML links, but you could also use it for your own purposes.</p> <h2>Extending Staple-Parser</h2> <p>Since the parser does not compile or evaluate the code, it is missing a lot of information about what each symbol could be, hampering the quality of definition retrieval. You can help this out by implementing custom walkers for known forms that expand to parse results that are more easily understood.</p> <p>The way to do this is twofold. You can either use <code><a href="#MACRO-FUNCTION%20STAPLE-CODE-PARSER%3ADEFINE-WALK-COMPOUND-FORM" class="xref">define-walk-compound-form</a></code> an expand into known parse results, transforming the contents as appropriate, or you can use <code><a href="#MACRO-FUNCTION%20STAPLE-CODE-PARSER%3ADEFINE-WALKER-FORM" class="xref">define-walker-form</a></code> to define a new parse result type. In the latter case you will also need to add <code>define-sub-forms</code> and <code><a href="#MACRO-FUNCTION%20STAPLE-CODE-PARSER%3ADEFINE-DEFINITION-RESOLVER" class="xref">define-definition-resolver</a></code> to handle the traversal and lookup.</p> <p>Have a look at the source files <a href="https://github.com/Shinmera/staple/blob/master/special-forms.lisp">special-forms</a>, <a href="https://github.com/Shinmera/staple/blob/master/standard-forms.lisp">standard-forms</a>, and <a href="https://github.com/Shinmera/staple/blob/master/to-definitions.lisp">to-definitions</a> for examples on how to use these.</p> </section>  <section id="system"> <h2>System Information</h2>  <div class="row"> <label for="version">Version:</label> <a id="version">1.0.0</a> </div>   <div class="row"> <label for="dependencies">Dependencies:</label> <ul id="dependencies"><li>alexandria</li><li>definitions</li><li>concrete-syntax-tree</li><li>concrete-syntax-tree-lambda-list</li><li>concrete-syntax-tree-destructuring</li><li>eclector</li><li>eclector-concrete-syntax-tree</li><li>documentation-utils</li></ul> </div>   <div class="row"> <label for="author">Author:</label> <a id="author" href="mailto:shinmera@tymoon.eu">Nicolas Hafner</a> </div>   <div class="row"> <label for="license">License:</label> <a id="license" href="https://tldrlegal.com/search?q=Artistic">Artistic</a> </div>   <div class="row"> <label for="homepage">Homepage:</label> <a id="homepage" href="https://github.com/Shinmera/staple">https://github.com/Shinmera/staple</a> </div>  </section>  <section id="index"> <h2>Definition Index</h2> <ul> <li> <article class="definition package" id="PACKAGE STAPLE-CODE-PARSER"> <header> <h3> <a href="#PACKAGE%20STAPLE-CODE-PARSER">STAPLE-CODE-PARSER</a> </h3> <ul class="nicknames"> <li>ORG.SHIRAKUMO.STAPLE.CODE-PARSER</li> </ul>  <a class="source-link" href="https://github.com/Shinmera/staple/blob/master/package.lisp#L8">Source</a>  </header> <div class="docstring"><i>No documentation provided.</i></div> <ul class="definitions"> <li> <article class="definition class NIL" id="CLASS STAPLE-CODE-PARSER:ENVIRONMENT"> <header> <span class="visibility">EXTERNAL</span> <span class="type">CLASS</span> <h4 class="name"> <a href="#CLASS%20STAPLE-CODE-PARSER%3AENVIRONMENT">ENVIRONMENT</a> </h4> <ul class="qualifiers"></ul> <ul class="arguments"></ul>  <a class="source-link" href="https://github.com/Shinmera/staple/blob/master/environment.lisp#L9">Source</a>  </header> <div class="docstring"><pre>Container for environment information used during walking.
+
+See <a href="#GENERIC-FUNCTION%20STAPLE-CODE-PARSER%3APARENT" class="xref">PARENT</a>
+See <a href="#GENERIC-FUNCTION%20STAPLE-CODE-PARSER%3ANAMESPACES" class="xref">NAMESPACES</a>
+See <a href="#GENERIC-FUNCTION%20STAPLE-CODE-PARSER%3ALOOKUP" class="xref">LOOKUP</a>
+See <a href="#FUNCTION%20STAPLE-CODE-PARSER%3AAUGMENT-ENVIRONMENT%21" class="xref">AUGMENT-ENVIRONMENT!</a>
+See <a href="#FUNCTION%20STAPLE-CODE-PARSER%3AAUGMENTED-ENVIRONMENT" class="xref">AUGMENTED-ENVIRONMENT</a></pre></div> </article> </li>  <li> <article class="definition function callable" id="FUNCTION STAPLE-CODE-PARSER:AUGMENT-ENVIRONMENT!"> <header> <span class="visibility">EXTERNAL</span> <span class="type">FUNCTION</span> <h4 class="name"> <a href="#FUNCTION%20STAPLE-CODE-PARSER%3AAUGMENT-ENVIRONMENT%21">AUGMENT-ENVIRONMENT!</a> </h4> <ul class="qualifiers"></ul> <ul class="arguments"> <li class="argument">ENVIRONMENT</li>  <li class="argument">NAMES</li>  <li class="argument">VALUES</li> </ul>  <a class="source-link" href="https://github.com/Shinmera/staple/blob/master/environment.lisp#L32">Source</a>  </header> <div class="docstring"><pre>Augments the given environment with the new values for the given names.
+
+Returns the modified environment.
+
+See <a href="#GENERIC-FUNCTION%20STAPLE-CODE-PARSER%3ALOOKUP" class="xref">LOOKUP</a>
+See <a href="#CLASS%20STAPLE-CODE-PARSER%3AENVIRONMENT" class="xref">ENVIRONMENT</a></pre></div> </article> </li>  <li> <article class="definition function callable" id="FUNCTION STAPLE-CODE-PARSER:AUGMENTED-ENVIRONMENT"> <header> <span class="visibility">EXTERNAL</span> <span class="type">FUNCTION</span> <h4 class="name"> <a href="#FUNCTION%20STAPLE-CODE-PARSER%3AAUGMENTED-ENVIRONMENT">AUGMENTED-ENVIRONMENT</a> </h4> <ul class="qualifiers"></ul> <ul class="arguments"> <li class="argument">PARENT</li>  <li class="argument">NAMES</li>  <li class="argument">VALUES</li>  <li class="argument">&amp;KEY</li>  <li class="argument">(CLASS (CLASS-OF PARENT))</li> </ul>  <a class="source-link" href="https://github.com/Shinmera/staple/blob/master/environment.lisp#L43">Source</a>  </header> <div class="docstring"><pre>Returns a new environment with the changed values in place.
+
+The old environment is a parent to the new one.
+
+See <a href="#FUNCTION%20STAPLE-CODE-PARSER%3AAUGMENT-ENVIRONMENT%21" class="xref">AUGMENT-ENVIRONMENT!</a>
+See <a href="#CLASS%20STAPLE-CODE-PARSER%3AENVIRONMENT" class="xref">ENVIRONMENT</a></pre></div> </article> </li>  <li> <article class="definition function callable" id="FUNCTION STAPLE-CODE-PARSER:PARSE-RESULT-&gt;DEFINITION-LIST"> <header> <span class="visibility">EXTERNAL</span> <span class="type">FUNCTION</span> <h4 class="name"> <a href="#FUNCTION%20STAPLE-CODE-PARSER%3APARSE-RESULT-%3EDEFINITION-LIST">PARSE-RESULT-&gt;DEFINITION-LIST</a> </h4> <ul class="qualifiers"></ul> <ul class="arguments"> <li class="argument">RESULT</li> </ul>  <a class="source-link" href="https://github.com/Shinmera/staple/blob/master/to-definitions.lisp#L136">Source</a>  </header> <div class="docstring"><pre>Turn the parse-result into a list of definitions and source locations.
+
+For instance:
+  ((:CALL (0 . 10) (:VARIABLE (1 . 5) NULL) (:LITERAL (6 . 9) NIL)))
+  =&gt; ((#&lt;DEFINITIONS:FUNCTION NULL&gt; (1 . 5)))
+
+This uses FIND-DEFINITIONS to find suitable definitions for a parse
+result, as well as SUB-RESULTS to traverse the parse result tree.
+
+See <a href="#GENERIC-FUNCTION%20STAPLE-CODE-PARSER%3AFIND-DEFINITIONS" class="xref">FIND-DEFINITIONS</a>
+See <a href="#GENERIC-FUNCTION%20STAPLE-CODE-PARSER%3ASUB-RESULTS" class="xref">SUB-RESULTS</a></pre></div> </article> </li>  <li> <article class="definition function callable" id="FUNCTION STAPLE-CODE-PARSER:TIE-TO-SOURCE"> <header> <span class="visibility">EXTERNAL</span> <span class="type">FUNCTION</span> <h4 class="name"> <a href="#FUNCTION%20STAPLE-CODE-PARSER%3ATIE-TO-SOURCE">TIE-TO-SOURCE</a> </h4> <ul class="qualifiers"></ul> <ul class="arguments"> <li class="argument">SOURCE</li>  <li class="argument">DEFS</li> </ul>  <a class="source-link" href="https://github.com/Shinmera/staple/blob/master/to-definitions.lisp#L17">Source</a>  </header> <div class="docstring"><pre>Turns each def into a list of source and def.</pre></div> </article> </li>  <li> <article class="definition function callable" id="FUNCTION STAPLE-CODE-PARSER:WALK-BINDINGS"> <header> <span class="visibility">EXTERNAL</span> <span class="type">FUNCTION</span> <h4 class="name"> <a href="#FUNCTION%20STAPLE-CODE-PARSER%3AWALK-BINDINGS">WALK-BINDINGS</a> </h4> <ul class="qualifiers"></ul> <ul class="arguments"> <li class="argument">BINDINGS</li>  <li class="argument">ENVIRONMENT</li> </ul>  <a class="source-link" href="https://github.com/Shinmera/staple/blob/master/walker.lisp#L73">Source</a>  </header> <div class="docstring"><pre>Walk the set of LET bindings in the environment.
+
+Returns a list of cons cells where the CAR is the variable definition
+of the binding and the cdr is the parse result of the value.
+
+See <a href="#GENERIC-FUNCTION%20STAPLE-CODE-PARSER%3AWALK" class="xref">WALK</a></pre></div> </article> </li>  <li> <article class="definition function callable" id="FUNCTION STAPLE-CODE-PARSER:WALK-BODY"> <header> <span class="visibility">EXTERNAL</span> <span class="type">FUNCTION</span> <h4 class="name"> <a href="#FUNCTION%20STAPLE-CODE-PARSER%3AWALK-BODY">WALK-BODY</a> </h4> <ul class="qualifiers"></ul> <ul class="arguments"> <li class="argument">CST</li>  <li class="argument">ENVIRONMENT</li> </ul>  <a class="source-link" href="https://github.com/Shinmera/staple/blob/master/walker.lisp#L96">Source</a>  </header> <div class="docstring"><pre>Same as WALK-IMPLICIT-PROGN, but filters out declarations from the cst.
+
+See <a href="#FUNCTION%20STAPLE-CODE-PARSER%3AWALK-IMPLICIT-PROGN" class="xref">WALK-IMPLICIT-PROGN</a></pre></div> </article> </li>  <li> <article class="definition function callable" id="FUNCTION STAPLE-CODE-PARSER:WALK-IMPLICIT-PROGN"> <header> <span class="visibility">EXTERNAL</span> <span class="type">FUNCTION</span> <h4 class="name"> <a href="#FUNCTION%20STAPLE-CODE-PARSER%3AWALK-IMPLICIT-PROGN">WALK-IMPLICIT-PROGN</a> </h4> <ul class="qualifiers"></ul> <ul class="arguments"> <li class="argument">CST</li>  <li class="argument">ENVIRONMENT</li> </ul>  <a class="source-link" href="https://github.com/Shinmera/staple/blob/master/walker.lisp#L91">Source</a>  </header> <div class="docstring"><pre>Walks the CST as a list of forms and returns the list of parse-results for each form.
+
+See <a href="#GENERIC-FUNCTION%20STAPLE-CODE-PARSER%3AWALK" class="xref">WALK</a></pre></div> </article> </li>  <li> <article class="definition function callable" id="FUNCTION STAPLE-CODE-PARSER:WALK-LAMBDA-LIKE"> <header> <span class="visibility">EXTERNAL</span> <span class="type">FUNCTION</span> <h4 class="name"> <a href="#FUNCTION%20STAPLE-CODE-PARSER%3AWALK-LAMBDA-LIKE">WALK-LAMBDA-LIKE</a> </h4> <ul class="qualifiers"></ul> <ul class="arguments"> <li class="argument">CST</li>  <li class="argument">ENVIRONMENT</li>  <li class="argument">&amp;OPTIONAL</li>  <li class="argument">(LAMBDA-LIST-PARSER #'PARSE-ORDINARY-LAMBDA-LIST)</li> </ul>  <a class="source-link" href="https://github.com/Shinmera/staple/blob/master/walker.lisp#L102">Source</a>  </header> <div class="docstring"><pre>Walk a lambda-like structure.
+
+Parses the lambda-list and body forms appropriately and returns a
+parse-result for a lambda. The given parser is used to process the
+lambda-list.
+
+See <a href="#FUNCTION%20STAPLE-CODE-PARSER%3AWALK-IMPLICIT-PROGN" class="xref">WALK-IMPLICIT-PROGN</a></pre></div> </article> </li>  <li> <article class="definition generic-function callable" id="GENERIC-FUNCTION STAPLE-CODE-PARSER:FIND-DEFINITIONS"> <header> <span class="visibility">EXTERNAL</span> <span class="type">GENERIC-FUNCTION</span> <h4 class="name"> <a href="#GENERIC-FUNCTION%20STAPLE-CODE-PARSER%3AFIND-DEFINITIONS">FIND-DEFINITIONS</a> </h4> <ul class="qualifiers"></ul> <ul class="arguments"> <li class="argument">TYPE</li>  <li class="argument">SOURCE</li>  <li class="argument">ARGS</li> </ul>  </header> <div class="docstring"><pre>Returns any matching definitions for the given parse result.
+
+All parse results have the structure of (TYPE SOURCE . ARGS).
+Thus you can simply destructure it and pass the arguments to this
+function to retrieve its definitions.
+
+See <a href="#MACRO-FUNCTION%20STAPLE-CODE-PARSER%3ADEFINE-DEFINITION-RESOLVER" class="xref">DEFINE-DEFINITION-RESOLVER</a></pre></div> </article> </li>  <li> <article class="definition generic-function callable" id="GENERIC-FUNCTION STAPLE-CODE-PARSER:LOOKUP"> <header> <span class="visibility">EXTERNAL</span> <span class="type">GENERIC-FUNCTION</span> <h4 class="name"> <a href="#GENERIC-FUNCTION%20STAPLE-CODE-PARSER%3ALOOKUP">LOOKUP</a> </h4> <ul class="qualifiers"></ul> <ul class="arguments"> <li class="argument">NAME</li>  <li class="argument">NAMESPACE</li>  <li class="argument">ENVIRONMENT</li> </ul>  </header> <div class="docstring"><pre>Looks up the name in the namespace of the environment.
+
+This will traverse the environment chain upwards until no parent can
+be found anymore in case the current environment's namespace does not
+contain the value.
+
+When used as a setf place the value is always stored in the given
+environment's namespace.
+
+See <a href="#FUNCTION%20STAPLE-CODE-PARSER%3ANAMESPACE" class="xref">NAMESPACE</a>
+See <a href="#CLASS%20STAPLE-CODE-PARSER%3AENVIRONMENT" class="xref">ENVIRONMENT</a></pre></div> </article> </li>  <li> <article class="definition generic-function callable" id="GENERIC-FUNCTION STAPLE-CODE-PARSER:(SETF LOOKUP)"> <header> <span class="visibility">EXTERNAL</span> <span class="type">GENERIC-FUNCTION</span> <h4 class="name"> <a href="#GENERIC-FUNCTION%20STAPLE-CODE-PARSER%3A%28SETF%20LOOKUP%29">(SETF LOOKUP)</a> </h4> <ul class="qualifiers"></ul> <ul class="arguments"> <li class="argument">VALUE</li>  <li class="argument">NAME</li>  <li class="argument">NAMESPACE</li>  <li class="argument">ENVIRONMENT</li> </ul>  </header> <div class="docstring"><i>No documentation provided.</i></div> </article> </li>  <li> <article class="definition generic-function callable" id="GENERIC-FUNCTION STAPLE-CODE-PARSER:PARSE"> <header> <span class="visibility">EXTERNAL</span> <span class="type">GENERIC-FUNCTION</span> <h4 class="name"> <a href="#GENERIC-FUNCTION%20STAPLE-CODE-PARSER%3APARSE">PARSE</a> </h4> <ul class="qualifiers"></ul> <ul class="arguments"> <li class="argument">INPUT</li> </ul>  </header> <div class="docstring"><pre>Parses the input and returns a list of parse results, each for one toplevel.
+
+First uses READ-TOPLEVEL to read all toplevel forms, then uses WALK
+for each of the read CSTs to turn them into parse results.
+
+See <a href="#GENERIC-FUNCTION%20STAPLE-CODE-PARSER%3AREAD-TOPLEVEL" class="xref">READ-TOPLEVEL</a>
+See <a href="#GENERIC-FUNCTION%20STAPLE-CODE-PARSER%3AWALK" class="xref">WALK</a></pre></div> </article> </li>  <li> <article class="definition generic-function callable" id="GENERIC-FUNCTION STAPLE-CODE-PARSER:READ-TOPLEVEL"> <header> <span class="visibility">EXTERNAL</span> <span class="type">GENERIC-FUNCTION</span> <h4 class="name"> <a href="#GENERIC-FUNCTION%20STAPLE-CODE-PARSER%3AREAD-TOPLEVEL">READ-TOPLEVEL</a> </h4> <ul class="qualifiers"></ul> <ul class="arguments"> <li class="argument">INPUT</li> </ul>  </header> <div class="docstring"><pre>Reads the toplevel of an input.
+
+The INPUT may be a string, pathname, or a stream (by default).
+Returns a list of CSTs representing all toplevel forms that were read.</pre></div> </article> </li>  <li> <article class="definition generic-function callable" id="GENERIC-FUNCTION STAPLE-CODE-PARSER:SUB-RESULTS"> <header> <span class="visibility">EXTERNAL</span> <span class="type">GENERIC-FUNCTION</span> <h4 class="name"> <a href="#GENERIC-FUNCTION%20STAPLE-CODE-PARSER%3ASUB-RESULTS">SUB-RESULTS</a> </h4> <ul class="qualifiers"></ul> <ul class="arguments"> <li class="argument">TYPE</li>  <li class="argument">ARGS</li> </ul>  </header> <div class="docstring"><pre>Returns all parse results that are sub-results of this parse result.
+
+All parse results have the structure of (TYPE SOURCE . ARGS).
+Thus you can simply destructure it and pass the arguments to this
+function to retrieve its definitions.
+
+See <a href="#MACRO-FUNCTION%20STAPLE-CODE-PARSER%3ADEFINE-SUB-RESULTS" class="xref">DEFINE-SUB-RESULTS</a></pre></div> </article> </li>  <li> <article class="definition generic-function callable" id="GENERIC-FUNCTION STAPLE-CODE-PARSER:WALK"> <header> <span class="visibility">EXTERNAL</span> <span class="type">GENERIC-FUNCTION</span> <h4 class="name"> <a href="#GENERIC-FUNCTION%20STAPLE-CODE-PARSER%3AWALK">WALK</a> </h4> <ul class="qualifiers"></ul> <ul class="arguments"> <li class="argument">CST</li>  <li class="argument">ENVIRONMENT</li> </ul>  </header> <div class="docstring"><pre>Walks the given CST in the environment.
+
+Should return a parse result structure.
+Parse results are lists of the following form:
+
+  PARSE-RESULT ::= (TYPE SOURCE . ARGS)
+  TYPE         --- The type of the form we've walked. Typically this
+                   is a symbol of the form itself, like LAMBDA, or a
+                   keyword if a generic variant is encountered like
+                   for :CALLs and :MACROs.
+  SOURCE       ::= (START . END)
+  ARGS         --- Additional arguments for the parse result,
+                   including additional parse-results.
+
+Generally see the overall concrete-syntax-tree system for explanations
+on how to use this.
+
+Note that you probably want to define a method on WALK-FORM instead,
+as that is called automatically as appropriate for each CST:CONST-CST,
+and WALK-ATOM is called for each CST:ATOM-CST.
+
+See <a href="#CLASS%20STAPLE-CODE-PARSER%3AENVIRONMENT" class="xref">ENVIRONMENT</a></pre></div> </article> </li>  <li> <article class="definition generic-function callable" id="GENERIC-FUNCTION STAPLE-CODE-PARSER:WALK-ATOM"> <header> <span class="visibility">EXTERNAL</span> <span class="type">GENERIC-FUNCTION</span> <h4 class="name"> <a href="#GENERIC-FUNCTION%20STAPLE-CODE-PARSER%3AWALK-ATOM">WALK-ATOM</a> </h4> <ul class="qualifiers"></ul> <ul class="arguments"> <li class="argument">ATOM</li>  <li class="argument">ENVIRONMENT</li> </ul>  </header> <div class="docstring"><pre>Walks an atom.
+
+If the atom is a symbol, it returns a parse result of a literal for
+keywords and booleans, or a variable for symbols. For everything else
+it returns a parse result for a literal.</pre></div> </article> </li>  <li> <article class="definition generic-function callable" id="GENERIC-FUNCTION STAPLE-CODE-PARSER:WALK-FORM"> <header> <span class="visibility">EXTERNAL</span> <span class="type">GENERIC-FUNCTION</span> <h4 class="name"> <a href="#GENERIC-FUNCTION%20STAPLE-CODE-PARSER%3AWALK-FORM">WALK-FORM</a> </h4> <ul class="qualifiers"></ul> <ul class="arguments"> <li class="argument">OPERATOR-VAR2</li>  <li class="argument">CST</li>  <li class="argument">ENVIRONMENT</li> </ul>  </header> <div class="docstring"><pre>Walks a form.
+
+The form is identified by the car of the cons. The entirety of the
+form as a CST, including the operator, are passed along as well.</pre></div> </article> </li>  <li> <article class="definition macro callable" id="MACRO-FUNCTION STAPLE-CODE-PARSER:DEFINE-DEFINITION-RESOLVER"> <header> <span class="visibility">EXTERNAL</span> <span class="type">MACRO</span> <h4 class="name"> <a href="#MACRO-FUNCTION%20STAPLE-CODE-PARSER%3ADEFINE-DEFINITION-RESOLVER">DEFINE-DEFINITION-RESOLVER</a> </h4> <ul class="qualifiers"></ul> <ul class="arguments"> <li class="argument">TYPE</li>  <li class="argument">(SOURCE &amp;REST ARGS)</li>  <li class="argument">&amp;BODY</li>  <li class="argument">BODY</li> </ul>  <a class="source-link" href="https://github.com/Shinmera/staple/blob/master/to-definitions.lisp#L11">Source</a>  </header> <div class="docstring"><pre>Shorthand to define a find-definitions method and destructure the arguments of the parse result.
+
+See <a href="#GENERIC-FUNCTION%20STAPLE-CODE-PARSER%3AFIND-DEFINITIONS" class="xref">FIND-DEFINITIONS</a></pre></div> </article> </li>  <li> <article class="definition macro callable" id="MACRO-FUNCTION STAPLE-CODE-PARSER:DEFINE-SUB-RESULTS"> <header> <span class="visibility">EXTERNAL</span> <span class="type">MACRO</span> <h4 class="name"> <a href="#MACRO-FUNCTION%20STAPLE-CODE-PARSER%3ADEFINE-SUB-RESULTS">DEFINE-SUB-RESULTS</a> </h4> <ul class="qualifiers"></ul> <ul class="arguments"> <li class="argument">TYPE</li>  <li class="argument">ARGS</li>  <li class="argument">&amp;BODY</li>  <li class="argument">BODY</li> </ul>  <a class="source-link" href="https://github.com/Shinmera/staple/blob/master/to-definitions.lisp#L44">Source</a>  </header> <div class="docstring"><pre>Shorthand to define a sub-results method and destructure the arguments of the parse result.
+
+See <a href="#GENERIC-FUNCTION%20STAPLE-CODE-PARSER%3ASUB-RESULTS" class="xref">SUB-RESULTS</a></pre></div> </article> </li>  <li> <article class="definition macro callable" id="MACRO-FUNCTION STAPLE-CODE-PARSER:DEFINE-WALK-COMPOUND-FORM"> <header> <span class="visibility">EXTERNAL</span> <span class="type">MACRO</span> <h4 class="name"> <a href="#MACRO-FUNCTION%20STAPLE-CODE-PARSER%3ADEFINE-WALK-COMPOUND-FORM">DEFINE-WALK-COMPOUND-FORM</a> </h4> <ul class="qualifiers"></ul> <ul class="arguments"> <li class="argument">OPERATOR</li>  <li class="argument">(CST-VAR &amp;OPTIONAL (ENVIRONMENT-VAR))</li>  <li class="argument">&amp;BODY</li>  <li class="argument">BODY</li> </ul>  <a class="source-link" href="https://github.com/Shinmera/staple/blob/master/walker.lisp#L132">Source</a>  </header> <div class="docstring"><pre>Shorthand to define a WALK-FORM method.
+
+Adds local functions for WALK and WALK-IMPLICIT-PROGN that
+automatically pass the environment along so you don't need to repeat
+it.
+
+See <a href="#GENERIC-FUNCTION%20STAPLE-CODE-PARSER%3AWALK-FORM" class="xref">WALK-FORM</a></pre></div> </article> </li>  <li> <article class="definition macro callable" id="MACRO-FUNCTION STAPLE-CODE-PARSER:DEFINE-WALKER-FORM"> <header> <span class="visibility">EXTERNAL</span> <span class="type">MACRO</span> <h4 class="name"> <a href="#MACRO-FUNCTION%20STAPLE-CODE-PARSER%3ADEFINE-WALKER-FORM">DEFINE-WALKER-FORM</a> </h4> <ul class="qualifiers"></ul> <ul class="arguments"> <li class="argument">FORM</li>  <li class="argument">(CST-VAR &amp;OPTIONAL (ENVIRONMENT-VAR) (SOURCE))</li>  <li class="argument">&amp;BODY</li>  <li class="argument">BODY</li> </ul>  <a class="source-link" href="https://github.com/Shinmera/staple/blob/master/walker.lisp#L144">Source</a>  </header> <div class="docstring"><pre>Shorthand to define simple walker forms.
+
+The FORM should be a destructuring description of the kind of form to
+walk. The return value of the BODY should be the list of additional
+arguments for the parse result. The type and source of the parse
+result are automatically added for you.
+
+If you need control over the type or source, look at
+DEFINE-WALK-COMPOUND-FORM instead.
+
+See <a href="#MACRO-FUNCTION%20STAPLE-CODE-PARSER%3ADEFINE-WALK-COMPOUND-FORM" class="xref">DEFINE-WALK-COMPOUND-FORM</a></pre></div> </article> </li> </ul> </article> </li> </ul> </section> </article> <script>window.addEventListener("DOMContentLoaded", function(){
+    var unmarkElement = function(el){
+        if(el.tagName === "mark" || el.tagName === "MARK"){
+            [].forEach.call(el.childNodes, function(child){
+                el.parentNode.insertBefore(child, el);
+            });
+            el.parentNode.removeChild(el);
+        }else if(el.parentNode.tagName === "mark"){
+            return unmarkElement(el.parentNode);
+        }
+        return null;
+    }
+
+    var unmarkAll = function(root){
+        root = root || document;
+        [].forEach.call(root.querySelectorAll("mark"), unmarkElement);
+    }
+    
+    var markElement = function(el){
+        if(el.parentNode.tagName === "mark" || el.parentNode.tagName === "MARK"){
+            return el.parentNode;
+        } else {
+            unmarkAll();
+            var marked = document.createElement("mark");
+            el.parentNode.insertBefore(marked, el);
+            marked.appendChild(el);
+            return marked;
+        }
+    }
+
+    var markFragmented = function(){
+        if(window.location.hash){
+            var el = document.getElementById(decodeURIComponent(window.location.hash.substr(1)));
+            if(el) markElement(el);
+        }
+    }
+
+    var registerXrefLink = function(link){
+        var el = document.getElementById(decodeURIComponent(link.getAttribute("href").substr(1)));
+        if(el){
+            link.addEventListener("click", function(){
+                markElement(el);
+            });
+        }
+    }
+
+    var registerXrefLinks = function(root){
+        root = root || document;
+        [].forEach.call(root.querySelectorAll("a.xref"), registerXrefLink);
+    }
+
+    markFragmented();
+    registerXrefLinks();
+}); </script> </body> </html> 
