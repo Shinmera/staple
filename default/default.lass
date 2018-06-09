@@ -16,6 +16,7 @@
    :background (hex FAFAFA)
    :border 1px solid (hex DDDDDD)
    :padding 0.75em
+   :overflow-x auto
    (>code
     (a[href]
      :color (hex 223388))))))
