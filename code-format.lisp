@@ -8,8 +8,8 @@
 
 (defun markup-code-snippets-ignoring-errors (html)
   (handler-bind ((error (lambda (e)
+                          (format *debug-io* "~&WARN: Error during code markup: ~a" e)
                           (when (find-restart 'skip-tag)
-                            (format *debug-io* "~&WARN: Error during code markup: ~a" e)
                             (invoke-restart 'skip-tag)))))
     (markup-code-snippets html)))
 
@@ -23,7 +23,8 @@
                      (markup-code-block node)
                      (markup-code-reference node))
                (skip-tag ()
-                 :report "Skip marking up the current tag."))))
+                 :report "Skip marking up the current tag."))
+             T))
       (lquery:$ root "code" (each #'markup))
       (etypecase html
         (plump:node root)
