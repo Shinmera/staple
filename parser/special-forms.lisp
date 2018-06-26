@@ -79,7 +79,7 @@
 (define-walker-form (let definitions . body) (cst environment)
   (let ((definitions (walk-bindings definitions environment)))
     (multiple-value-bind (declarations forms)
-        (cst:separate-ordinary-body body :listify-body nil)
+        (cst:separate-ordinary-body body)
       (declare (ignore declarations))
       ;; FIXME: parse declarations
       (list* (mapcar #'car definitions)
@@ -89,7 +89,7 @@
 (define-walker-form (let* definitions . body) (cst environment)
   (let ((definitions (walk-bindings definitions environment)))
     (multiple-value-bind (declarations forms)
-        (cst:separate-ordinary-body body :listify-body nil)
+        (cst:separate-ordinary-body body)
       (declare (ignore declarations))
       ;; FIXME: parse declarations
       (list* (mapcar #'car definitions)

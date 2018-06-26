@@ -51,7 +51,7 @@
           (body (cst:rest args)))
       (declare (ignore qualifiers))
       (multiple-value-bind (declarations documentation forms)
-          (cst:separate-function-body body :listify-body NIL)
+          (cst:separate-function-body body)
         (declare (ignore declarations documentation))
         `(:macro ,source
                  ,(walk operator)

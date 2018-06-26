@@ -95,7 +95,7 @@
 
 (defun walk-body (cst environment)
   (multiple-value-bind (declarations forms)
-      (cst:separate-ordinary-body cst :listify-body nil)
+      (cst:separate-ordinary-body cst)
     (declare (ignore declarations))
     (walk-implicit-progn forms environment)))
 
@@ -104,7 +104,7 @@
     (declare (ignore operator-or-name))
     (let ((variables (walk (funcall lambda-list-parser T lambda-list) environment)))
       (multiple-value-bind (declarations documentation forms)
-          (cst:separate-function-body body :listify-body nil)
+          (cst:separate-function-body body)
         ;; FIXME: parse declarations
         (declare (ignore declarations documentation))
         `(lambda ,source
