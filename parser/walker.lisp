@@ -162,7 +162,8 @@
 
 (defmethod read-toplevel ((input stream))
   (let ((eclector.reader:*client* (make-instance 'client)))
-    (loop for top-level-form = (restart-case (eclector.parse-result:read input nil '#1=#.(make-symbol "EOF"))
+    (loop for top-level-form = (restart-case (eclector.concrete-syntax-tree:cst-read
+                                              input nil '#1=#.(make-symbol "EOF"))
                                  (continue ()
                                    :report "Skip the top-level form"
                                    nil))
