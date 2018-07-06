@@ -65,7 +65,7 @@
   (cst:db source (operator . pairs) cst
     (flet ((handle-place (place value)
              (cond ((cst:atom place)
-                    `(setq ,source ,(walk place) ,(walk value)))
+                    `(setq ,source (,(walk place)) (,(walk value))))
                    ((fboundp `(setf ,(cst:raw (cst:first place))))
                     `(:call ,(cons (car source) (cdr (cst:source value)))
                             (:function ,(cst:source (cst:first place))
