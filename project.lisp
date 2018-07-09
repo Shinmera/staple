@@ -7,7 +7,9 @@
 (in-package #:org.shirakumo.staple)
 
 (defvar *load-prohibited-systems*
-  (mapcar #'asdf:find-system '("asdf" "asdf-package-system" "asdf/defsystem" "asdf/driver" "asdf/prelude")))
+  (loop for name in '("asdf" "asdf-package-system" "asdf/defsystem" "asdf/driver" "asdf/prelude")
+        for sys = (asdf:find-system name NIL)
+        when sys collect sys))
 (defvar *loaded-extensions*)
 
 (defclass project ()
