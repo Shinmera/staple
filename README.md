@@ -20,7 +20,7 @@ For best results you should *not* load your system before you load Staple, so th
 
 However, if you change any of these options, you will likely want to persist them somehow. The best way to do this is to use Staple's extension mechanism. See the sections below for that.
 
-You may also be interested in [Staple's server system](server.html), which gives you a live documentation browser for all systems currently loaded in your Lisp image.
+You may also be interested in [Staple's server system](staple-server/), which gives you a live documentation browser for all systems currently loaded in your Lisp image.
 
 ## Concepts
 Staple organises itself around `project`s and `page`s. Every mechanism in it is an extension of those two concepts.
