@@ -37,8 +37,13 @@
 
 (defun ensure-system (system-ish)
   (typecase system-ish
-    (asdf:system system-ish)
-    (T (asdf:find-system system-ish T))))
+    (asdf:system
+     system-ish)
+    ((or string symbol)
+     (asdf:find-system system-ish T))
+    (cons
+     (asdf/find-component:resolve-dependency-spec
+      (asdf:find-system :staple) system-ish))))
 
 (defmethod system-name ((system asdf:system))
   (intern (string-upcase (asdf:component-name system)) "KEYWORD"))
