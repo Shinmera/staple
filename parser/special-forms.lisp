@@ -96,8 +96,9 @@
              (mapcar #'cdr definitions)
              (walk-implicit-progn forms)))))
 
-(define-walker-form (load-time-value form) (cst)
-  (list (walk form)))
+(define-walker-form (load-time-value form . read-only) (cst)
+  (list (walk form)
+        (when read-only (walk read-only))))
 
 (define-walker-form (locally . body) (cst environment)
   ;; FIXME: parse declarations

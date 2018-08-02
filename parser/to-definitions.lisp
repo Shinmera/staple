@@ -85,8 +85,10 @@
 (define-sub-results let* (names values &rest forms)
   (append names values forms))
 
-(define-sub-results load-time-value (form)
-  (list form))
+(define-sub-results load-time-value (form &optional (read-only-p NIL r-p))
+  (if r-p
+      (list form read-only-p)
+      (list form)))
 
 (define-sub-results locally (&rest forms)
   forms)
