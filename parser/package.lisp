@@ -26,6 +26,10 @@
    #:parse-result->definition-list)
   ;; walker.lisp
   (:export
+   #:placeholder
+   #:placeholder-name
+   #:placeholder-package
+   #:placeholder-intern
    #:walk
    #:walk-bindings
    #:walk-implicit-progn

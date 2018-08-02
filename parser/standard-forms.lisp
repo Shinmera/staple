@@ -9,7 +9,7 @@
 (define-walk-compound-form T (cst environment)
   (cst:db source (operator . arguments) cst
     (if (cst:atom operator)
-        (if-let ((expander (macro-function (cst:raw operator))))
+        (if-let ((expander (ignore-errors (macro-function (cst:raw operator)))))
           (let ((expansion (perform-and-record-macro-expansion expander cst)))
             `(:macro ,source
                      ,(walk operator)

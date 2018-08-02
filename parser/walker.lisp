@@ -9,6 +9,49 @@
 (defclass client (eclector.concrete-syntax-tree::cst-client)
   ())
 
+(defclass placeholder ()
+  ((name :initarg :name :reader placeholder-name)
+   (package :initarg :package :reader placeholder-package)
+   (intern :initarg :intern :reader placeholder-intern))
+  (:default-initargs
+   :name (error "NAME required")
+   :package NIL
+   :intern NIL))
+
+(defmethod print-object ((placeholder placeholder) stream)
+  (let ((as-is (format NIL "~a~:[:~;::~]~a"
+                       (placeholder-package placeholder)
+                       (placeholder-intern placeholder)
+                       (placeholder-name placeholder))))
+    (ecase (readtable-case *readtable*)
+      (:upcase
+       (format stream "~:@(~a~)" as-is))
+      (:downcase
+       (format stream "~(~a~)" as-is))
+      (:preserve
+       (format stream "~a" as-is))
+      (:invert
+       (cond ((loop for char across as-is
+                    always (lower-case-p char))
+              (format stream "~:@(~a~)" as-is))
+             ((loop for char across as-is
+                    always (upper-case-p char))
+              (format stream "~(~a~)" as-is))
+             (T
+              (format stream "~a" as-is)))))))
+
+(defmethod eclector.reader:interpret-symbol ((client client) in package symbol intern)
+  (handler-case (call-next-method)
+    (eclector.reader:package-does-not-exist (e)
+      (declare (ignore e))
+      (make-instance 'placeholder :package package :name symbol :intern intern))
+    (eclector.reader:symbol-does-not-exist (e)
+      (declare (ignore e))
+      (make-instance 'placeholder :package package :name symbol :intern intern))
+    (eclector.reader:symbol-is-not-external (e)
+      (declare (ignore e))
+      (find-symbol symbol package))))
+
 (defmethod eclector.reader:evaluate-expression ((client client) expression)
   (eval expression))
 

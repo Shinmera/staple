@@ -125,6 +125,31 @@ Uses the host lisp's EVAL.
 
 See ECLECTOR.CONCRETE-SYNTAX-TREE::CST-CLIENT")
 
+  (type placeholder
+    "This class represents symbols that are not present in the host.
+
+They are emitted in parsed code snippets in place of symbols that
+cannot be read properly.
+
+See PLACEHOLDER-NAME
+See PLACEHOLDER-PACKAGE
+See PLACEHOLDER-INTERN")
+
+  (function placeholder-name
+    "Returns the symbol-name of the symbol this is a placeholder for.
+
+See PLACEHOLDER")
+
+  (function placeholder-package
+    "Returns the symbol-package name of the symbol this is a placeholder for.
+
+See PLACEHOLDER")
+
+  (function placeholder-intern
+    "Returns whether the symbol being read is an internal or external symbol.
+
+See PLACEHOLDER")
+
   (function walk
     "Walks the given CST in the environment.
 
