@@ -70,7 +70,8 @@
    #:generate)
   ;; recording.lisp
   (:export
-   #:packages)
+   #:packages
+   #:package-system)
   ;; transform.lisp
   (:export
    #:pathname-type->type

@@ -8,7 +8,8 @@
   (:nicknames #:org.shirakumo.staple.recording)
   (:use #:cl)
   (:export
-   #:packages))
+   #:packages
+   #:package-system))
 
 (in-package #:org.shirakumo.staple.recording)
 
@@ -41,6 +42,15 @@
 
 (defmethod (setf packages) (packages system-ish)
   (setf (packages (asdf:find-system system-ish T)) packages))
+
+(defmethod package-system ((package package))
+  (loop for system being the hash-keys of *system-packages*
+        for packages being the hash-values of *system-packages*
+        when (find package packages) return system))
+
+(defmethod package-system (thing)
+  (package-system (or (find-package thing)
+                      (error "No such package ~s." thing))))
 
 ;; Record all packages before system load
 (defmethod asdf:perform :after ((o asdf:prepare-op) (s asdf:system))

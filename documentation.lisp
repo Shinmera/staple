@@ -374,6 +374,16 @@ ASDF:FIND-SYSTEM.
 See ASDF:SYSTEM
 See DEFINITIONS-INDEX-PAGE")
 
+  (function package-system
+    "Returns the system associated with the package.
+
+This is typically the system that defines the package, if the package
+was recorded through Staple's package recording mechanism. If this
+automated detection is not smart enough, you may supply methods on
+this function to specify the correct system for a package.
+
+See CL:PACKAGE")
+
   (function format-documentation
     "Formats the definition according to the page's preferences.
 
