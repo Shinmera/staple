@@ -63,7 +63,9 @@
                (#\\ (incf i))
                (#\:
                 (unless escaped
-                  (setf name (subseq identifier (+ i (if (eql #\: (aref identifier (1+ i))) 2 1))))
+                  (if (<= (length identifier) (1+ i))
+                      (setf name "")
+                      (setf name (subseq identifier (+ i (if (eql #\: (aref identifier (1+ i))) 2 1)))))
                   (setf package (cond ((= 0 i)
                                        "KEYWORD")
                                       ((and (= 1 i) (char= #\# (aref identifier 0)))
