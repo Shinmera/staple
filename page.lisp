@@ -164,8 +164,9 @@
 (defgeneric resolve-source-link (source page))
 
 (defmethod resolve-source-link ((definition definitions:definition) (page definitions-index-page))
-  (let ((source (absolute-source-location (definitions:source-location definition))))
-    (when source (resolve-source-link source page))))
+  (when (find (symbol-package (definitions:symbol definition)) (packages page))
+    (let ((source (absolute-source-location (definitions:source-location definition))))
+      (when source (resolve-source-link source page)))))
 
 (defmethod resolve-source-link (source (page definitions-index-page))
   (cond ((pathname-utils:subpath-p
