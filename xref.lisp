@@ -41,6 +41,11 @@
   (when (eql (definitions:package definition) (find-package "CL"))
     (format NIL "http://l1sp.org/cl/~a" (url-encode (string-downcase (definitions:name definition))))))
 
+(define-xref-resolver other-projects (definition)
+  (let ((sys (package-system (definitions:package definition))))
+    (when (and sys (asdf:system-homepage sys))
+      (format NIL "~a#~a" (asdf:system-homepage sys) (url-encode (definition-id definition))))))
+
 (defun parse-lisp-token (string)
   (with-output-to-string (out)
     (with-input-from-string (in string)
