@@ -9,29 +9,33 @@
 (defvar *xref-resolvers* (make-hash-table :test 'eq))
 
 (defun xref-resolver (name)
-  (gethash name *xref-resolvers*))
+  (destructuring-bind (priority function) (gethash name *xref-resolvers*)
+    (values function priority)))
 
-(defun (setf xref-resolver) (function name)
-  (setf (gethash name *xref-resolvers*) function))
+(defun (setf xref-resolver) (function name &optional (priority 0))
+  (setf (gethash name *xref-resolvers*) (list priority function)))
 
 (defun remove-xref-resolver (name)
   (remhash name *xref-resolvers*))
 
 (defmacro define-xref-resolver (name args &body body)
-  `(progn (setf (xref-resolver ',name)
-                (lambda ,args ,@body))
-          ',name))
+  (destructuring-bind (name &optional (priority 0)) (if (listp name) name (list name))
+    `(progn (setf (xref-resolver ',name ,priority)
+                  (lambda ,args ,@body))
+            ',name)))
 
 (defun resolve-xref (definition)
-  (loop for resolver being the hash-values of *xref-resolvers*
-        for xref = (funcall resolver definition)
+  (loop for resolver in (sort (loop for v being the hash-values of *xref-resolvers*
+                                    collect v)
+                              #'> :key #'first)
+        for xref = (funcall (second resolver) definition)
         when xref do (return xref)))
 
-(define-xref-resolver current-page (definition)
+(define-xref-resolver (current-page 10) (definition)
   (when (find (definitions:package definition) (packages *page*))
     (format NIL "#~a" (url-encode (definition-id definition)))))
 
-(define-xref-resolver other-pages (definition)
+(define-xref-resolver (other-pages 0) (definition)
   (dolist (page (pages (project *page*)))
     (when (and (typep page 'definitions-index-page)
                (find (definitions:package definition) (packages page)))
@@ -41,7 +45,7 @@
   (when (eql (definitions:package definition) (find-package "CL"))
     (format NIL "http://l1sp.org/cl/~a" (url-encode (string-downcase (definitions:name definition))))))
 
-(define-xref-resolver other-projects (definition)
+(define-xref-resolver (other-projects -10) (definition)
   (let ((sys (package-system (definitions:package definition))))
     (when (and sys (asdf:system-homepage sys))
       (format NIL "~a#~a" (asdf:system-homepage sys) (url-encode (definition-id definition))))))

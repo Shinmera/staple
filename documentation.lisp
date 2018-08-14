@@ -968,6 +968,10 @@ and the common-lisp package, are defined.
 It is useful to define addition resolvers if you have some kind of
 source of documentation that you would like to be able to link to.
 
+Resolvers allow an optional priority number to control in which
+order they're invoked. When reading the resolver, the priority is
+returned as the second value.
+
 See REMOVE-XREF-RESOLVER
 See DEFINE-XREF-RESOLVER
 See RESOLVE-XREF")
@@ -982,6 +986,8 @@ See XREF-RESOLVER")
 
 The lambda-list should accept one required argument, the definition
 instance to find a cross-reference for.
+The name can be either a name for the resolver, or a list of name
+and priority number.
 
 See XREF-RESOLVER
 See REMOVE-XREF-RESOLVER
