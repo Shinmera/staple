@@ -952,7 +952,25 @@ See PAGE")
 
 This muffles warnings and suppresses *standard-output*.
 
-See ASDF:LOAD-SYSTEM"))
+See ASDF:LOAD-SYSTEM")
+
+  (function purify-arglist
+    "Purifies the given arguments list / lambda-list.
+
+This function is useful for presenting the user-interface part of
+a lambda-list. Thus it trims all extraneous information that the
+user of a function or macro does not need to know about.
+
+Specifically this does the following, depending on the current
+lambda-list-keyword in the arglist:
+
+  REQUIRED     --- The argument is purified recursively if it is a
+                   list, and retained verbatim otherwise.
+  &OPTIONAL    --- Only the variable name is retained.
+  &KEY         --- Only the variable's keyword-name is retained.
+  &WHOLE       --- The argument is removed.
+  &ENVIRONMENT --- The argument is removed.
+  &AUX         --- The argument is removed."))
 
 ;; xref.lisp
 (docs:define-docs

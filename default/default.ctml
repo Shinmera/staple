@@ -94,8 +94,17 @@
                       <ul class="qualifiers" iterate="qualifiers">
                         <li class="qualifier" lquery="(text *)">qualifier</li>
                       </ul>
-                      <ul class="arguments" iterate="arguments">
-                        <li class="argument" lquery="(text *)">argument</li>
+                      <ul class="arguments" iterate="(purify-arglist arguments)">
+                        <c:if test="(listp *)">
+                          <c:then>
+                            <ul class="arguments" iterate="*">
+                              <li class="argument" lquery="(text *) (add-class (when (find * (symbol-value 'lambda-list-keywords)) :lambda-list-keyword))">argument</li>
+                            </ul>
+                          </c:then>
+                          <c:else>
+                            <li class="argument" lquery="(text *) (add-class (when (find * (symbol-value 'lambda-list-keywords)) :lambda-list-keyword))">argument</li>
+                          </c:else>
+                        </c:if>
                       </ul>
                       <c:when test="source-link">
                         <a class="source-link" href="#" lquery="(attr :href source-link)">Source</a>

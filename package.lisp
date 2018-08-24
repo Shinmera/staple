@@ -94,7 +94,8 @@
    #:with-stream
    #:stream-designator
    #:relative-path
-   #:load-system-quietly)
+   #:load-system-quietly
+   #:purify-arglist)
   ;; xref.lisp
   (:export
    #:xref-resolver

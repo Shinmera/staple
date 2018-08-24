@@ -112,7 +112,11 @@
 ((:and .definition (:or .callable .type))
  (>header
   ((:and .name :before) :content "(" :font-weight normal)
-  ((:and .arguments :after) :content ")")))
+  ((:and .arguments :after) :content ")")
+  (.arguments
+   ((:and .arguments :before) :content "(")
+   (.argument :padding 0)
+   (.argument.lambda-list-keyword :color (hex 991155)))))
 
 ((.definition li>mark)
  :background none

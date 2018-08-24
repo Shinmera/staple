@@ -314,3 +314,21 @@
   (let ((*standard-output* (make-broadcast-stream)))
     (handler-bind ((warning #'muffle-warning))
       (asdf:load-system system))))
+
+(defun unlist (listish)
+  (if (listp listish) (first listish) listish))
+
+(defun purify-arglist (arglist)
+  (loop with part = '&required
+        for arg in arglist
+        do (cond ((find arg lambda-list-keywords)
+                  (setf part arg)))
+        collect (case part
+                  (&required
+                   (if (listp arg)
+                       (purify-arglist arg)
+                       arg))
+                  (&optional (unlist arg))
+                  (&key (unlist (unlist arg)))
+                  ((&whole &environment &aux))
+                  (T arg))))
