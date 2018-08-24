@@ -152,11 +152,15 @@
            (declare (ignore start end))
            (let* ((match (subseq string (aref rstart 0) (aref rend 0)))
                   (identifier (plump:decode-entities match))
-                  (xref (xref identifier)))
-             (if xref
-                 (format NIL "See <a href=\"~a\" class=\"xref\">~a</a>"
-                         (plump:encode-entities xref) match)
-                 (subseq string mstart mend)))))
+                  xref)
+             (cond ((cl-ppcre:scan "^[-a-zA-Z]+://" identifier)
+                    (format NIL "See <a href=\"~a\" class=\"exref\">~a</a>"
+                            match match))
+                   ((setf xref (xref identifier))
+                    (format NIL "See <a href=\"~a\" class=\"xref\">~a</a>"
+                            (plump:encode-entities xref) match))
+                   (T
+                    (subseq string mstart mend))))))
     (let* ((docstring (plump:encode-entities docstring))
            (docstring (cl-ppcre:regex-replace-all "[sS]ee (.*)" docstring #'replace-see)))
       (format NIL "<pre>~a</pre>" docstring))))
