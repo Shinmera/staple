@@ -52,6 +52,7 @@
 (defmethod definition-wanted-p ((definition definitions:compiler-macro) (project simple-page))
   NIL)
 
+#+sbcl
 (defmethod definition-wanted-p ((definition definitions:declaration) (project simple-page))
   NIL)
 

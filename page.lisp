@@ -27,7 +27,7 @@
   (print-unreadable-object (page stream :type T)
     (format stream "~s (~a)" (title page) (language page))))
 
-(defgeneric generate (page &key if-exists &allow-other-keys))
+(defgeneric generate (page &key &allow-other-keys))
 
 (defmethod generate :around ((page page) &key)
   (let ((*page* page))
