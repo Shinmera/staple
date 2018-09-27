@@ -228,7 +228,8 @@
 
 (defun extract-language (string)
   (cl-ppcre:do-matches-as-strings (code "\\b\\w{2,3}\\b" string)
-    (let ((found (language-codes:names code)))
+    (let* ((code (find-symbol (string-upcase code) "KEYWORD"))
+           (found (when code (language-codes:names code))))
       (when found
         (return (values code found))))))
 

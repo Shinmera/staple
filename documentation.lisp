@@ -122,7 +122,7 @@ See COMPILE-SOURCE")
     "Returns a suitable pathname making up the filename of the page.
 
 By default for simple-pages this is the name \"index\" followed by
-the language code of the page if the language is not \"en\" or \"eng\"
+the language code of the page, if the language is not :en or :eng,
 and the type \"html\".
 
 See SIMPLE-PAGE")
@@ -248,8 +248,8 @@ See PAGE")
     "Accessor to the language of a page.
 
 The language should be a two or three-letter short-code that uniquely
-identifies the language. See the ISO-639 language codes for all
-available options.
+identifies the language as a keyword. See the ISO-639 language codes for
+all available options.
 
 See PAGE")
 

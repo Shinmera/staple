@@ -10,7 +10,7 @@
 
 (defclass page ()
   ((title :initarg :title :accessor title)
-   (language :initarg :language :initform "en" :accessor language)
+   (language :initarg :language :initform :en :accessor language)
    (output :initarg :output :accessor output)
    (project :initarg :project :accessor project))
   (:default-initargs
@@ -21,7 +21,7 @@
 (defmethod initialize-instance :after ((page page) &key output language)
   (unless language
     (setf (language page) (or (when output (extract-language (file-namestring output)))
-                              "en"))))
+                              :en))))
 
 (defmethod print-object ((page page) stream)
   (print-unreadable-object (page stream :type T)

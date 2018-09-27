@@ -29,16 +29,16 @@
   (unless language
     (setf (language page) (or (when document (extract-language (file-namestring document)))
                               (when output (extract-language (file-namestring output)))
-                              "en")))
+                              :en)))
   (unless (or (pathname-name output)
               (pathname-type output))
     (setf (output page) (merge-pathnames (filename page) (output page)))))
 
 (defmethod filename ((page simple-page))
-  (let ((lang (unless (find (language page) '("en" "eng") :test #'string-equal)
-                (language page))))
-    (make-pathname :name (format NIL "index~@[-~a~]" lang)
-                   :type "html")))
+  (make-pathname :name (if (find (language page) '(:en :eng))
+                           "index"
+                           (format NIL "index-~(~a~)" (language page)))
+                 :type "html"))
 
 (defmethod definition-wanted-p ((definition definitions:definition) (project simple-page))
   (eql :external (definitions:visibility definition)))
