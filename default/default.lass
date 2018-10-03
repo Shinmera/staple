@@ -21,7 +21,7 @@
     (a[href]
      :color (hex 223388))))))
 
-(article.system
+(article.project
  ((:or h1 h2 h3 h4 h5 h6)
    :margin 0.2em 0 0.1em 0
    :text-indent 1em)
@@ -118,8 +118,9 @@
    (.argument :padding 0)
    (.argument.lambda-list-keyword :color (hex 991155)))))
 
-((.definition li>mark)
- :background none
- :border-left 0.3em solid (hex 0088EE)
- :padding-left 0.3em
- :display block)
+(.definition
+ (li>mark
+  :background none
+  :border-left 0.3em solid (hex 0088EE)
+  :padding-left 0.3em
+  :display block))
