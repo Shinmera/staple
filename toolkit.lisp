@@ -207,10 +207,15 @@
       ;; Translate form to file-position
       (when form
         (ignore-errors
-         (with-open-file (stream file :direction :input)
-           (dotimes (i form) (read stream NIL))
-           (skip-to-source-form stream)
-           (setf offset (+ (or offset 0) (file-position stream))))))
+         (let ((*package* *package*))
+           (with-open-file (stream file :direction :input)
+             (loop repeat form
+                   for read = (read stream NIL)
+                   do (ignore-errors
+                       (when (and (listp read) (find 'cl:in-package read))
+                         (eval read))))
+             (skip-to-source-form stream)
+             (setf offset (+ (or offset 0) (file-position stream)))))))
       ;; Count row + col
       (when offset
         (ignore-errors
