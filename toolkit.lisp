@@ -51,6 +51,17 @@
 (defmethod system-name (name)
   (system-name (asdf:find-system name T)))
 
+(defun system-field (field system)
+  ;; Stupid motherfucking workaround for ASDF bugs
+  (let ((system (ensure-system system))
+        (field (find-symbol (string field) '#:asdf/system))
+        (function (find-symbol (let ((*print-case* #. (readtable-case *readtable*)))
+                                 (format NIL "~a-~a" 'system field))
+                               '#:asdf)))
+    (ignore-errors
+     (cond (field (asdf/system::system-virtual-slot-value system field))
+           (function (funcall function system))))))
+
 (defun compact (node)
   (typecase node
     (plump:text-node
