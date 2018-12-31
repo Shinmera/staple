@@ -19,9 +19,13 @@
                 ((or string pathname) (plump:parse html)))))
     (flet ((markup (node)
              (restart-case
-                 (if (string= "pre" (plump:tag-name (plump:parent node)))
-                     (markup-code-block node)
-                     (markup-code-reference node))
+                 (cond ((string= "pre" (plump:tag-name (plump:parent node)))
+                        (markup-code-block node))
+                       ((and (plump:first-element node)
+                             (string= "pre" (plump:tag-name (plump:first-element node))))
+                        (markup-code-block (plump:first-child node)))
+                       (T
+                        (markup-code-reference node)))
                (skip-tag ()
                  :report "Skip marking up the current tag."))
              T))
