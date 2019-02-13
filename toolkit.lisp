@@ -58,9 +58,8 @@
         (function (find-symbol (let ((*print-case* #. (readtable-case *readtable*)))
                                  (format NIL "~a-~a" 'system field))
                                '#:asdf)))
-    (ignore-errors
-     (cond (field (asdf/system::system-virtual-slot-value system field))
-           (function (funcall function system))))))
+    (or (when function (ignore-errors (funcall function system)))
+        (when field (ignore-errors (asdf/system::system-virtual-slot-value system field))))))
 
 (defun compact (node)
   (typecase node
