@@ -18,6 +18,7 @@
                (:file "server")
                (:file "documentation"))
   :depends-on (:staple-markdown
+               :staple-markless
                :hunchentoot
                :documentation-utils
                :dissect))
