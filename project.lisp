@@ -86,7 +86,8 @@
       (apply #'infer-project system args))))
 
 (defmethod generate (project &rest args)
-  (let ((project (or (apply #'find-project project args)
+  (let ((project (or (when (typep project 'project) project)
+                     (apply #'find-project project args)
                      (apply #'infer-project project args)
                      (error "Cannot generate documentation for ~s: Could not find or infer a project."
                             project))))
