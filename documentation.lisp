@@ -515,7 +515,9 @@ extension file.
 See ASDF:SYSTEM-SOURCE-DIRECTORY")
 
   (function find-project
-    "Find and return the project for the given ASDF:SYSTEM.
+    "Find and return the project for the given project designator.
+
+Typically the project designator will be an ASDF:SYSTEM.
 
 If you want to define a custom project for your system, you should
 add a method specialising on your system instance to this function

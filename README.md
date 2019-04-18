@@ -6,7 +6,7 @@ The most trivial manner in which to use staple is to simply run it and let its i
 
     (staple:generate :my-system)
 
-For best results you should *not* load your system before you load Staple, so that Staple can record the packages the system defines as it is being loaded. The documentation should land in a subdirectory called `doc` within the system's source directory. For ad-hoc usage you can change some of the behaviour through keyword arguments:
+For best immediate results you should *not* load your system before you load Staple, so that Staple can record the packages the system defines as it is being loaded. If you later customise the documentation and set the packages explicitly, you don't have to watch out for that anymore, though. The documentation should land in a subdirectory called `doc` within the system's source directory. For ad-hoc usage you can change some of the behaviour through keyword arguments:
 
 * `:output-directory` The base directory in which documentation files are stored.
 * `:images` A list of paths to image files that might be used in the documentation. The first image is used as the project's logo.
@@ -18,7 +18,7 @@ For best results you should *not* load your system before you load Staple, so th
 * `:packages` The packages that should be included in the definitions index.
 * `:subsystems` A list of subsystems that are related to this primary system and should be included in the generation.
 
-However, if you change any of these options, you will likely want to persist them somehow. The best way to do this is to use Staple's extension mechanism. See the sections below for that.
+However, if you change any of these options, you will likely want to persist them somehow. The best way to do this is to use Staple's customisation mechanism. See the sections below for that.
 
 You may also be interested in [Staple's server system](staple-server/), which gives you a live documentation browser for all systems currently loaded in your Lisp image.
 
@@ -26,7 +26,7 @@ You may also be interested in [Staple's server system](staple-server/), which gi
 Staple organises itself around `project`s and `page`s. Every mechanism in it is an extension of those two concepts.
 
 ### Projects
-Projects represent a, well, project. This is distinct from an ASDF system, as a project might encompass multiple systems. Similarly, a Staple system might generate documentation for multiple ASDF systems at once. While a project might represent multiple systems, it is always identified by at least one "primary" system.
+Projects represent a, well, project. This is distinct from an ASDF system, as a project might encompass multiple systems. Similarly, an ASDF system fed to `generate` might generate documentation for multiple ASDF systems at once. While a project might represent multiple systems, it is always identified by at least one "primary" system.
 
 In order to get the project for a primary system, you can use `find-project`. This will return NIL if no specific project is defined for a system. In that case you may also use `infer-project` to let Staple try and figure out a project for the system automatically.
 
@@ -89,14 +89,17 @@ In order to override these, just write a method specialising on your system:
     (defmethod staple:template ((system (eql (asdf:find-system :my-system))))
       (asdf:system-relative-pathname system #p"my-template.ctml"))
 
-Some properties like the way documentation and docstrings are formatted require changing the way pages behave. For that, you can override the `page-type` like above, and implement a custom page subclass as illustrated in the next section.
+Some properties like the way documentation and docstrings are formatted require changing the way pages behave. For that, you can override the `page-type` similar to the above code snippet, and implement a custom page subclass as illustrated in the next section.
 
 ### Custom Pages
 By subclassing `simple-page`, you can customise all sorts of behaviours.
 
     (defclass my-page (staple:simple-page) ())
 
-Following are a few examples for things one might frequently want to change about the default behaviour.
+Following are a few examples for things one might frequently want to change about the default behaviour of a page. If you are customising project inference, you can use `page-type` to use this page:
+
+    (defmethod staple:page-type ((system (eql (asdf:find-system :my-system))))
+      'my-page)
 
 #### Changing Which Definitions are Shown
 
@@ -168,3 +171,26 @@ Writing a custom template is mostly a question of writing an HTML document that 
 By default Staple outputs the documentation into the source tree of your project. This will cause GitHub to index the HTML file and, depending on circumstances, think that your project is now primarily an HTML project. To fix this issue, you should mark the documentation as ignored for GitHub's indexer. You can do this by putting the following into a `.gitattributes` file at the repository root:
 
     doc/ linguist-vendored
+
+## An Example Customisation File
+This is a simple example customisation file that changes the inferred project to use a custom markup syntax and package list.
+
+    (asdf:load-system :staple-markdown)
+    
+    (defclass my-page (staple:simple-page) ())
+    
+    (defmethod staple:page-type ((system (eql (asdf:find-system :my-system))))
+      'my-page)
+    
+    (defmethod staple:packages ((system (eql (asdf:find-system :my-system))))
+      (mapcar #'find-package '(:my-system :my-system-other))
+    
+    (defmethod staple:format-documentation ((docstring string) (page my-page))
+      (let ((*package* (first (staple:packages page))))
+        (staple:markup-code-snippets-ignoring-errors
+         (staple:compile-source docstring :markdown))))
+
+## Custom Global Definitions
+Staple has support for documenting arbitrary definition types aside from the standard top level definition types that Common Lisp exposes. This is done through the [Definitions](https://shinmera.github.io/definitions) library. Please see its documentation on how to [add custom definitions](https://shinmera.github.io/definitions/#extending_definitions). You can write this extra glue code into your `staple.ext.lisp` file along with all the other Staple customisations. When a new definition type is defined, Staple will automatically try to find it and include it in your `simple-page`s. If you would like to be more selective, see `definition-wanted-p` above.
+
+Also of interest are `definition-id`, `definition-order`, and `definition-importance`, which control the page anchors and order of appearance of definitions in an index.

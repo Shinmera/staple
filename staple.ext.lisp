@@ -6,6 +6,9 @@
 (defmethod staple:packages ((system (eql (asdf:find-system :staple-markdown))))
   (list))
 
+(defmethod staple:packages ((system (eql (asdf:find-system :staple-markless))))
+  (list))
+
 (defmethod staple:packages ((system (eql (asdf:find-system :staple-package-recording))))
   (list (find-package :staple-package-recording)))
 
@@ -20,3 +23,9 @@
 
 (defmethod staple:documents ((system (eql (asdf:find-system :staple))))
   (list (asdf:system-relative-pathname system "README.md")))
+
+(defmethod staple:documents ((system (eql (asdf:find-system :staple-markdown))))
+  (list (asdf:system-relative-pathname system "README.markdown.md")))
+
+(defmethod staple:documents ((system (eql (asdf:find-system :staple-markless))))
+  (list (asdf:system-relative-pathname system "README.markless.md")))
