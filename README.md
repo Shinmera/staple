@@ -67,7 +67,7 @@ There's two ways in which to customise how Staple generates the documentation fo
 Customising projects is easy to explain, as it simply involves adding a method to `find-project` specialising on your system's name that returns the readily made project instance.
 
     (defmethod staple:find-project ((system (eql (asdf:find-system :my-system))) &key)
-      .. create project ..)
+      #|.. create project ..|#)
 
 See the documentation for the different kinds of pages to see what you can do with them. One thing you should always respect is the `:output-directory` keyword argument, which should provide the root directory in which the documentation is stored. You can find a good default using the `output-directory` function on your system.
 
@@ -183,7 +183,7 @@ This is a simple example customisation file that changes the inferred project to
       'my-page)
     
     (defmethod staple:packages ((system (eql (asdf:find-system :my-system))))
-      (mapcar #'find-package '(:my-system :my-system-other))
+      (mapcar #'find-package '(:my-system :my-system-other)))
     
     (defmethod staple:format-documentation ((docstring string) (page my-page))
       (let ((*package* (first (staple:packages page))))
