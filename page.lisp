@@ -156,11 +156,18 @@
              (cond ((cl-ppcre:scan "^[-a-zA-Z]+://" identifier)
                     (format NIL "See <a href=\"~a\" class=\"exref\">~a</a>"
                             match match))
-                   ((setf xref (xref identifier))
-                    (format NIL "See <a href=\"~a\" class=\"xref\">~a</a>"
-                            (plump:encode-entities xref) match))
                    (T
-                    (subseq string mstart mend))))))
+                    (cl-ppcre:register-groups-bind (identifier type) ("^(.*?)\\s*(?:\\(([a-zA-Z\\-:]+)\\))?$" identifier)
+                      (setf type (multiple-value-bind (name package) (parse-symbol type)
+                                   (cond ((null package)
+                                          (find-symbol name (find-package (string '#:definitions))))
+                                         ((find-package package)
+                                          (find-symbol name (find-package package))))))
+                      (setf xref (xref identifier type))
+                      (if xref
+                          (format NIL "See <a href=\"~a\" class=\"xref\">~a</a>"
+                                  (plump:encode-entities xref) match)
+                          (subseq string mstart mend))))))))
     (let* ((docstring (plump:encode-entities docstring))
            (docstring (cl-ppcre:regex-replace-all "[sS]ee (.*)" docstring #'replace-see)))
       (format NIL "<pre>~a</pre>" docstring))))

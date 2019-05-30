@@ -1060,6 +1060,9 @@ The following default cases are handled:
                              cross-reference via RESOLVE-XREF that can
                              be found is returned.
 
+The optional TYPE argument constrains the cross references to be of the
+given type of definition.
+
 See RESOLVE-XREF
 See PARSE-SYMBOL
 See FIND-DEFINITIONS-FOR-IDENTIFIER

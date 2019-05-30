@@ -98,15 +98,16 @@
                     (when symbol
                       (definitions:find-definitions symbol :package package :type type)))))))
 
-(defgeneric xref (thing))
+(defgeneric xref (thing &optional type))
 
-(defmethod xref ((definition definitions:definition))
+(defmethod xref ((definition definitions:definition) &optional (type T))
+  (declare (ignore type))
   (resolve-xref definition))
 
-(defmethod xref ((identifier string))
+(defmethod xref ((identifier string) &optional (type T))
   (multiple-value-bind (name package) (parse-symbol identifier)
     (unless (eql package :gensym)
-      (let ((defs (find-definitions-for-identifier name :package package)))
+      (let ((defs (find-definitions-for-identifier name :package package :type type)))
         (loop for def in (preferred-definition defs)
               for xref = (resolve-xref def)
               do (when xref (return xref)))))))
