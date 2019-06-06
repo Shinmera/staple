@@ -158,11 +158,13 @@
                             match match))
                    (T
                     (cl-ppcre:register-groups-bind (identifier type) ("^(.*?)\\s*(?:\\(([a-zA-Z\\-:]+)\\))?$" identifier)
-                      (setf type (multiple-value-bind (name package) (parse-symbol type)
-                                   (cond ((null package)
-                                          (find-symbol name (find-package (string '#:definitions))))
-                                         ((find-package package)
-                                          (find-symbol name (find-package package))))))
+                      (setf type (if type
+                                     (multiple-value-bind (name package) (parse-symbol type)
+                                       (cond ((null package)
+                                              (find-symbol name (find-package (string '#:definitions))))
+                                             ((find-package package)
+                                              (find-symbol name (find-package package)))))
+                                     T))
                       (setf xref (xref identifier type))
                       (if xref
                           (format NIL "See <a href=\"~a\" class=\"xref\">~a</a>"
