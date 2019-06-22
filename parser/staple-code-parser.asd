@@ -6,7 +6,7 @@
 
 (asdf:defsystem staple-code-parser
   :version "1.0.0"
-  :license "Artistic"
+  :license "zlib"
   :author "Nicolas Hafner <shinmera@tymoon.eu>"
   :maintainer "Nicolas Hafner <shinmera@tymoon.eu>"
   :description "A code parser tool for documentation markup"

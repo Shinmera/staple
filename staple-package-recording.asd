@@ -8,7 +8,7 @@
 (asdf:defsystem staple-package-recording
   :name "Staple System Package Recorder"
   :version "1.0.1"
-  :license "Artistic"
+  :license "zlib"
   :author "Nicolas Hafner <shinmera@tymoon.eu>"
   :maintainer "Nicolas Hafner <shinmera@tymoon.eu>"
   :description "Collects information about packages being defined with an ASDF system."
