@@ -24,6 +24,7 @@
    #:simple-page
    #:document
    #:filename
+   #:document-package
    #:simple-project
    #:logo
    #:documents

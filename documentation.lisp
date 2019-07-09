@@ -127,6 +127,14 @@ and the type \"html\".
 
 See SIMPLE-PAGE")
 
+  (function docmuent-package
+    "Accessor for the package used to resolve source links in the body document of a simple-page.
+
+If this is NIL, the first package in the page's package list is used.
+
+See PACKAGES
+See SIMPLE-PAGE")
+
   (function documents
     "Returns a list of pathnames to documents relevant for the given system.
 

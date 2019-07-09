@@ -16,11 +16,13 @@
   (asdf:system-relative-pathname :staple "default/default.ctml"))
 
 (defclass simple-page (system-page)
-  ((document :initarg :document :accessor document)
+  ((document-package :initarg :document-package :accessor document-package)
+   (document :initarg :document :accessor document)
    (images :initarg :images :accessor images))
   (:default-initargs
    :document NIL
    :images ()
+   :document-package NIL
    :input *default-template*))
 
 (defmethod initialize-instance :after ((page simple-page) &key document output language)
@@ -57,7 +59,8 @@
   NIL)
 
 (defmethod compile-source ((document pathname) (page simple-page))
-  (let ((*package* (or (first (packages page))
+  (let ((*package* (or (document-package page)
+                       (first (packages page))
                        (find-package "CL-USER"))))
     (markup-code-snippets-ignoring-errors
      (compile-source document T))))
