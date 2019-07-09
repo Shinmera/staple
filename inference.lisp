@@ -96,7 +96,7 @@
   *default-template*)
 
 (defmethod output-directory ((system asdf:system))
-  (merge-pathnames "doc/" (asdf:system-source-directory system)))
+  (merge-pathnames "docs/" (asdf:system-source-directory system)))
 
 (define-condition no-known-output-directory (error)
   ((system :initarg :system :reader system))
