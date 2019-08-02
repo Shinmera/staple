@@ -18,4 +18,4 @@ Since the parser does not compile or evaluate the code, it is missing a lot of i
 
 The way to do this is twofold. You can either use `define-walk-compound-form` an expand into known parse results, transforming the contents as appropriate, or you can use `define-walker-form` to define a new parse result type. In the latter case you will also need to add `define-sub-forms` and `define-definition-resolver` to handle the traversal and lookup.
 
-Have a look at the source files [special-forms](https://github.com/Shinmera/staple/blob/master/special-forms.lisp), [standard-forms](https://github.com/Shinmera/staple/blob/master/standard-forms.lisp), and [to-definitions](https://github.com/Shinmera/staple/blob/master/to-definitions.lisp) for examples on how to use these.
+Have a look at the source files [special-forms](https://github.com/Shinmera/staple/blob/master/parser/special-forms.lisp), [standard-forms](https://github.com/Shinmera/staple/blob/master/parser/standard-forms.lisp), and [to-definitions](https://github.com/Shinmera/staple/blob/master/parser/to-definitions.lisp) for examples on how to use these.
