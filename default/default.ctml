@@ -71,59 +71,61 @@
           </section>
         </c:using>
       </c:when>
-      <section id="index">
-        <h2>Definition Index</h2>
-        <ul iterate="(mapcar #'staple::ensure-package-definition packages)">
-          <li>
-            <article class="definition package" lquery="(attr :id id)">
-              <header>
-                <h3>
-                  <a href="#" lquery="(attr :href xref) (text name)">FOO</a>
-                </h3>
-                <ul class="nicknames" iterate="nicknames">
-                  <li lquery="(text *)">CL-FOO</li>
-                </ul>
-                <c:when test="source-link">
-                  <a class="source-link" href="#" lquery="(attr :href source-link)">Source</a>
-                </c:when>
-              </header>
-              <div class="docstring" lquery="(html formatted-documentation)">Docstring</div>
-              <ul class="definitions" iterate="definitions">
-                <li>
-                  <article class="definition" lquery="(add-class (string-downcase type)) (add-class (when (typep * 'definitions:callable) (string-downcase :callable)))  (attr :id id)">
-                    <header>
-                      <span class="visibility" lquery="(text visibility)">visibility</span>
-                      <span class="type" lquery="(text type)">type</span>
-                      <h4 class="name">
-                        <a href="#" lquery="(attr :href xref) (text designator)">name</a>
-                      </h4>
-                      <ul class="qualifiers" iterate="qualifiers">
-                        <li class="qualifier" lquery="(text *)">qualifier</li>
-                      </ul>
-                      <ul class="arguments" iterate="(purify-arglist arguments)">
-                        <c:if test="(listp *)">
-                          <c:then>
-                            <ul class="arguments" iterate="*">
+      <c:when test="packages">
+        <section id="index">
+          <h2>Definition Index</h2>
+          <ul iterate="(mapcar #'staple::ensure-package-definition packages)">
+            <li>
+              <article class="definition package" lquery="(attr :id id)">
+                <header>
+                  <h3>
+                    <a href="#" lquery="(attr :href xref) (text name)">FOO</a>
+                  </h3>
+                  <ul class="nicknames" iterate="nicknames">
+                    <li lquery="(text *)">CL-FOO</li>
+                  </ul>
+                  <c:when test="source-link">
+                    <a class="source-link" href="#" lquery="(attr :href source-link)">Source</a>
+                  </c:when>
+                </header>
+                <div class="docstring" lquery="(html formatted-documentation)">Docstring</div>
+                <ul class="definitions" iterate="definitions">
+                  <li>
+                    <article class="definition" lquery="(add-class (string-downcase type)) (add-class (when (typep * 'definitions:callable) (string-downcase :callable)))  (attr :id id)">
+                      <header>
+                        <span class="visibility" lquery="(text visibility)">visibility</span>
+                        <span class="type" lquery="(text type)">type</span>
+                        <h4 class="name">
+                          <a href="#" lquery="(attr :href xref) (text designator)">name</a>
+                        </h4>
+                        <ul class="qualifiers" iterate="qualifiers">
+                          <li class="qualifier" lquery="(text *)">qualifier</li>
+                        </ul>
+                        <ul class="arguments" iterate="(purify-arglist arguments)">
+                          <c:if test="(listp *)">
+                            <c:then>
+                              <ul class="arguments" iterate="*">
+                                <li class="argument" lquery="(text *) (add-class (when (find * (symbol-value 'lambda-list-keywords)) :lambda-list-keyword))">argument</li>
+                              </ul>
+                            </c:then>
+                            <c:else>
                               <li class="argument" lquery="(text *) (add-class (when (find * (symbol-value 'lambda-list-keywords)) :lambda-list-keyword))">argument</li>
-                            </ul>
-                          </c:then>
-                          <c:else>
-                            <li class="argument" lquery="(text *) (add-class (when (find * (symbol-value 'lambda-list-keywords)) :lambda-list-keyword))">argument</li>
-                          </c:else>
-                        </c:if>
-                      </ul>
-                      <c:when test="source-link">
-                        <a class="source-link" href="#" lquery="(attr :href source-link)">Source</a>
-                      </c:when>
-                    </header>
-                    <div class="docstring" lquery="(html formatted-documentation)">Docstring</div>
-                  </article>
-                </li>
-              </ul>
-            </article>
-          </li>
-        </ul>
-      </section>
+                            </c:else>
+                          </c:if>
+                        </ul>
+                        <c:when test="source-link">
+                          <a class="source-link" href="#" lquery="(attr :href source-link)">Source</a>
+                        </c:when>
+                      </header>
+                      <div class="docstring" lquery="(html formatted-documentation)">Docstring</div>
+                    </article>
+                  </li>
+                </ul>
+              </article>
+            </li>
+          </ul>
+        </section>
+      </c:when>
     </article>
     <script lquery='(text (read-file (asdf:system-relative-pathname :staple "default/default.js")))'></script>
   </body>
