@@ -22,6 +22,8 @@
      :color (hex 223388))))))
 
 (article.project
+ (h1
+  :font-size 1.7em)
  ((:or h1 h2 h3 h4 h5 h6)
    :margin 0.2em 0 0.1em 0
    :text-indent 1em)
