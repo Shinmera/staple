@@ -59,7 +59,7 @@
  (.row
   (label
    :display inline-block
-   :min-width 6em))
+   :min-width 8em))
  ("#system"
   (.row
    :display flex)
