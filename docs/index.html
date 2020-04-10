@@ -16,7 +16,7 @@
   (<a href="http://l1sp.org/cl/format" class="xref">format</a> NIL &quot;http://someplace/view-file/~a#line-~a&quot; 
     (make-path-relative-somehow (<a href="http://l1sp.org/cl/getf" class="xref">getf</a> source :file))
     (<a href="http://l1sp.org/cl/getf" class="xref">getf</a> source :row)))
-</code></pre> <p>Note that by default, if you set the <code>:homepage</code> property in your ASDF system definition to a GitHub project URL, it will try to automatically compute the URL to GitHub's file viewer.</p> <h4 id="changing_docstring_formatting">Changing Docstring Formatting</h4> <pre><code>(<a href="http://l1sp.org/cl/defmethod" class="xref">defmethod</a> <a href="#GENERIC-FUNCTION%20STAPLE%3AFORMAT-DOCUMENTATION" class="xref">staple:format-documentation</a> ((docstring <a href="http://l1sp.org/cl/string" class="xref">string</a>) (page my-page))
+</code></pre> <p>Note that by default, if you set the <code>:homepage</code> property in your ASDF system definition to a GitHub or GitLab project URL, it will try to automatically compute the URL to GitHub's or GitLab's file viewer.</p> <h4 id="changing_docstring_formatting">Changing Docstring Formatting</h4> <pre><code>(<a href="http://l1sp.org/cl/defmethod" class="xref">defmethod</a> <a href="#GENERIC-FUNCTION%20STAPLE%3AFORMAT-DOCUMENTATION" class="xref">staple:format-documentation</a> ((docstring <a href="http://l1sp.org/cl/string" class="xref">string</a>) (page my-page))
   (let ((<a href="http://l1sp.org/cl/%2Apackage%2A" class="xref">*package*</a> (<a href="http://l1sp.org/cl/first" class="xref">first</a> (<a href="staple-package-recording/index.html#GENERIC-FUNCTION%20STAPLE-PACKAGE-RECORDING%3APACKAGES" class="xref">staple:packages</a> page))))
     (<a href="#FUNCTION%20STAPLE%3AMARKUP-CODE-SNIPPETS-IGNORING-ERRORS" class="xref">staple:markup-code-snippets-ignoring-errors</a>
      (<a href="#GENERIC-FUNCTION%20STAPLE%3ACOMPILE-SOURCE" class="xref">staple:compile-source</a> docstring :markdown))))
@@ -145,8 +145,8 @@ See <a href="#CLASS%20STAPLE%3AINPUT-PAGE" class="xref">INPUT-PAGE</a></pre></di
 This system will compute several properties automatically by using the
 ASDF metadata: if the :PACKAGES are not given, they are computed from
 calling PACKAGES on the system object. When a source link is resolved
-and the project's homepage resides on GitHub, it will try to guess a
-link to the GitHub repository's viewer of the source file.
+and the project's homepage resides on GitHub or GitLab, it will try to guess a
+link to the GitHub/GitLab repository's viewer of the source file.
 
 See <a href="#GENERIC-FUNCTION%20STAPLE%3ASYSTEM" class="xref">SYSTEM</a>
 See <a href="#CLASS%20STAPLE%3ADEFINITIONS-INDEX-PAGE" class="xref">DEFINITIONS-INDEX-PAGE</a></pre></div> </article> </li>  <li> <article class="definition class" id="CLASS STAPLE:TEMPLATED-PAGE"> <header> <span class="visibility">EXTERNAL</span> <span class="type">CLASS</span> <h4 class="name"> <a href="#CLASS%20STAPLE%3ATEMPLATED-PAGE">TEMPLATED-PAGE</a> </h4> <ul class="qualifiers"></ul> <ul class="arguments"></ul>  <a class="source-link" href="https://github.com/Shinmera/staple/blob/master/page.lisp#L103">Source</a>  </header> <div class="docstring"><pre>Superclass for pages that are templated using Clip.

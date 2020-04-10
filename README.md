@@ -124,7 +124,7 @@ This forces the definitions for `cl:if` to be included with the rest of the defi
         (make-path-relative-somehow (getf source :file))
         (getf source :row)))
 
-Note that by default, if you set the `:homepage` property in your ASDF system definition to a GitHub project URL, it will try to automatically compute the URL to GitHub's file viewer.
+Note that by default, if you set the `:homepage` property in your ASDF system definition to a GitHub or GitLab project URL, it will try to automatically compute the URL to GitHub's or GitLab's file viewer.
 
 #### Changing Docstring Formatting
 

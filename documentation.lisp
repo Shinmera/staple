@@ -458,8 +458,8 @@ See SORT-DEFINITIONS")
 This system will compute several properties automatically by using the
 ASDF metadata: if the :PACKAGES are not given, they are computed from
 calling PACKAGES on the system object. When a source link is resolved
-and the project's homepage resides on GitHub, it will try to guess a
-link to the GitHub repository's viewer of the source file.
+and the project's homepage resides on GitHub or GitLab, it will try to guess a
+link to the GitHub/GitLab repository's viewer of the source file.
 
 See SYSTEM
 See DEFINITIONS-INDEX-PAGE"))
