@@ -68,6 +68,12 @@
                 <a id="homepage" href="#" lquery="(attr :href homepage) (text homepage)">http://example.com</a>
               </div>
             </c:when>
+            <c:when test="source-control">
+              <div class="row">
+                <label for="sources">Sources:</label>
+                <a id="sources" href="#" lquery="(attr :href source-control) (text source-control)">http://example.com</a>
+              </div>
+            </c:when>
           </section>
         </c:using>
       </c:when>
