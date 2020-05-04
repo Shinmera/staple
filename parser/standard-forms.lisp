@@ -10,10 +10,17 @@
   (cst:db source (operator . arguments) cst
     (if (cst:atom operator)
         (if-let ((expander (ignore-errors (macro-function (cst:raw operator)))))
-          (let ((expansion (perform-and-record-macro-expansion expander cst)))
-            `(:macro ,source
-                     ,(walk operator)
-                     ,(walk expansion)))
+          (handler-case
+              (let ((expansion (perform-and-record-macro-expansion expander cst)))
+                `(:macro ,source
+                         ,(walk operator)
+                         ,(walk expansion)))
+            (error ()
+              ;; Just.. bail. Not ideal, could try stuff like walking body forms
+              ;; and skipping expansion. Maybe.
+              `(:macro ,source
+                       ,(walk operator)
+                       ,(cst:raw cst))))
           `(:call ,source
                   ,(walk operator)
                   ,@(mapcar #'walk (cst:listify arguments))))
