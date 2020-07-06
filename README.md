@@ -13,7 +13,7 @@ For best immediate results you should *not* load your system before you load Sta
 * `:documents` A list of documents for which to generate documentation pages. This usually refers to things like `README.md` and such. Typically you would only have multiple of these if you have translated the documentation into different languages. In that case, Staple will create an index page for each language individually.
 * `:page-type` The class to use for pages. See the sections below.
 * `:template` The template file to use. If you want to customise what the documentation pages look like, you might want to change this to one of your own.
-* `:if-exists` What to do if the output file already exists.
+* `:if-exists` What to do if the output file already exists (see [open](http://clhs.lisp.se/Body/f_open.htm)).
 * `:compact` Whether to compact the HTML files by trimming extraneous whitespace. Activated by default.
 * `:packages` The packages that should be included in the definitions index.
 * `:subsystems` A list of subsystems that are related to this primary system and should be included in the generation.
