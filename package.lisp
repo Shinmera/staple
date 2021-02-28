@@ -43,6 +43,8 @@
    #:language
    #:output
    #:project
+   #:page-variants
+   #:page-siblings
    #:generate
    #:input-page
    #:input

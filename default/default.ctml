@@ -11,26 +11,27 @@
         <c:when test="images">
           <img class="logo" src="logo.svg" alt="Logo" lquery="(attr :src (first images))" />
         </c:when>
-        <h1 lquery="(text title)">Name</h1>
+        <c:unless test="images">
+          <h1 lquery="(text title)">Name</h1>
+        </c:unless>
         <c:when test="system">
           <span class="version" lquery="(text (clip:clip system :version))">1.0</span>
         </c:when>
-        <nav class="languages" iterate="(pages project)">
-          <c:when test="(string= title (** :title))">
-            <a href="#" lquery="(attr :href (relative-path * (** :page))) (text (first (language-codes:names language)))">LANG</a>
-          </c:when>
+        <c:when test="(rest (page-variants page))">
+        <nav class="languages" iterate="(page-variants page)">
+          <a href="#" lquery="(attr :href (relative-path * (** :page))) (text (first (language-codes:names language)))">LANG</a>
         </nav>
+        </c:when>
         <c:when test="system">
           <p class="description" lquery="(text (clip:clip system :description))">
             Some short description of the lib.
           </p>
         </c:when>
-        <nav class="pages" iterate="(pages project)">
-          <c:when test="(and (or (string/= title (** :title)) (eq * (** :page)))
-              (string= language (** :language)))">
+        <c:when test="(rest (page-siblings page))">
+          <nav class="pages" iterate="(page-siblings page)">
             <a href="#" lquery="(attr :href (relative-path * (** :page))) (text title)">TITLE</a>
-          </c:when>
-        </nav>
+          </nav>
+        </c:when>
       </header>
       <section id="documentation" lquery="(html documentation)">
       </section>

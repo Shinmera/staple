@@ -27,6 +27,22 @@
   (print-unreadable-object (page stream :type T)
     (format stream "~s (~a)" (title page) (language page))))
 
+(defgeneric page-variants (page))
+
+(defmethod page-variants ((page page))
+  (loop for other in (pages (project page))
+        when (equal (title page) (title other))
+        collect other))
+
+(defgeneric page-siblings (page))
+
+(defmethod page-siblings ((page page))
+  (loop for other in (pages (project page))
+        when (and (title other)
+                  (equal (language page) (language other))
+                  (or (eq page other) (not (equal (title page) (title other)))))
+        collect other))
+
 (defgeneric generate (page &key &allow-other-keys))
 
 (defmethod generate :around ((page page) &key)
