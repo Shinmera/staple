@@ -46,6 +46,27 @@
 ;;             ,(walk form)
 ;;             )))
 
+(defun maybe-unquote (thing)
+  (if (and (consp thing) (eql 'quote (first thing)))
+      (second thing)
+      thing))
+
+(define-walk-compound-form make-instance (cst environment)
+  (cst:db source (operator type . args) cst
+    `(progn ,source
+            (:call ,(cons (car source) (cdr (cst:source operator)))
+                   (:function ,(cst:source operator) ,(cst:raw operator))
+                   (:type ,(cst:source type) ,(maybe-unquote (cst:raw type)))
+                   ,@(mapcar #'walk (cst:listify args))))))
+
+(define-walk-compound-form defclass (cst environment)
+  (cst:db source (operator name superclasses slots . options) cst
+    `(:macro ,source
+             ,(walk operator)
+             (progn ,source
+                    ,@(loop for class in (cst:listify superclasses)
+                            collect `(:type ,(cst:source class) ,(cst:raw class)))))))
+
 ;; Try handling defmethod directly to avoid lengthy macroexpansion and to
 ;; handle inference of class types.
 (define-walk-compound-form defmethod (cst environment)
@@ -93,6 +114,14 @@
         `(progn ,source
                 ,@(loop for (place value) on pairs by #'cddr
                         collect (handle-place place value)))))))
+
+(define-walk-compound-form loop (cst environment)
+  (cst:db source (operator . args) cst
+    `(:macro ,source
+             ,(walk operator)
+             (lambda ,source
+               ()
+               ,@(walk-implicit-progn args environment)))))
 
 ;; Transform literals in funcalls' function arguments to functions.
 (flet ((walk-funcallish (cst environment)
