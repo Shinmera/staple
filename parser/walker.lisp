@@ -74,7 +74,7 @@
          (parameters (type)
            (when-let ((group (find-if (of-type type) (cst:children cst))))
              (mapcar (rcurry #'walk environment) (cst:parameters group)))))
-    (append (parameter  'cst:whole-parameter-group)
+    (append (parameter  'cst:ordinary-whole-parameter-group)
             (parameters 'cst:destructuring-required-parameter-group)
             (parameters 'cst:ordinary-optional-parameter-group)
             (parameter  'cst:destructuring-rest-parameter-group)
