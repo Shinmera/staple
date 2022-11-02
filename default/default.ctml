@@ -51,12 +51,23 @@
                 <ul id="dependencies" iterate="dependencies"><li><a class="external" lquery="(text (asdf:component-name *)) (attr :href (system-field 'homepage *))"></a></li></ul>
               </div>
             </c:when>
-            <c:when test="author">
-              <div class="row">
-                <label for="author">Author:</label>
-                <a id="author" href="#" lquery='(attr :href (when (extract-author-email author) (format NIL "mailto:~a" (extract-author-email author)))) (text (extract-author-name author))'>author</a>
-              </div>
-            </c:when>
+            <c:if test="(stringp author)">
+              <c:then>
+                <div class="row" id="author">
+                  <label for="author">Author:</label>
+                  <a href="#" lquery='(attr :href (when (extract-author-email author) (format NIL "mailto:~a" (extract-author-email author)))) (text (extract-author-name author))'>author</a>
+                </div>
+              </c:then>
+              <c:elseif test="author">
+                <div class="row" id="author">
+                  <label for="author">Authors:</label>
+                  <ul iterate="author">
+                    <li><a href="#" lquery='(attr :href (when (extract-author-email *) (format nil "mailto:~a" (extract-author-email *)))) (text (extract-author-name *))'>author</a>
+                    </li>
+                  </ul>
+                </div>
+              </c:elseif>
+            </c:if>
             <c:when test="license">
               <div class="row">
                 <label for="license">License:</label>
