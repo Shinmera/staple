@@ -28,7 +28,7 @@
 
 (defun perform-and-record-macro-expansion (expander cst)
   (let* ((expansion/raw (funcall expander (cst:raw cst) nil))
-         (reconstructed (cst:reconstruct expansion/raw cst t)))
+         (reconstructed (cst:reconstruct T expansion/raw cst)))
     (labels ((record (node source-and-targets)
                (push node (cdr source-and-targets))
                (when (cst:consp node)
