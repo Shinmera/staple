@@ -256,13 +256,13 @@
                                 (truename (asdf:system-source-directory (system page))))
       (let ((homepage (asdf:system-homepage (system page))))
         (cond ((search "github" homepage)
-               (format NIL "~a/blob/master/~a~@[#L~a~]"
+               (format NIL "~a/blob/HEAD/~a~@[#L~a~]"
                        (github-project-root (asdf:system-homepage (system page)))
                        (enough-namestring (getf source :file)
                                           (asdf:system-source-directory (system page)))
                        (getf source :row)))
               ((search "gitlab" homepage)
-               (format NIL "~a/-/blob/master/~a~@[#L~a~]"
+               (format NIL "~a/-/blob/HEAD/~a~@[#L~a~]"
                        (gitlab-project-root (asdf:system-homepage (system page)))
                        (enough-namestring (getf source :file)
                                           (asdf:system-source-directory (system page)))
