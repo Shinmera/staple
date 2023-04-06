@@ -80,6 +80,12 @@
                 <a id="homepage" href="#" lquery="(attr :href homepage) (text homepage)">http://example.com</a>
               </div>
             </c:when>
+            <c:when test="bug-tracker">
+              <div class="row">
+                <label for="bug-tracker">Bug Tracker:</label>
+                <a id="bug-tracker" href="#" lquery="(attr :href bug-tracker) (text bug-tracker)">http://example.com</a>
+              </div>
+            </c:when>
             <c:when test="source-control">
               <div class="row">
                 <label for="sources">Sources:</label>
