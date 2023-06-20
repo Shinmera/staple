@@ -31,7 +31,8 @@
 
 (defmethod page-variants ((page page))
   (loop for other in (pages (project page))
-        when (equal (title page) (title other))
+        when (and (not (eq other page))
+                  (equal (title page) (title other)))
         collect other))
 
 (defgeneric page-siblings (page))
