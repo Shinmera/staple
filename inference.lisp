@@ -100,15 +100,15 @@
   (:report (lambda (c s) (format s "Cannot infer output directory for ~a."
                                  (asdf:component-name (system c))))))
 
-(defmethod infer-project ((system asdf:system) &key output-directory images documents page-type template packages subsystems)
+(defmethod infer-project ((system asdf:system) &key output-directory (images NIL images-p) (documents NIL documents-p) page-type template (packages NIL packages-p) (subsystems NIL subsystems-p))
   (load-extension system)
   (let* ((output-directory (or output-directory (output-directory system)))
-         (documents (or documents (documents system)))
-         (images (or images (images system)))
+         (documents (if documents-p documents (documents system)))
+         (images (if images-p images (images system)))
          (page-type (or page-type (page-type system)))
          (template (or template (template system)))
-         (packages (or packages (packages system)))
-         (subsystems (or subsystems (subsystems system))))
+         (packages (if packages-p packages (packages system)))
+         (subsystems (if subsystems-p subsystems (subsystems system))))
     (with-value-restart output-directory
       (unless (and (pathnamep output-directory)
                    (pathname-utils:directory-p output-directory))
