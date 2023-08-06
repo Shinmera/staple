@@ -246,19 +246,35 @@
   (cl-ppcre:register-groups-bind (user-1 user-2 repo) ("(?:https?://|//)?(?:gitlab.com/([\\w-]+)|([\\w-]+).gitlab.io)/([\\w-]+)" gitlab-url)
     (format NIL "https://gitlab.com/~a/~a" (or user-1 user-2) repo)))
 
+(defvar *current-commit-cache* (make-hash-table :test #'equal))
+(defmethod current-commit ((system asdf:system))
+  (or (gethash system *current-commit-cache*)
+      (let* ((repo (truename (asdf:system-source-directory system)))
+             ;; FIXME: We naively assume git. This is obviously not great.
+             (source (handler-case
+                         (uiop:run-program (list "git" "-C" (uiop:native-namestring repo) "rev-parse" "HEAD")
+                                           :output :string :ignore-error-status T)
+                       (error () "")))
+             (hash (string-trim '(#\Return #\Linefeed #\Space #\Tab) source)))
+        (when (string= hash "")
+          (setf hash "HEAD"))
+        (setf (gethash system *current-commit-cache*) hash))))
+
 (defmethod resolve-source-link (source (page system-page))
   (if (pathname-utils:subpath-p (truename (getf source :file))
                                 (truename (asdf:system-source-directory (system page))))
       (let ((homepage (asdf:system-homepage (system page))))
         (cond ((search "github" homepage)
-               (format NIL "~a/blob/HEAD/~a~@[#L~a~]"
+               (format NIL "~a/blob/~a/~a~@[#L~a~]"
                        (github-project-root (asdf:system-homepage (system page)))
+                       (current-commit (system page))
                        (enough-namestring (getf source :file)
                                           (asdf:system-source-directory (system page)))
                        (getf source :row)))
               ((search "gitlab" homepage)
-               (format NIL "~a/-/blob/HEAD/~a~@[#L~a~]"
+               (format NIL "~a/-/blob/~a/~a~@[#L~a~]"
                        (gitlab-project-root (asdf:system-homepage (system page)))
+                       (current-commit (system page))
                        (enough-namestring (getf source :file)
                                           (asdf:system-source-directory (system page)))
                        (getf source :row)))

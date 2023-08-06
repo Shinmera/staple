@@ -12,7 +12,8 @@
 (defgeneric pages (project))
 
 (defmethod generate ((project project) &rest args)
-  (let ((results ()))
+  (let ((*current-commit-cache* (make-hash-table :test 'equal))
+        (results ()))
     (with-simple-restart (abort "Abort ~a" project)
       (dolist (page (pages project))
         (with-simple-restart (continue "Ignore ~a" page)

@@ -53,7 +53,8 @@
    #:definition-wanted-p
    #:definitions
    #:system-page
-   #:system)
+   #:system
+   #:current-commit)
   ;; project.lisp
   (:export
    #:*project*
