@@ -48,12 +48,14 @@
 
 ;; Record all packages before system load
 (defmethod asdf:perform :after ((o asdf:prepare-op) (s asdf:system))
-  (setf (gethash s *before-load-packages*) (list-all-packages)))
+  (when (eql :not-recorded (gethash s *before-load-packages* :not-recorded))
+    (setf (gethash s *before-load-packages*) (list-all-packages))))
 
 ;; Difference recorded list against current list to get all packages defined.
 (defmethod asdf:perform :after ((o asdf:load-op) (s asdf:system))
   (let ((old-packages (gethash s *before-load-packages* :not-recorded)))
-    (unless (eql old-packages :not-recorded)
+    (when (and (not (eql :not-recorded old-packages))
+               (eql :not-recorded (gethash s *system-packages* :not-recorded)))
       (let ((new-packages (set-difference (list-all-packages) old-packages)))
         ;; Combine with previous ones to account for potential package addition
         ;; after later reloading of the system.
