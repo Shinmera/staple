@@ -188,7 +188,8 @@
 (defgeneric resolve-source-link (source page))
 
 (defmethod resolve-source-link ((definition definitions:definition) (page definitions-index-page))
-  (when (find (symbol-package (definitions:symbol definition)) (packages page))
+  (when (loop for package in (packages page)
+              thereis (eq (definitions:symbol definition) (find-symbol (symbol-name (definitions:symbol definition)) package)))
     (let ((source (absolute-source-location (definitions:source-location definition))))
       (when source (resolve-source-link source page)))))
 
