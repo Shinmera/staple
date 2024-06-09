@@ -35,14 +35,26 @@
     (plump:make-text-node link content)
     link))
 
+;; FIXME: this solves the issue of overlaps, but it's... not great for
+;;        obvious reasons. We should be able to handle nested definitions!
+(defun remove-overlaps (definitions)
+  (let ((definitions (sort (copy-seq definitions) #'< :key #'caadr)))
+    (loop for (definition . others) on definitions
+          do (dolist (other others)
+               (when (and (not (eq other definition))
+                          (< (car (second other)) (cdr (second definition))))
+                 (setf (cdr (second definition)) (car (second other)))))
+             (when (<= (cdr (second definition)) (car (second definition)))
+               (setf definitions (remove definition definitions))))
+    definitions))
+
 (defun markup-code-block (node)
   (let* ((text (plump:text node))
          (parse-result (staple-code-parser:parse text))
-         (definitions (staple-code-parser:parse-result->definition-list parse-result))
-         (definitions (remove-duplicates definitions :key #'cdr :test #'equal)))
+         (definitions (remove-overlaps (staple-code-parser:parse-result->definition-list parse-result))))
     (plump:clear node)
     (loop for prev = 0 then end
-          for (def loc) in (sort definitions #'< :key #'caadr)
+          for (def loc) in definitions
           for (start . end) = loc
           for xref = (xref def)
           do (cond (xref
