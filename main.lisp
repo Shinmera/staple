@@ -1,21 +1,6 @@
 (in-package #:org.shirakumo.staple)
 (defun asdf:upgrade-asdf () NIL)
 
-(defun ensure-dependencies-exist (system)
-  (labels ((r (system)
-             (let* ((system (etypecase system
-                              ((or string symbol) (asdf:find-system system))
-                              (asdf:system system)))
-                    (name (asdf:component-name system)))
-               (cond #+quicklisp
-                     ((ql-dist:find-system name)
-                      (ql-dist:ensure-installed (ql-dist:find-system name)))
-                     ((not (probe-file (asdf:system-source-file system)))
-                      (error "Source for system ~s seems to be unavailable!" name)))
-               (mapc #'r (asdf:system-defsystem-depends-on system))
-               (mapc #'r (asdf:system-depends-on system)))))
-    (r system)))
-
 (defun main ()
   (destructuring-bind (&optional system &rest args) uiop:*command-line-arguments*
     (handler-bind ((error
@@ -55,7 +40,6 @@
                                      (push val (getf kargs :subsystems)))
                                     (T
                                      (error "Unknown argument: ~a" key))))))
-                 (ensure-dependencies-exist system)
                  (apply #'staple:generate system :if-exists :supersede kargs)))
               (T
                (format *query-io* "~&Staple documentation generation tool

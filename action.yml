@@ -21,23 +21,33 @@ outputs:
 runs:
   using: "composite"
   steps:
-    - uses: dsaltares/fetch-gh-release-asset@master
+    - name: Install Lisp
+      uses: 40ants/setup-lisp@v4
       with:
-        repo: 'Shinmera/staple'
-        file: ${{ runner.os == 'Windows' && 'staple.exe' || (runner.os == 'Linux' && 'staple.run' || 'staple.o') }}
-        target: ${{ runner.temp }}/staple
+        asdf-system: staple
+      env:
+        LISP: sbcl-bin
+    - uses: actions/checkout@v4
+      with:
+        repository: shinmera/staple
+        path: staple
     - name: Run staple
-      shell: bash
+      shell: lispsh -eo pipefail {0}
       run: |
-        mkdir -p "$OUTPUT"
-        chmod +x ${{ runner.temp }}/staple
-        ${{ runner.temp }}/staple "$PROJECT" \
+        ros run -- --noinform \
+          --eval "(push \"$GITHUB_WORKSPACE/staple\" ql:*local-project-directories*)" \
+          --eval "(ql-dist:install-dist \"http://dist.shirakumo.org/shirakumo.txt\" :prompt NIL)" \
+          --eval "(ql:quickload :staple/standalone :silent T)" \
+          --eval "(staple::main)" \
+          --quit --end-toplevel-options \
+          "$PROJECT" \
           --output "$OUTPUT" \
           --template "$TEMPLATE"
       env:
         PROJECT: ${{ inputs.project || github.event.repository.name }}
         OUTPUT: ${{ inputs.output || format('{0}/staple-output/', runner.temp) }}
         TEMPLATE: ${{ inputs.template }}
+        LISP: sbcl-bin
     - name: Upload Github Pages Artefact
       if: ${{ inputs.gh-pages }}
       uses: actions/upload-pages-artifact@v3.0.1
