@@ -1,0 +1,56 @@
+name: build
+on: [create, workflow_dispatch]
+permissions:
+  contents: write
+jobs:
+  build:
+    strategy:
+      matrix:
+        platform: [ubuntu-latest, macOS-latest, windows-latest]
+      fail-fast: false
+    runs-on: ${{ matrix.platform }}
+    defaults:
+      run:
+        shell: bash
+    env:
+      LISP: sbcl-bin
+    steps:
+      - name: Restore cache
+        id: cache-ql
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.roswell
+            ~/.cache/common-lisp
+            ~/AppData/Local/cache
+          key: ${{ runner.os }}-ql
+      - name: Install Lisp
+        uses: 40ants/setup-lisp@v2
+      - uses: actions/checkout@v1
+      - name: Build the library
+        shell: lispsh -eo pipefail {0}
+        run: |
+          ros run -- --noinform \
+               --eval "(push \"$GITHUB_WORKSPACE\" ql:*local-project-directories*)" \
+               --eval '(ql:quickload :staple/standalone)' \
+               --non-interactive
+      - name: Build the binary
+        shell: lispsh -eo pipefail {0}
+        run: |
+          ros run -- --noinform \
+               --eval "(push \"$GITHUB_WORKSPACE\" ql:*local-project-directories*)" \
+               --eval '(asdf:make :staple/standalone)' \
+               --non-interactive
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: staple-${{ runner.os }}
+          path: ${{ runner.os == 'Windows' && 'staple.exe' || (runner.os == 'Linux' && 'staple.run' || 'staple.o') }}
+      - name: Create release
+        id: create_release
+        uses: ncipollo/release-action@v1
+        continue-on-error: true
+        with:
+          allowUpdates: true
+          name: Release ${{ github.ref_name }}
+          artifacts: ${{ runner.os == 'Windows' && 'staple.exe' || (runner.os == 'Linux' && 'staple.run' || 'staple.o') }}
