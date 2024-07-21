@@ -27,3 +27,12 @@
                :pathname-utils
                :language-codes
                :documentation-utils))
+
+(asdf:defsystem staple/standalone
+  :components ((:file "main"))
+  :depends-on (:staple :staple-markless :staple-markdown :staple-restructured-text)
+  :build-operation "program-op"
+  :build-pathname #+win32 "staple"
+  #+linux "staple.run"
+  #-(or win32 linux) "staple.o"
+  :entry-point "staple::main")
