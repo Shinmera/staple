@@ -2,10 +2,18 @@
 (defun asdf:upgrade-asdf () NIL)
 (defun main ()
   (destructuring-bind (&optional system &rest args) uiop:*command-line-arguments*
-    (handler-case
+    (handler-bind ((error
+                     (lambda (e)
+                       (format *error-output* "[ERROR] ~a~%" e)
+                       (uiop:print-condition-backtrace e)
+                       (uiop:quit 1)))
+                   (sb-sys:interactive-interrupt
+                     (lambda (e)
+                       (declare (ignore e))
+                       (uiop:quit 2))))
         (cond (system
                (let ((here (uiop/os:getcwd)))
-                 (asdf:clear-source-registry)
+                 (asdf:clear-configuration)
                  (asdf:initialize-source-registry)
                  (asdf:initialize-source-registry `(:source-registry (:tree ,here) :inherit-configuration)))
                (let ((kargs ()))
@@ -30,6 +38,8 @@
                                      (push val (getf kargs :subsystems)))
                                     (T
                                      (error "Unknown argument: ~a" key))))))
+                 (let ((*standard-output* (make-broadcast-stream)))
+                   (asdf:compile-system system :force :all))
                  (apply #'staple:generate system :if-exists :supersede kargs)))
               (T
                (format *query-io* "~&Staple documentation generation tool
@@ -73,9 +83,4 @@ documentation.
 Prior to invoking GENERATE, ASDF is updated to search for ASD files
 within the current working directory. Thus, for it to find your
 system, you should invoke staple from the project root in which all
-necessary systems are contained.~&")))
-      (error (e)
-        (format *error-output* "[ERROR] ~a~%" e)
-        (uiop:quit 1))
-      (sb-sys:interactive-interrupt ()
-        (uiop:quit 2)))))
+necessary systems are contained.~&"))))))

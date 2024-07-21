@@ -20,12 +20,6 @@ outputs:
 
 runs:
   using: "composite"
-  permissions:
-    pages: write
-    id-token: write
-  environment:
-    name: github-pages
-    url: ${{ steps.deployment.outputs.page_url }}
   steps:
     - uses: dsaltares/fetch-gh-release-asset@master
       with:
@@ -42,13 +36,13 @@ runs:
           --template "$TEMPLATE"
       env:
         PROJECT: ${{ inputs.project || github.event.repository.name }}
-        OUTPUT: ${{ inputs.output || ${{ runner.temp }}/staple-output/ }}
+        OUTPUT: ${{ inputs.output || format('{0}/staple-output/', runner.temp) }}
         TEMPLATE: ${{ inputs.template }}
     - name: Upload Github Pages Artefact
       if: ${{ inputs.gh-pages }}
       uses: actions/upload-pages-artifact@v3.0.1
       with:
-        path: ${{ inputs.output || ${{ runner.temp }}/staple-output/ }}
+        path: ${{ inputs.output || format('{0}/staple-output/', runner.temp) }}
     - name: Write to Github Pages
       if: ${{ inputs.gh-pages }}
       id: deployment

@@ -1,0 +1,12 @@
+name: documentation
+on: push
+permissions:
+  pages: write
+  id-token: write
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: shinmera/staple@v2.0.0
+        with:
+          gh-pages: true
