@@ -23,31 +23,40 @@ outputs:
 runs:
   using: "composite"
   steps:
-    - name: Install Lisp
-      uses: 40ants/setup-lisp@v4
-      with:
-        asdf-system: staple
-      env:
-        LISP: sbcl-bin
     - name: Restore cache
       uses: actions/cache@v3
+      id: cache
       with:
         path: |
-          ~/.roswell
+          ~/.quicklisp
           ~/.cache/common-lisp
           ~/AppData/Local/cache
         key: staple-${{ runner.os }}
+    - name: Install Lisp
+      shell: bash
+      run: |
+        sudo apt-get install -yy sbcl
+    - name: Install env
+      if: steps.cache.outputs.cache-hit != 'true'
+      shell: bash
+      run: |
+        curl https://beta.quicklisp.org/quicklisp.lisp \
+          | cat - <(echo "(quicklisp-quickstart:install :path \"~/.quicklisp/\")" \
+                         "(when (< 0 (length \"$DIST\")) (ql-dist:install-dist \"$DIST\" :prompt NIL))" \
+                         "(ql:quickload :staple/standalone :silent T)") \
+          | sbcl --noinform
+      env:
+        DIST: ${{ inputs.dist }}
     - uses: actions/checkout@v4
       with:
         repository: shinmera/staple
         path: staple
     - name: Run staple
-      shell: lispsh -eo pipefail {0}
+      shell: bash
       run: |
-        ros run -- --noinform \
+        sbcl --noinform \
+          --eval "(load \"~/.quicklisp/setup.lisp\")" \
           --eval "(push \"$GITHUB_WORKSPACE\" ql:*local-project-directories*)" \
-          --eval "(when (< 0 (length \"$DIST\")) (ql-dist:install-dist \"$DIST\" :prompt NIL))" \
-          --eval "(ql:update-all-dists :prompt NIL)" \
           --eval "(ql:quickload :staple/standalone :silent T)" \
           --eval "(staple::main)" \
           --quit --end-toplevel-options \
@@ -59,7 +68,6 @@ runs:
         OUTPUT: ${{ inputs.output || format('{0}/staple-output/', runner.temp) }}
         TEMPLATE: ${{ inputs.template }}
         LISP: sbcl-bin
-        DIST: ${{ inputs.dist }}
     - name: Upload Github Pages Artefact
       if: ${{ inputs.gh-pages }}
       uses: actions/upload-pages-artifact@v3.0.1
