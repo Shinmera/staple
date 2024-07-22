@@ -29,6 +29,14 @@ runs:
         asdf-system: staple
       env:
         LISP: sbcl-bin
+    - name: Restore cache
+      uses: actions/cache@v3
+      with:
+        path: |
+          ~/.roswell
+          ~/.cache/common-lisp
+          ~/AppData/Local/cache
+        key: staple-${{ runner.os }}
     - uses: actions/checkout@v4
       with:
         repository: shinmera/staple
