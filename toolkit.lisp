@@ -327,9 +327,20 @@
   (pathname-utils:relative-pathname from to))
 
 (defun load-system-quietly (system)
-  (let ((*standard-output* (make-broadcast-stream)))
-    (handler-bind ((warning #'muffle-warning))
-      (asdf:load-system system))))
+  (let ((*standard-output* (make-broadcast-stream))
+        (*trace-output* (make-broadcast-stream))
+        (*load-verbose* NIL)
+        (*load-print* NIL)
+        (*compile-verbose* NIL)
+        (*compile-print* NIL))
+    (handler-bind ((warning #'muffle-warning)
+                   #+sbcl (sb-ext:compiler-note #'muffle-warning))
+      (if (find-package '#:ql)
+          (funcall (find-symbol (string '#:quickload) '#:ql)
+                   (etypecase system
+                     (asdf:system (asdf:component-name system))
+                     ((or string symbol) system)))
+          (asdf:load-system system)))))
 
 (defun unlist (listish)
   (if (listp listish) (first listish) listish))
