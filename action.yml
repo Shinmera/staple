@@ -6,7 +6,6 @@ branding:
 inputs:
   project:
     description: 'The project to compile documentation for'
-    required: true
   output:
     description: 'Where to put the documentation output'
   template:
