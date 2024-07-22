@@ -13,6 +13,8 @@ inputs:
     description: 'The Clip template to use for documentation pages'
   gh-pages:
     description: 'If set will publish the documentation to Github Pages'
+  dist:
+    descriptino: 'An extra dist to load for dependencies'
 outputs:
   output:
     description: 'The output directory into which the documentation was put'
@@ -35,8 +37,9 @@ runs:
       shell: lispsh -eo pipefail {0}
       run: |
         ros run -- --noinform \
-          --eval "(push \"$GITHUB_WORKSPACE/staple\" ql:*local-project-directories*)" \
-          --eval "(ql-dist:install-dist \"http://dist.shirakumo.org/shirakumo.txt\" :prompt NIL)" \
+          --eval "(push \"$GITHUB_WORKSPACE\" ql:*local-project-directories*)" \
+          --eval "(when (< 0 (length \"$DIST\")) (ql-dist:install-dist \"$DIST\" :prompt NIL))" \
+          --eval "(ql:update-all-dists :prompt NIL)" \
           --eval "(ql:quickload :staple/standalone :silent T)" \
           --eval "(staple::main)" \
           --quit --end-toplevel-options \
@@ -48,6 +51,7 @@ runs:
         OUTPUT: ${{ inputs.output || format('{0}/staple-output/', runner.temp) }}
         TEMPLATE: ${{ inputs.template }}
         LISP: sbcl-bin
+        DIST: ${{ inputs.dist }}
     - name: Upload Github Pages Artefact
       if: ${{ inputs.gh-pages }}
       uses: actions/upload-pages-artifact@v3.0.1

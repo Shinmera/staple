@@ -11,3 +11,4 @@ jobs:
       - uses: shinmera/staple@v2.0.0
         with:
           gh-pages: true
+          dist: http://dist.shirakumo.org/shirakumo.txt
