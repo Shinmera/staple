@@ -14,7 +14,7 @@
                        (uiop:quit 2))))
         (cond (system
                (let ((here (uiop/os:getcwd)))
-                 (setf ql:*local-project-directories* ())
+                 #+quicklisp (setf ql:*local-project-directories* ())
                  (asdf:clear-configuration)
                  (asdf:initialize-source-registry)
                  (asdf:initialize-source-registry `(:source-registry (:tree ,here) :inherit-configuration)))
