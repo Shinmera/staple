@@ -1,5 +1,5 @@
 (in-package #:org.shirakumo.staple)
-(defun asdf:upgrade-asdf () NIL)
+#+asdf (defun asdf:upgrade-asdf () NIL)
 
 (defun main ()
   (destructuring-bind (&optional system &rest args) uiop:*command-line-arguments*
@@ -15,9 +15,9 @@
         (cond (system
                (let ((here (uiop/os:getcwd)))
                  #+quicklisp (setf ql:*local-project-directories* ())
-                 (asdf:clear-configuration)
-                 (asdf:initialize-source-registry)
-                 (asdf:initialize-source-registry `(:source-registry (:tree ,here) :inherit-configuration)))
+                 #+asdf (asdf:clear-configuration)
+                 #+asdf (asdf:initialize-source-registry)
+                 #+asdf (asdf:initialize-source-registry `(:source-registry (:tree ,here) :inherit-configuration)))
                (let ((kargs ()))
                  (loop for (key val) on args by #'cddr
                        do (flet ((argp (short long)
