@@ -1,5 +1,12 @@
 (staple:load-system-quietly :staple-server)
 
+(defmethod staple:subsystems ((system (eql (asdf:find-system :staple))))
+  (list (asdf:find-system :staple-markdown)
+        (asdf:find-system :staple-markless)
+        (asdf:find-system :staple-code-parser)
+        (asdf:find-system :staple-restructured-text)
+        (asdf:find-system :staple-server)))
+
 (defmethod staple:packages ((system (eql (asdf:find-system :staple))))
   (list (find-package :staple)))
 
