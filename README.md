@@ -1,6 +1,32 @@
 ## About Staple
 Staple is a documentation system. It provides you with a way to generate standalone documentation accumulated from various sources such as readmes, documentation files, and docstrings.
 
+This project currently resides in [GitHub](https://github.com/Shinmera/staple)
+
+## Quickstart
+
+1. Simply load a REPL
+2. Then load the projects
+
+```common-lisp
+(ql:quickload "staple")
+(ql:quickload "my-system")
+```
+3. Finally
+
+```lisp
+(staple:generate :my-system)
+```
+
+And you are done!
+
+You can make your own template for the docs. Here's an example of using the double-sidebar template:
+
+```common-lisp
+    (staple:generate :staple :if-exists :supersede :template  
+        #P"./themes/double-sidebar/double-sidebar.ctml")
+```
+
 ## How To
 The most trivial manner in which to use staple is to simply run it and let its inference mechanism figure out how to document your system. You can do that like so:
 
