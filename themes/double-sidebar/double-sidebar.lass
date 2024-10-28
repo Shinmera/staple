@@ -25,8 +25,8 @@
  (h1
   :font-size 1.7em)
  ((:or h1 h2 h3 h4 h5 h6)
-   :margin 0.2em 0 0.1em 0
-   :text-indent 1em)
+  :margin 0.2em 0 0.1em 0
+  :text-indent 1em)
  (>header
   :text-align center
   (img.logo
@@ -76,11 +76,7 @@
        :list-style none)))
  ("#toc"
   (nav>*
-   :margin-left 1em
-   :display block))
- ("#toc-symbols"
-  (nav>*
-   :margin-left 1em
+   :margin-left 0.25em
    :display block)))
 
 (article.definition
@@ -143,7 +139,7 @@
 
 (:media "(min-width: 1300px)"
         ((html body)
-         :padding-left 31em)
+         :padding-left 30em)
         (article.project
          ("#toc"
           :margin 0
@@ -153,7 +149,10 @@
           :overflow-y auto
           :background (hex F0F0F0)
           :border-left 1px solid (hex A0A0A0)
-          :border-right 1px solid (hex A0A0A0))
+          :border-right 1px solid (hex A0A0A0)
+          (nav>*
+           :margin-left 0.25em
+           :display block))         
          ("#toc-systems"
           :margin 0
           :position fixed

@@ -56,24 +56,14 @@
             <a href="#system">Packages</a>
             <nav iterate="(mapcar #'staple::ensure-package-definition packages)">
               <a lquery='(text name) (attr :href xref)'></a>
-            </nav>
-          </c:when>
-        </nav>
-      </section>
-      <section id="toc-symbols">
-        <h2>Systems, Packages, and Symbols</h2>
-        <nav>
-          <c:when test="system"><a href="#system">System</a></c:when>
-          <c:when test="packages">
-            <!-- <a href="#system">Packages</a> -->
-             <h3>Other Systems</h3>
-            <nav iterate="(mapcar #'staple::ensure-package-definition packages)">
-              <a lquery='(text name) (attr :href xref)'></a>
-            </nav>
-          </c:when>
-          <c:when test="(rest (page-siblings page))">
-            <nav class="pages" iterate="(page-siblings page)">
-              <a href="#" lquery="(attr :href (relative-path * (** :page))) (text title)">TITLE</a>
+              <nav iterate="definitions">
+                <div style="display: flex; flex-direction: row; gap: 2px; align-items: center; padding-right: 2px; font-size: small; text-transform: lowercase;">
+                  <span style="font-size: x-small;" class="type" lquery="(text type)">(type)</span>
+                  <a href="#" lquery="(attr :href xref) (text designator)">name</a>
+                </div>
+                <!-- <a lquery='(text type) (attr :href xref) (text designator)'></a> -->
+                <!-- (format NIL "#~a" (plump:attribute * "id")) -->
+              </nav>
             </nav>
           </c:when>
         </nav>
