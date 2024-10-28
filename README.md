@@ -60,11 +60,20 @@ To use one of the included templates simply pass the relevant file as an argumen
     (staple:generate :my-system :if-exists :supersede :template  
         #P"./themes/double-sidebar/double-sidebar.ctml")
 ```
-### Default
+
+### Make Your Own Template 
+
+To make your own template you can simply make a CTML file. See the existing templates for examples.
+
+Note that the CSS Styles and JS can be included directly in the template itself.
+
+### Included Templates 
+
+#### Default
 
 The default template will produce a left side panel with a Table Of Contents.
 
-### Double Left Side Panel
+#### Double Left Side Panel
 
 This template will produce a double left side panel where the left most side panel will have a list of systems, and the second side panel will have the regular Table Of Contents. 
 
