@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en" lquery="(attr :lang language)">
+  <head>
+    <meta charset="utf-8" />
+    <title lquery='(text (format NIL "~:(~a~)" title))'>Title</title>
+    <style lquery='(text (read-file (asdf:system-relative-pathname :staple "default/default.css")))'></style>
+  </head>
+  <body>
+    <article class="project">
+      <header>
+        <c:when test="images">
+          <img class="logo" src="logo.svg" alt="Logo" lquery="(attr :src (first images))" />
+        </c:when>
+        <c:unless test="images">
+          <h1 lquery="(text title)">Name</h1>
+        </c:unless>
+        <c:when test="system">
+          <span class="version" lquery="(text (clip:clip system :version))">1.0</span>
+        </c:when>
+        <c:when test="(rest (page-variants page))">
+        <nav class="languages" iterate="(page-variants page)">
+          <a href="#" lquery="(attr :href (relative-path * (** :page))) (text (first (language-codes:names language)))">LANG</a>
+        </nav>
+        </c:when>
+        <c:when test="system">
+          <p class="description" lquery="(text (clip:clip system :description))">
+            Some short description of the lib.
+          </p>
+        </c:when>
+        <c:when test="(rest (page-siblings page))">
+          <nav class="pages" iterate="(page-siblings page)">
+            <a href="#" lquery="(attr :href (relative-path * (** :page))) (text title)">TITLE</a>
+          </nav>
+        </c:when>
+      </header>
+      <c:when test="(rest (page-siblings page))">
+        <section id="toc-systems">
+          <h2>Systems</h2>
+          <nav iterate="(page-siblings page)">
+            <a href="#" lquery="(attr :href (relative-path * (** :page))) (text title)">TITLE</a>
+          </nav>
+          </section>
+      </c:when>
+      <section id="toc">
+        <h2>Table of Contents</h2>
+        <nav>
+          <a href="#project">Top</a>
+          <c:when test="documentation">
+            <a href="#documentation">Documentation</a>
+            <nav iterate='(clss:select "[id]" (plump:parse documentation))'>
+              <a lquery='(text (plump:text *)) (attr :href (format NIL "#~a" (plump:attribute * "id")))'></a>
+            </nav>
+          </c:when>
+          <c:when test="system"><a href="#system">System</a></c:when>
+          <c:when test="packages">
+            <a href="#system">Packages</a>
+            <nav iterate="(mapcar #'staple::ensure-package-definition packages)">
+              <a lquery='(text name) (attr :href xref)'></a>
+            </nav>
+          </c:when>
+        </nav>
+      </section>
+      <section id="toc-symbols">
+        <h2>Systems, Packages, and Symbols</h2>
+        <nav>
+          <c:when test="system"><a href="#system">System</a></c:when>
+          <c:when test="packages">
+            <!-- <a href="#system">Packages</a> -->
+             <h3>Other Systems</h3>
+            <nav iterate="(mapcar #'staple::ensure-package-definition packages)">
+              <a lquery='(text name) (attr :href xref)'></a>
+            </nav>
+          </c:when>
+          <c:when test="(rest (page-siblings page))">
+            <nav class="pages" iterate="(page-siblings page)">
+              <a href="#" lquery="(attr :href (relative-path * (** :page))) (text title)">TITLE</a>
+            </nav>
+          </c:when>
+        </nav>
+      </section>
+      <c:when test="documentation">
+        <section id="documentation" lquery="(html documentation)">
+        </section>
+      </c:when>
+      <c:when test="system">
+        <c:using value="system">
+          <section id="system">
+            <h2>System Information</h2>
+            <c:when test="version">
+              <div class="row">
+                <label for="version">Version:</label>
+                <a id="version" lquery="(text version)">version</a>
+              </div>
+            </c:when>
+            <c:when test="dependencies">
+              <div class="row">
+                <label for="dependencies">Dependencies:</label>
+                <ul id="dependencies" iterate="dependencies"><li><a class="external" lquery="(text (asdf:component-name *)) (attr :href (system-field 'homepage *))"></a></li></ul>
+              </div>
+            </c:when>
+            <c:if test="(stringp author)">
+              <c:then>
+                <div class="row" id="author">
+                  <label for="author">Author:</label>
+                  <a href="#" lquery='(attr :href (when (extract-author-email author) (format NIL "mailto:~a" (extract-author-email author)))) (text (extract-author-name author))'>author</a>
+                </div>
+              </c:then>
+              <c:elseif test="author">
+                <div class="row" id="author">
+                  <label for="author">Authors:</label>
+                  <ul iterate="author">
+                    <li><a href="#" lquery='(attr :href (when (extract-author-email *) (format nil "mailto:~a" (extract-author-email *)))) (text (extract-author-name *))'>author</a>
+                    </li>
+                  </ul>
+                </div>
+              </c:elseif>
+            </c:if>
+            <c:when test="license">
+              <div class="row">
+                <label for="license">License:</label>
+                <a id="license" href="#" lquery="(attr :href license-link) (text license)">license</a>
+              </div>
+            </c:when>
+            <c:when test="homepage">
+              <div class="row">
+                <label for="homepage">Homepage:</label>
+                <a id="homepage" href="#" lquery="(attr :href homepage) (text homepage)">http://example.com</a>
+              </div>
+            </c:when>
+            <c:when test="bug-tracker">
+              <div class="row">
+                <label for="bug-tracker">Bug Tracker:</label>
+                <a id="bug-tracker" href="#" lquery="(attr :href bug-tracker) (text bug-tracker)">http://example.com</a>
+              </div>
+            </c:when>
+            <c:when test="source-control">
+              <div class="row">
+                <label for="sources">Sources:</label>
+                <a id="sources" href="#" lquery="(attr :href source-control) (text source-control)">http://example.com</a>
+              </div>
+            </c:when>
+          </section>
+        </c:using>
+      </c:when>
+      <c:when test="packages">
+        <section id="index">
+          <h2>Definition Index</h2>
+          <ul iterate="(mapcar #'staple::ensure-package-definition packages)">
+            <li>
+              <article class="definition package" lquery="(attr :id id)">
+                <header>
+                  <h3>
+                    <a href="#" lquery="(attr :href xref) (text name)">FOO</a>
+                  </h3>
+                  <ul class="nicknames" iterate="nicknames">
+                    <li lquery="(text *)">CL-FOO</li>
+                  </ul>
+                  <c:when test="source-link">
+                    <a class="source-link" href="#" lquery="(attr :href source-link)">Source</a>
+                  </c:when>
+                </header>
+                <div class="docstring" lquery="(html formatted-documentation)">Docstring</div>
+                <ul class="definitions" iterate="definitions">
+                  <li>
+                    <article class="definition" lquery="(add-class (string-downcase type)) (add-class (when (typep * 'definitions:callable) (string-downcase :callable)))  (attr :id id)">
+                      <header>
+                        <span class="visibility" lquery="(text visibility)">visibility</span>
+                        <span class="type" lquery="(text type)">type</span>
+                        <h4 class="name">
+                          <a href="#" lquery="(attr :href xref) (text designator)">name</a>
+                        </h4>
+                        <ul class="qualifiers" iterate="qualifiers">
+                          <li class="qualifier" lquery="(text *)">qualifier</li>
+                        </ul>
+                        <ul class="arguments" iterate="(purify-arglist arguments)">
+                          <c:if test="(listp *)">
+                            <c:then>
+                              <ul class="arguments" iterate="*">
+                                <li class="argument" lquery="(text *) (add-class (when (find * (symbol-value 'lambda-list-keywords)) :lambda-list-keyword))">argument</li>
+                              </ul>
+                            </c:then>
+                            <c:else>
+                              <li class="argument" lquery="(text *) (add-class (when (find * (symbol-value 'lambda-list-keywords)) :lambda-list-keyword))">argument</li>
+                            </c:else>
+                          </c:if>
+                        </ul>
+                        <c:when test="source-link">
+                          <a class="source-link" href="#" lquery="(attr :href source-link)">Source</a>
+                        </c:when>
+                      </header>
+                      <div class="docstring" lquery="(html formatted-documentation)">Docstring</div>
+                    </article>
+                  </li>
+                </ul>
+              </article>
+            </li>
+          </ul>
+        </section>
+      </c:when>
+    </article>
+    <script lquery='(text (read-file (asdf:system-relative-pathname :staple "default/default.js")))'></script>
+  </body>
+</html>

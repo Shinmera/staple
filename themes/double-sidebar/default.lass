@@ -1,0 +1,170 @@
+(html
+ (body
+  :margin 0 auto 0 auto
+  :padding 20px
+  :max-width 1024px
+  :font-family sans-serif
+  :font-size 14pt
+  :overflow-y scroll
+  (a
+   :text-decoration none)
+  (a[href]
+   :color (hex 0055AA))
+  ((:and a[href] :hover)
+   :color (hex 0088EE))
+  (pre
+   :background (hex FAFAFA)
+   :border 1px solid (hex DDDDDD)
+   :padding 0.75em
+   :overflow-x auto
+   (>code
+    (a[href]
+     :color (hex 223388))))))
+
+(article.project
+ (h1
+  :font-size 1.7em)
+ ((:or h1 h2 h3 h4 h5 h6)
+   :margin 0.2em 0 0.1em 0
+   :text-indent 1em)
+ (>header
+  :text-align center
+  (img.logo
+   :display block
+   :margin auto
+   :max-height 170px)
+  (h1
+   :display inline-block
+   :text-indent 0
+   :font-size 2.5em)
+  (.version
+   :vertical-align bottom)
+  (.languages
+   :margin-top -0.5em
+   :text-transform capitalize)
+  (.description
+   :margin 0)
+  (.pages
+   :margin-top 0.5em
+   :font-size 1.2em
+   :text-transform capitalize
+   (a :display inline-block
+      :padding 0 0.2em)))
+ (>section
+  :margin 1em 0 1em 0
+  (img :max-width 100%))
+ ("#index"
+  (>ul
+   :list-style none
+   :margin 0 :padding 0))
+ (.row
+  (label
+   :display inline-block
+   :min-width 8em))
+ ("#system"
+  (.row
+   :display flex)
+  ("#dependencies"
+   :display inline
+   :margin 0 :padding 0
+   (li :display inline
+       :padding 0 0.2em))
+  ("#author"
+   (label :vertical-align top)
+   (ul :display inline-block
+       :margin 0 :padding 0
+       :list-style none)))
+ ("#toc"
+  (nav>*
+   :margin-left 1em
+   :display block))
+ ("#toc-symbols"
+  (nav>*
+   :margin-left 1em
+   :display block)))
+
+(article.definition
+ :margin 1em 0 0 0
+ (>header
+  ((:or h1 h2 h3 h4 h5 h6)
+   :text-indent 0
+   :display inline-block)
+  (ul
+   :display inline-block
+   :list-style none
+   :margin 0 :padding 0
+   (li :display inline-block
+       :padding 0 0.2em 0 0))
+  (.visibility
+   :display none)
+  ((:or .visibility .type)
+   :text-transform lowercase)
+  (.source-link
+   :visibility hidden
+   :float right)
+  ((:and .source-link :after)
+   :visibility visible
+   :content "[SRC]"))
+ (.docstring
+  :margin 0 0 0 1em
+  (pre :font-size 0.8em
+       :white-space pre-wrap)))
+
+(.definition.package
+ (>header
+  (ul.nicknames
+   :display inline-block
+   :list-style none
+   :margin 0
+   :padding 0 0 0 1em
+   (li :display inline))
+  ((:and ul.nicknames :before) :content "(")
+  ((:and ul.nicknames :after) :content ")"))
+ (ul.definitions
+  :margin 0
+  :list-style none
+  :padding 0 0 0 0.5em))
+
+((:and .definition (:or .callable .type))
+ (>header
+  ((:and .name :before) :content "(" :font-weight normal)
+  ((:and .arguments :after) :content ")")
+  (.arguments
+   ((:and .arguments :before) :content "(")
+   (.argument :padding 0)
+   (.argument.lambda-list-keyword :color (hex 991155)))))
+
+(.definition
+ (li>mark
+  :background none
+  :border-left 0.3em solid (hex 0088EE)
+  :padding-left 0.3em
+  :display block))
+
+(:media "(min-width: 1300px)"
+        ((html body)
+         :padding-left 31em)
+        (article.project
+         ("#toc"
+          :margin 0
+          :position fixed
+          :left 10em :top 0 :bottom 0
+          :width 15em
+          :overflow-y auto
+          :background (hex F0F0F0)
+          :border-left 1px solid (hex A0A0A0)
+          :border-right 1px solid (hex A0A0A0))
+         ("#toc-systems"
+          :margin 0
+          :position fixed
+          :left 0 :top 0 :bottom 0
+          :width 10em
+          :display flex
+          :flex-direction column
+          :overflow-y auto
+          :background (hex F0F0F0)
+          :border-left 1px solid (hex A0A0A0) 
+          :border-right 1px solid (hex A0A0A0)
+          (nav
+           :display flex
+           :flex-direction column))))
