@@ -50,6 +50,26 @@ However, if you change any of these options, you will likely want to persist the
 
 You may also be interested in [Staple's server system](staple-server/), which gives you a live documentation browser for all systems currently loaded in your Lisp image.
 
+## Templates 
+
+Included templates currently reside in the `./themes/` directory.
+
+To use one of the included templates simply pass the relevant file as an argument to the parameters of the `generate` function. Here's an example:
+
+```common-lisp
+    (staple:generate :my-system :if-exists :supersede :template  
+        #P"./themes/double-sidebar/double-sidebar.ctml")
+```
+### Default
+
+The default template will produce a left side panel with a Table Of Contents.
+
+### Double Left Side Panel
+
+This template will produce a double left side panel where the left most side panel will have a list of systems, and the second side panel will have the regular Table Of Contents. 
+
+In addition, the Table of Contents will list each available symbol under each package in the current system.
+
 ## Concepts
 Staple organises itself around `project`s and `page`s. Every mechanism in it is an extension of those two concepts.
 
