@@ -33,8 +33,29 @@
           </nav>
         </c:when>
       </header>
-      <section id="documentation" lquery="(html documentation)">
+      <section id="toc">
+        <h2>Table of Contents</h2>
+        <nav>
+          <a href="#project">Top</a>
+          <c:when test="documentation">
+            <a href="#documentation">Documentation</a>
+            <nav iterate='(clss:select "[id]" (plump:parse documentation))'>
+              <a lquery='(text (plump:text *)) (attr :href (format NIL "#~a" (plump:attribute * "id")))'></a>
+            </nav>
+          </c:when>
+          <c:when test="system"><a href="#system">System</a></c:when>
+          <c:when test="packages">
+            <a href="#system">Packages</a>
+            <nav iterate="(mapcar #'staple::ensure-package-definition packages)">
+              <a lquery='(text name) (attr :href xref)'></a>
+            </nav>
+          </c:when>
+        </nav>
       </section>
+      <c:when test="documentation">
+        <section id="documentation" lquery="(html documentation)">
+        </section>
+      </c:when>
       <c:when test="system">
         <c:using value="system">
           <section id="system">

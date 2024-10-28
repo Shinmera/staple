@@ -73,7 +73,11 @@
    (label :vertical-align top)
    (ul :display inline-block
        :margin 0 :padding 0
-       :list-style none))))
+       :list-style none)))
+ ("#toc"
+  (nav>*
+   :margin-left 1em
+   :display block)))
 
 (article.definition
  :margin 1em 0 0 0
@@ -132,3 +136,16 @@
   :border-left 0.3em solid (hex 0088EE)
   :padding-left 0.3em
   :display block))
+
+(:media "(min-width: 1300px)"
+        ((html body)
+         :padding-left 16em)
+        (article.project
+         ("#toc"
+          :margin 0
+          :position fixed
+          :left 0 :top 0 :bottom 0
+          :width 15em
+          :overflow-y auto
+          :background (hex F0F0F0)
+          :border-right 1px solid (hex A0A0A0))))
