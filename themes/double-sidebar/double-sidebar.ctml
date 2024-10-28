@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8" />
     <title lquery='(text (format NIL "~:(~a~)" title))'>Title</title>
-    <style lquery='(text (read-file (asdf:system-relative-pathname :staple "default/default.css")))'></style>
+    <style lquery='(text (read-file (asdf:system-relative-pathname :staple "themes/double-sidebar/double-sidebar.css")))'></style>
   </head>
   <body>
     <article class="project">
@@ -188,6 +188,6 @@
         </section>
       </c:when>
     </article>
-    <script lquery='(text (read-file (asdf:system-relative-pathname :staple "default/default.js")))'></script>
+    <script lquery='(text (read-file (asdf:system-relative-pathname :staple "themes/double-sidebar/default.js")))'></script>
   </body>
 </html>
