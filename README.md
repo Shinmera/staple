@@ -274,6 +274,7 @@ on:
   push:
     branches:
       - main
+      - master
 permissions:
   pages: write
   id-token: write
