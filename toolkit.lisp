@@ -347,7 +347,8 @@
 
 (defun purify-arglist (arglist)
   (loop with part = '&required
-        for arg in arglist
+        for cons on arglist
+        for arg = (car cons)
         do (cond ((find arg lambda-list-keywords)
                   (setf part arg)))
         collect (case part
@@ -358,4 +359,7 @@
                   (&optional (unlist arg))
                   (&key (unlist (unlist arg)))
                   ((&whole &environment &aux))
-                  (T arg))))
+                  (T arg))
+        unless (consp (cdr cons))
+        collect '&rest))
+
