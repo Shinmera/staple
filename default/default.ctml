@@ -39,7 +39,7 @@
           <a href="#project">Top</a>
           <c:when test="documentation">
             <a href="#documentation">Documentation</a>
-            <nav iterate='(clss:select "[id]" (plump:parse documentation))'>
+            <nav iterate='(clss:select "[id]" (ensure-parsed documentation))'>
               <a lquery='(text (plump:text *)) (attr :href (format NIL "#~a" (plump:attribute * "id")))'></a>
             </nav>
           </c:when>

@@ -345,6 +345,11 @@
 (defun unlist (listish)
   (if (listp listish) (first listish) listish))
 
+(defun ensure-parsed (thing)
+  (etypecase thing
+    (plump-dom:node thing)
+    ((or string pathname) (plump:parse thing))))
+
 (defun purify-arglist (arglist)
   (loop with part = '&required
         for cons on arglist
