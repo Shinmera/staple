@@ -365,6 +365,6 @@
                   (&key (unlist (unlist arg)))
                   ((&whole &environment &aux))
                   (T arg))
-        unless (consp (cdr cons))
+        unless (or (null (cdr cons)) (consp (cdr cons)))
         collect '&rest))
 
