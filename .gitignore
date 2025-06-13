@@ -1,3 +1,6 @@
 staple.run
 staple.o
 staple.exe
+.qlot/
+qlfile
+qlfile*
