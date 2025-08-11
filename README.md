@@ -49,7 +49,7 @@ This page simply copies the input to the output verbatim, providing a way to def
 Compiled pages use Staple's `compile-source` mechanism, which translates source in some other format like Markdown into HTML. By default only text and HTML itself is supported, but you can trivially add other formats, or use the `staple-markdown` system to add Markdown support automatically.
 
 #### `templated-page`
-This kind of page uses the Clip system to perform a template expansion. If you want to use this kind of page, you should subclass it and add a method on `template-data` to supply the necessary data to the Clip template. See [Clip](https://shinmera.github.io/clip) for further information.
+This kind of page uses the Clip system to perform a template expansion. If you want to use this kind of page, you should subclass it and add a method on `template-data` to supply the necessary data to the Clip template. See [Clip](https://shinmera.com/docs/clip) for further information.
 
 #### `definitions-index-page`
 Often times you'll want to include a definitions index alongside the main documentation content. THis page adds additional support for this by including a list of `packages` to define, and several methods to aid in formatting the definitions, such as `format-documentation`, `resolve-source-link`, `definition-wanted-p`, and `definitions`. Note that this is a subclass of `templated-page`, meaning that if you want a definitions index, but don't want to use Clip, you'll need to do some work of your own.
@@ -183,7 +183,7 @@ Due to the `append` method-combination and the way `getf` works, this will overr
 This adds a method that is called once the generation has completed, and simply prints a status message saying as much. You can use all the usual tricks of the standard method combination to customise things to your heart's content.
 
 ### Custom Templates
-Writing a custom template is mostly a question of writing an HTML document that you want, and then filling in the necessary Clip attributes to add the data in the right spots. Figuring this out should be pretty trivial if you have a look at the existing [default template](https://github.com/Shinmera/staple/tree/master/default/default.ctml) and the [Clip documentation](https://shinmera.github.io/clip)
+Writing a custom template is mostly a question of writing an HTML document that you want, and then filling in the necessary Clip attributes to add the data in the right spots. Figuring this out should be pretty trivial if you have a look at the existing [default template](https://shinmera.com/project/staple/tree/master/default/default.ctml) and the [Clip documentation](https://shinmera.com/docs/clip)
 
 ## An Example Customisation File
 This is a simple example customisation file that changes the inferred project to use a custom markup syntax and package list.
@@ -206,7 +206,7 @@ This is a simple example customisation file that changes the inferred project to
 ```
 
 ## Custom Global Definitions
-Staple has support for documenting arbitrary definition types aside from the standard top level definition types that Common Lisp exposes. This is done through the [Definitions](https://shinmera.github.io/definitions) library. Please see its documentation on how to [add custom definitions](https://shinmera.github.io/definitions/#extending_definitions). You can write this extra glue code into your `staple.ext.lisp` file along with all the other Staple customisations. When a new definition type is defined, Staple will automatically try to find it and include it in your `simple-page`s. If you would like to be more selective, see `definition-wanted-p` above.
+Staple has support for documenting arbitrary definition types aside from the standard top level definition types that Common Lisp exposes. This is done through the [Definitions](https://shinmera.com/docs/definitions) library. Please see its documentation on how to [add custom definitions](https://shinmera.com/docs/definitions/#extending_definitions). You can write this extra glue code into your `staple.ext.lisp` file along with all the other Staple customisations. When a new definition type is defined, Staple will automatically try to find it and include it in your `simple-page`s. If you would like to be more selective, see `definition-wanted-p` above.
 
 Also of interest are `definition-id`, `definition-order`, and `definition-importance`, which control the page anchors and order of appearance of definitions in an index.
 

@@ -4,9 +4,9 @@
   :author "Yukari Hafner <shinmera@tymoon.eu>"
   :maintainer "Yukari Hafner <shinmera@tymoon.eu>"
   :description "A tool to generate documentation about Lisp projects through an HTML template."
-  :homepage "https://Shinmera.github.io/staple/"
-  :bug-tracker "https://github.com/Shinmera/staple/issues"
-  :source-control (:git "https://github.com/Shinmera/staple.git")
+  :homepage "https://shinmera.com/docs/staple/"
+  :bug-tracker "https://shinmera.com/project/staple/issues"
+  :source-control (:git "https://shinmera.com/project/staple.git")
   :serial T
   :components ((:file "package")
                (:file "toolkit")
